@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TeamUp & SocialFinding — Sports & Activity Platform</title>
+
+  <!-- Google Fonts: Inter with 400, 600, 700, and 900 weights for Wise design language -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            display: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          },
+          colors: {
+            // Brand & Accent (Wise Green)
+            primary: '#9fe870',
+            'primary-active': '#cdffad',
+            'primary-neutral': '#c5edab',
+            'primary-pale': '#e2f6d5',
+
+            // Surface
+            canvas: '#ffffff',
+            'canvas-soft': '#e8ebe6',
+
+            // Text
+            ink: '#0e0f0c',
+            'ink-deep': '#163300',
+            body: '#454745',
+            mute: '#868685',
+
+            // Semantic
+            positive: '#2ead4b',
+            'positive-deep': '#054d28',
+            warning: '#ffd11a',
+            'warning-deep': '#b86700',
+            'warning-content': '#4a3b1c',
+            negative: '#d03238',
+            'negative-deep': '#a72027',
+            'negative-darkest': '#a7000d',
+            'negative-bg': '#320707',
+
+            // Tertiary accents
+            'accent-orange': '#ffc091',
+            'accent-cyan': '#38c8ff',
+          },
+          borderRadius: {
+            'card': '24px',
+            'pill': '9999px',
+            'input': '12px',
+          },
+          spacing: {
+            'card': '24px',
+            'band': '48px',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Leaflet CSS & JS for Interactive Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #e8ebe6;
+      color: #0e0f0c;
+      font-feature-settings: "calt";
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #e8ebe6;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #c5cac2;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #868685;
+    }
+
+    /* Leaflet Map Styling */
+    #map {
+      height: 100%;
+      min-height: 480px;
+      border-radius: 24px;
+      z-index: 10;
+    }
+    .leaflet-popup-content-wrapper {
+      border-radius: 16px;
+      padding: 6px;
+      border: 1px solid #0e0f0c;
+      box-shadow: none;
+    }
+    .leaflet-container {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-canvas-soft text-ink antialiased min-h-screen flex flex-col">
+
+  <!-- TOP NAVIGATION BAR (nav-bar: canvas white, text ink, 24px pill elements) -->
+  <header class="sticky top-0 z-50 bg-canvas border-b border-[#d8dcd5]">
+    <div class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('explore')">
+        <div class="w-10 h-10 rounded-[12px] bg-ink flex items-center justify-center text-primary">
+          <i data-lucide="play" class="w-5 h-5 fill-current"></i>
+        </div>
+        <div>
+          <span class="text-xl font-[900] tracking-tight text-ink block leading-tight">teamup</span>
+          <span class="text-[11px] font-semibold text-mute tracking-wider uppercase">Social Finding</span>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex items-center space-x-1 bg-canvas-soft p-1.5 rounded-[24px]">
+        <button onclick="switchTab('explore')" id="tab-btn-explore" class="tab-btn active px-5 py-2.5 text-sm font-semibold rounded-[24px] transition-all flex items-center space-x-2 bg-canvas text-ink shadow-sm">
+          <i data-lucide="compass" class="w-4 h-4"></i>
+          <span>Explore Games</span>
+        </button>
+        <button onclick="switchTab('teams')" id="tab-btn-teams" class="tab-btn px-5 py-2.5 text-sm font-semibold rounded-[24px] transition-all flex items-center space-x-2 text-body hover:text-ink">
+          <i data-lucide="shield" class="w-4 h-4"></i>
+          <span>Clubs & Squads</span>
+        </button>
+        <button onclick="switchTab('chat')" id="tab-btn-chat" class="tab-btn px-5 py-2.5 text-sm font-semibold rounded-[24px] transition-all flex items-center space-x-2 text-body hover:text-ink relative">
+          <i data-lucide="message-square" class="w-4 h-4"></i>
+          <span>Chat</span>
+          <span class="w-2 h-2 rounded-full bg-primary ring-2 ring-canvas absolute top-2.5 right-3"></span>
+        </button>
+        <button onclick="switchTab('profile')" id="tab-btn-profile" class="tab-btn px-5 py-2.5 text-sm font-semibold rounded-[24px] transition-all flex items-center space-x-2 text-body hover:text-ink">
+          <i data-lucide="user" class="w-4 h-4"></i>
+          <span>Sports Passport</span>
+        </button>
+      </nav>
+
+      <!-- Right Header Controls -->
+      <div class="flex items-center space-x-3">
+        <!-- Emergency Substitute Trigger (Destructive/Negative status tone from semantic palette) -->
+        <button onclick="triggerEmergencyAlert()" class="hidden sm:flex items-center space-x-2 px-3.5 py-2 bg-negative-bg text-white hover:bg-negative rounded-full text-xs font-semibold transition">
+          <span class="w-2 h-2 rounded-full bg-warning animate-pulse"></span>
+          <span>1 Sub Needed Nearby</span>
+        </button>
+
+        <!-- Primary CTA: Wise Green 24px Pill -->
+        <button onclick="openCreateModal()" class="px-6 py-2.5 bg-primary hover:bg-primary-active text-ink text-sm font-semibold rounded-[24px] transition flex items-center space-x-2">
+          <i data-lucide="plus" class="w-4 h-4 stroke-[2.5]"></i>
+          <span>Host Game</span>
+        </button>
+
+        <!-- User Quick Profile -->
+        <div onclick="switchTab('profile')" class="flex items-center space-x-2.5 pl-2 cursor-pointer group">
+          <div class="relative">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces" class="w-10 h-10 rounded-full object-cover border-2 border-ink" alt="Avatar">
+            <span class="absolute -bottom-1 -right-1 bg-primary text-ink text-[10px] font-black px-1.5 py-0.2 rounded-full border border-ink">98%</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- EMERGENCY BROADCAST ALERT BANNER (Negative palette from design.md) -->
+  <div id="emergency-banner" class="bg-negative-bg border-b border-negative text-white px-4 py-3 hidden">
+    <div class="max-w-[1240px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs sm:text-sm">
+      <div class="flex items-center space-x-3">
+        <span class="px-2.5 py-0.5 bg-negative text-white rounded-full font-bold text-[11px] uppercase tracking-wider">Urgent</span>
+        <span class="font-medium">"North District FC" needs 1 goalkeeper tonight at 7:30 PM (1.4 km away).</span>
+      </div>
+      <div class="flex items-center space-x-3">
+        <button onclick="quickJoinEmergency()" class="px-4 py-1.5 bg-primary hover:bg-primary-active text-ink font-semibold rounded-[24px] text-xs transition">I can play!</button>
+        <button onclick="dismissEmergency()" class="text-mute hover:text-white p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO BAND (hero-band: canvas-soft background, Wise Sans 900 weight display, split layout) -->
+  <section id="hero-section" class="bg-canvas-soft border-b border-[#d8dcd5] py-12 md:py-16">
+    <div class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        
+        <!-- Left: Headline in Wise Sans 900 weight & Lead paragraph -->
+        <div class="lg:col-span-7 space-y-5">
+          <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-primary-pale text-positive-deep rounded-full text-xs font-semibold">
+            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+            <span>Verified local sports community</span>
+          </div>
+
+          <!-- Display-xl typography: 64px weight 900 -->
+          <h1 class="text-4xl sm:text-5xl lg:text-[60px] font-[900] text-ink leading-[1.05] tracking-tight">
+            Move together.<br>Play any sport.
+          </h1>
+
+          <p class="text-lg sm:text-xl text-body leading-relaxed max-w-xl">
+            Find games near you, fill empty roster spots with reliable players, and play without the hassle of unorganized group chats.
+          </p>
+
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <button onclick="document.getElementById('search-input').focus()" class="px-6 py-3.5 bg-primary hover:bg-primary-active text-ink font-semibold rounded-[24px] text-sm transition">
+              Explore Active Games
+            </button>
+            <button onclick="switchTab('teams')" class="px-6 py-3.5 bg-canvas hover:bg-white text-ink border border-ink font-semibold rounded-[24px] text-sm transition">
+              Browse Local Squads
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Signature Activity-Finder Card (Styled after Wise Currency Converter card: pure white, 1px ink border, 24px radius) -->
+        <div class="lg:col-span-5">
+          <div class="bg-canvas p-6 sm:p-7 rounded-[24px] border border-ink shadow-sm space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-canvas-soft">
+              <span class="text-xs font-bold uppercase tracking-wider text-mute">Quick Match Finder</span>
+              <span class="text-xs font-semibold text-positive-deep bg-primary-pale px-2.5 py-0.5 rounded-full">Real-time RSVP</span>
+            </div>
+
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-mute uppercase mb-1">Sport / Activity</label>
+                <div class="relative">
+                  <select id="hero-sport-select" onchange="syncHeroSport(this.value)" class="w-full px-4 py-3 bg-canvas-soft border border-ink rounded-[12px] text-sm font-semibold text-ink focus:outline-none">
+                    <option value="all">All Activities & Sports</option>
+                    <option value="Soccer">⚽ Soccer / Football</option>
+                    <option value="Basketball">🏀 Basketball</option>
+                    <option value="Badminton">🏸 Badminton</option>
+                    <option value="Pickleball">🏓 Pickleball / Tennis</option>
+                    <option value="Running">🏃 Running & Trail</option>
+                    <option value="Board Games">🎲 Board Games & Hobbies</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-mute uppercase mb-1">Max Distance</label>
+                <div class="flex items-center justify-between px-4 py-3 bg-canvas-soft border border-ink rounded-[12px]">
+                  <span id="hero-distance-label" class="text-sm font-semibold text-ink">Within 10 km</span>
+                  <input type="range" min="1" max="25" value="10" oninput="syncHeroRadius(this.value)" class="w-32 accent-ink cursor-pointer">
+                </div>
+              </div>
+            </div>
+
+            <button onclick="scrollToDiscovery()" class="w-full py-3.5 bg-primary hover:bg-primary-active text-ink font-semibold rounded-[24px] text-sm transition flex items-center justify-center space-x-2">
+              <span>Find Matches Nearby</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- ================= VIEW 1: EXPLORE & MAP DISCOVERY ================= -->
+    <section id="view-explore" class="space-y-6">
+      
+      <!-- Search & Filters Container (card-content: white canvas, 24px radius, sits on sage) -->
+      <div class="bg-canvas p-6 rounded-[24px] border border-[#d8dcd5] space-y-4">
+        
+        <div class="flex flex-col lg:flex-row gap-3">
+          
+          <!-- Search Bar with 1px border -->
+          <div class="flex-1 relative">
+            <i data-lucide="search" class="w-5 h-5 absolute left-4 top-3 text-mute"></i>
+            <input id="search-input" oninput="applyFilters()" type="text" placeholder="Search by activity, court name, or neighborhood..." class="w-full pl-11 pr-4 py-2.5 bg-canvas-soft border border-[#d0d4cd] rounded-[12px] text-sm text-ink placeholder:text-mute focus:border-ink focus:outline-none transition">
+          </div>
+
+          <!-- Filters -->
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Sport Selector -->
+            <select id="filter-sport" onchange="applyFilters()" class="bg-canvas-soft border border-[#d0d4cd] px-4 py-2.5 rounded-[12px] text-sm font-semibold text-ink focus:border-ink focus:outline-none">
+              <option value="all">All Sports</option>
+              <option value="Soccer">⚽ Soccer</option>
+              <option value="Basketball">🏀 Basketball</option>
+              <option value="Badminton">🏸 Badminton</option>
+              <option value="Pickleball">🏓 Pickleball</option>
+              <option value="Running">🏃 Running</option>
+              <option value="Board Games">🎲 Board Games</option>
+            </select>
+
+            <!-- Skill Level -->
+            <select id="filter-skill" onchange="applyFilters()" class="bg-canvas-soft border border-[#d0d4cd] px-4 py-2.5 rounded-[12px] text-sm font-semibold text-ink focus:border-ink focus:outline-none">
+              <option value="all">All Levels</option>
+              <option value="Beginner">Beginner Friendly</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced Only</option>
+            </select>
+
+            <!-- View Toggle -->
+            <div class="flex items-center bg-canvas-soft p-1 rounded-[12px] border border-[#d0d4cd]">
+              <button onclick="setViewMode('split')" id="btn-view-split" title="Split Screen" class="p-2 rounded-[8px] bg-canvas text-ink shadow-sm"><i data-lucide="columns-2" class="w-4 h-4"></i></button>
+              <button onclick="setViewMode('list')" id="btn-view-list" title="List View" class="p-2 rounded-[8px] text-mute hover:text-ink"><i data-lucide="list" class="w-4 h-4"></i></button>
+              <button onclick="setViewMode('map')" id="btn-view-map" title="Map View" class="p-2 rounded-[8px] text-mute hover:text-ink"><i data-lucide="map" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Secondary Filter Controls -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-body pt-3 border-t border-canvas-soft">
+          <div class="flex items-center space-x-3">
+            <span class="font-semibold text-ink">Distance:</span>
+            <input id="radius-slider" oninput="updateRadius(this.value)" type="range" min="1" max="25" value="10" class="w-32 accent-ink cursor-pointer">
+            <span id="radius-display" class="font-semibold text-ink bg-canvas-soft px-2.5 py-1 rounded-full">Within 10 km</span>
+          </div>
+          <div class="flex items-center space-x-4">
+            <span>Matches available: <strong id="match-count" class="text-ink font-bold">6 games</strong></span>
+            <button onclick="resetFilters()" class="text-ink font-semibold underline hover:text-mute">Reset Filters</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- MAIN CONTENT SPLIT (Event Cards Feed + Leaflet Map) -->
+      <div id="content-container" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left Column: Event Cards Feed -->
+        <div id="col-list" class="lg:col-span-7 space-y-4">
+          <div id="events-grid" class="space-y-4">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Right Column: Leaflet Map Container -->
+        <div id="col-map" class="lg:col-span-5 sticky top-24">
+          <div class="bg-canvas p-4 rounded-[24px] border border-[#d8dcd5] shadow-sm">
+            <div class="flex items-center justify-between mb-3 px-1">
+              <span class="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="map-pin" class="w-4 h-4 text-ink"></i>
+                Local Game Radar
+              </span>
+              <span class="text-xs text-mute">Interactive Pins</span>
+            </div>
+            <div id="map"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ================= VIEW 2: TEAMS & CLUBS ================= -->
+    <section id="view-teams" class="space-y-6 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-3xl font-[900] text-ink tracking-tight">Local Clubs & Squads</h2>
+          <p class="text-sm text-body mt-1">Join persistent squads that organize regular weekly matches and leagues.</p>
+        </div>
+        <button onclick="showToast('Squad creation wizard ready in next release')" class="px-6 py-2.5 bg-ink hover:bg-[#252822] text-canvas font-semibold rounded-[24px] text-sm transition flex items-center space-x-2">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Create a Squad</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Featured Squad: Polarity-flipped dark card (card-feature-dark from design.md) -->
+        <div class="bg-ink text-canvas rounded-[24px] p-6 flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="bg-primary text-ink text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Featured Club</span>
+              <span class="text-xs font-mono text-primary">14 / 18 Players</span>
+            </div>
+            <div class="w-12 h-12 rounded-[12px] bg-canvas text-ink font-[900] text-xl flex items-center justify-center mb-3">
+              NT
+            </div>
+            <h3 class="text-2xl font-[900] text-primary tracking-tight">North District Thunder</h3>
+            <p class="text-xs text-canvas-soft mt-2 leading-relaxed">
+              Amateur 7v7 Sunday League. Looking for reliable midfielders and an extra goalkeeper.
+            </p>
+          </div>
+
+          <div class="space-y-2 text-xs bg-[#1a1c18] p-3.5 rounded-[12px] border border-[#2b2e27]">
+            <div class="flex justify-between"><span class="text-mute">Captain:</span> <strong class="text-canvas">David Ross</strong></div>
+            <div class="flex justify-between"><span class="text-mute">Home Pitch:</span> <span>Riverside Turf Park</span></div>
+            <div class="flex justify-between"><span class="text-mute">League Record:</span> <span class="font-bold text-primary">8W - 2D - 1L</span></div>
+          </div>
+
+          <button onclick="showToast('Roster request sent to Captain David!')" class="w-full py-3 bg-primary hover:bg-primary-active text-ink font-semibold rounded-[24px] text-xs transition">
+            Request Roster Invite
+          </button>
+        </div>
+
+        <!-- Squad 2: Pure White Card (card-content) -->
+        <div class="bg-canvas rounded-[24px] border border-[#d8dcd5] p-6 flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="bg-canvas-soft text-ink text-xs font-semibold px-3 py-1 rounded-full">🏸 Badminton Club</span>
+              <span class="text-xs font-mono text-mute">8 / 10 Players</span>
+            </div>
+            <div class="w-12 h-12 rounded-[12px] bg-canvas-soft text-ink font-[900] text-xl flex items-center justify-center mb-3 border border-[#d0d4cd]">
+              SS
+            </div>
+            <h3 class="text-xl font-[900] text-ink tracking-tight">Shuttlecock Slayers</h3>
+            <p class="text-xs text-body mt-2 leading-relaxed">
+              Mid-to-advanced doubles practice every Tuesday and Thursday evening.
+            </p>
+          </div>
+
+          <div class="space-y-2 text-xs bg-canvas-soft p-3.5 rounded-[12px]">
+            <div class="flex justify-between"><span class="text-mute">Captain:</span> <strong class="text-ink">Linda Chen</strong></div>
+            <div class="flex justify-between"><span class="text-mute">Venue:</span> <span>Olympic Sports Hall</span></div>
+            <div class="flex justify-between"><span class="text-mute">Skill:</span> <span class="font-bold text-ink">Intermediate+</span></div>
+          </div>
+
+          <!-- Secondary Button (button-secondary: canvas-soft background) -->
+          <button onclick="showToast('Roster request sent to Linda!')" class="w-full py-3 bg-canvas-soft hover:bg-[#d8dcd5] text-ink font-semibold rounded-[24px] text-xs transition">
+            Request Roster Invite
+          </button>
+        </div>
+
+        <!-- Squad 3: Soft Green Card (card-feature-green from design.md) -->
+        <div class="bg-primary-pale rounded-[24px] border border-primary-neutral p-6 flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="bg-canvas text-ink text-xs font-semibold px-3 py-1 rounded-full">🎲 Tabletop Collective</span>
+              <span class="text-xs font-mono text-positive-deep">24 Members</span>
+            </div>
+            <div class="w-12 h-12 rounded-[12px] bg-canvas text-ink font-[900] text-xl flex items-center justify-center mb-3">
+              D20
+            </div>
+            <h3 class="text-xl font-[900] text-ink tracking-tight">Roll & Strategy Club</h3>
+            <p class="text-xs text-body mt-2 leading-relaxed">
+              Casual board games, Eurogames, Catan tournaments, and D&D one-shots.
+            </p>
+          </div>
+
+          <div class="space-y-2 text-xs bg-canvas/70 p-3.5 rounded-[12px]">
+            <div class="flex justify-between"><span class="text-mute">Host:</span> <strong class="text-ink">Marcus Vance</strong></div>
+            <div class="flex justify-between"><span class="text-mute">Meetup:</span> <span>The Meeples Cafe</span></div>
+            <div class="flex justify-between"><span class="text-mute">Vibe:</span> <span class="font-bold text-positive-deep">Beginner Friendly</span></div>
+          </div>
+
+          <!-- Primary CTA Button (button-primary: Wise green) -->
+          <button onclick="showToast('Joined Roll & Strategy Club community!')" class="w-full py-3 bg-primary hover:bg-primary-active text-ink font-semibold rounded-[24px] text-xs transition">
+            Instant Join Club
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= VIEW 3: EVENT CHAT & DIRECT MESSAGING ================= -->
+    <section id="view-chat" class="space-y-6 hidden">
+      <div class="bg-canvas rounded-[24px] border border-[#d8dcd5] overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[600px]">
+        
+        <!-- Channels Sidebar -->
+        <div class="md:col-span-4 border-r border-[#d8dcd5] p-5 space-y-4 flex flex-col bg-canvas-soft/30">
+          <div class="flex items-center justify-between">
+            <h2 class="font-[900] text-base text-ink tracking-tight">Squad Messages</h2>
+            <span class="text-xs bg-canvas text-ink border border-ink px-2.5 py-0.5 rounded-full font-bold">3 Active</span>
+          </div>
+
+          <!-- Channel List -->
+          <div class="space-y-2 flex-1 overflow-y-auto">
+            
+            <!-- Channel 1 (Active) -->
+            <div onclick="selectChatChannel(1)" id="chan-1" class="chan-item p-3.5 rounded-[16px] bg-canvas border border-ink cursor-pointer transition">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-xs text-ink flex items-center gap-1.5">
+                  <span>⚽</span> 5v5 Turf Soccer (Match #102)
+                </span>
+                <span class="text-[10px] text-mute font-mono">12m</span>
+              </div>
+              <p class="text-xs text-body truncate">David: Bring both white and dark jerseys!</p>
+            </div>
+
+            <!-- Channel 2 -->
+            <div onclick="selectChatChannel(2)" id="chan-2" class="chan-item p-3.5 rounded-[16px] hover:bg-canvas border border-transparent cursor-pointer transition">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-xs text-ink flex items-center gap-1.5">
+                  <span>🏸</span> Badminton Doubles (Court 2)
+                </span>
+                <span class="text-[10px] text-mute font-mono">2h</span>
+              </div>
+              <p class="text-xs text-mute truncate">Linda: See you guys at 6:45pm.</p>
+            </div>
+
+            <!-- Channel 3 -->
+            <div onclick="selectChatChannel(3)" id="chan-3" class="chan-item p-3.5 rounded-[16px] hover:bg-canvas border border-transparent cursor-pointer transition">
+              <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center space-x-2">
+                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face" class="w-5 h-5 rounded-full" alt="avatar">
+                  <span class="font-bold text-xs text-ink">Sarah Jenkins (Captain)</span>
+                </div>
+                <span class="text-[10px] text-mute font-mono">1d</span>
+              </div>
+              <p class="text-xs text-mute truncate">Can you play this Saturday at 10am?</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Chat Conversation Area -->
+        <div class="md:col-span-8 flex flex-col h-[600px] bg-canvas">
+          
+          <!-- Conversation Header -->
+          <div class="p-5 border-b border-[#d8dcd5] flex items-center justify-between">
+            <div>
+              <h3 id="chat-title" class="font-[900] text-ink text-base tracking-tight">⚽ 5v5 Turf Soccer Match</h3>
+              <p id="chat-subtitle" class="text-xs text-mute">8 Players in room • Today at 7:00 PM • Riverside Park</p>
+            </div>
+            <!-- Tertiary button (button-tertiary: white with 1px ink border) -->
+            <button onclick="openModalForEvent(1)" class="text-xs font-semibold text-ink bg-canvas px-4 py-2 rounded-[24px] border border-ink hover:bg-canvas-soft transition">
+              Game Details
+            </button>
+          </div>
+
+          <!-- Pinned Announcement Widget (Warning semantic styling from design.md) -->
+          <div class="bg-[#fff8d6] border-b border-[#ebdca2] px-5 py-2.5 flex items-center justify-between text-xs text-warning-content">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="pin" class="w-3.5 h-3.5 text-warning-deep"></i>
+              <span><strong>Host Announcement:</strong> Field booked under 'Alex'. Meet at Turf B next to the pavilion!</span>
+            </div>
+            <span class="text-[10px] text-warning-deep font-bold uppercase tracking-wider">Pinned</span>
+          </div>
+
+          <!-- Messages Container -->
+          <div id="messages-container" class="flex-1 p-5 overflow-y-auto space-y-4 bg-canvas-soft/20">
+            
+            <!-- Message 1 -->
+            <div class="flex items-start space-x-3">
+              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces" class="w-8 h-8 rounded-full border border-ink" alt="Avatar">
+              <div class="space-y-1">
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs font-bold text-ink">David Ross (Host)</span>
+                  <span class="text-[10px] text-mute font-mono">6:12 PM</span>
+                </div>
+                <div class="bg-canvas p-3.5 rounded-[16px] rounded-tl-none border border-[#d8dcd5] text-xs text-body max-w-md leading-relaxed">
+                  Hey everyone! We have 8 confirmed so far. 2 spots left if anyone has a friend who wants to join!
+                </div>
+              </div>
+            </div>
+
+            <!-- Message 2 -->
+            <div class="flex items-start space-x-3">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=faces" class="w-8 h-8 rounded-full border border-ink" alt="Avatar">
+              <div class="space-y-1">
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs font-bold text-ink">Elena Rostova</span>
+                  <span class="text-[10px] text-mute font-mono">6:15 PM</span>
+                </div>
+                <div class="bg-canvas p-3.5 rounded-[16px] rounded-tl-none border border-[#d8dcd5] text-xs text-body max-w-md leading-relaxed">
+                  I'm bringing the size 5 match ball and a pump just in case. What jersey colors should we wear?
+                </div>
+              </div>
+            </div>
+
+            <!-- In-Chat Poll Card -->
+            <div class="mx-auto max-w-sm bg-canvas border border-ink p-4 rounded-[16px] space-y-2.5">
+              <div class="flex items-center justify-between text-xs font-bold text-ink">
+                <span>Quick Poll: Jersey Colors</span>
+                <span class="text-[10px] bg-canvas-soft px-2 py-0.5 rounded-full text-mute">5 votes</span>
+              </div>
+              <div class="space-y-1.5 text-xs">
+                <button onclick="votePoll(this)" class="w-full text-left px-3.5 py-2 bg-canvas-soft hover:bg-primary-pale rounded-[10px] border border-[#d8dcd5] flex justify-between items-center transition">
+                  <span>⚪ White vs Dark</span>
+                  <strong class="text-ink">4 votes (80%)</strong>
+                </button>
+                <button onclick="votePoll(this)" class="w-full text-left px-3.5 py-2 bg-canvas-soft hover:bg-primary-pale rounded-[10px] border border-[#d8dcd5] flex justify-between items-center transition">
+                  <span>🟡 Pinnies / Bibs provided</span>
+                  <strong class="text-ink">1 vote (20%)</strong>
+                </button>
+              </div>
+            </div>
+
+            <!-- Outgoing message (You) -->
+            <div class="flex items-start justify-end space-x-3">
+              <div class="space-y-1 text-right">
+                <div class="flex items-center justify-end space-x-2">
+                  <span class="text-[10px] text-mute font-mono">6:20 PM</span>
+                  <span class="text-xs font-bold text-ink">You</span>
+                </div>
+                <!-- Outgoing message pill in Wise Ink with white text -->
+                <div class="bg-ink text-canvas p-3.5 rounded-[16px] rounded-tr-none text-xs text-left max-w-md leading-relaxed">
+                  I have an extra pair of shin guards if anyone forgets theirs!
+                </div>
+              </div>
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=faces" class="w-8 h-8 rounded-full border border-ink" alt="Avatar">
+            </div>
+
+          </div>
+
+          <!-- Message Input Bar -->
+          <div class="p-4 border-t border-[#d8dcd5] bg-canvas">
+            <form onsubmit="sendMessage(event)" class="flex items-center space-x-2">
+              <input id="chat-input" type="text" placeholder="Type a message to the squad..." class="flex-1 bg-canvas-soft border border-ink rounded-[12px] px-4 py-2.5 text-sm text-ink placeholder:text-mute focus:outline-none">
+              <button type="submit" class="px-5 py-2.5 bg-primary hover:bg-primary-active text-ink font-semibold rounded-[24px] text-xs flex items-center space-x-1.5 transition">
+                <span>Send</span>
+                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+              </button>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= VIEW 4: SPORTS PASSPORT & PROFILE ================= -->
+    <section id="view-profile" class="space-y-6 hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left: Identity & Reliability Karma -->
+        <div class="lg:col-span-4 space-y-6">
+          <div class="bg-canvas p-6 rounded-[24px] border border-[#d8dcd5] text-center">
+            <div class="relative w-24 h-24 mx-auto mb-4">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&crop=faces" class="w-full h-full rounded-full object-cover border-2 border-ink" alt="Avatar">
+              <span class="absolute bottom-0 right-0 bg-primary text-ink p-1 rounded-full border border-ink"><i data-lucide="check" class="w-3.5 h-3.5 stroke-[3]"></i></span>
+            </div>
+            <h2 class="text-2xl font-[900] text-ink tracking-tight">Alex Morgan</h2>
+            <p class="text-xs text-mute mb-3">@alex_m • Downtown Metro Area</p>
+            
+            <!-- Positive Badge from design.md -->
+            <div class="inline-flex items-center space-x-1.5 px-3.5 py-1.5 bg-primary-pale text-positive-deep rounded-full text-xs font-semibold mb-4">
+              <i data-lucide="award" class="w-3.5 h-3.5"></i>
+              <span>Reliability Karma: 98% (Tier 1)</span>
+            </div>
+
+            <p class="text-xs text-body leading-relaxed">
+              "Casual soccer winger and intermediate badminton doubles player. Always on time, loves competitive but friendly games!"
+            </p>
+
+            <div class="grid grid-cols-3 gap-2 mt-6 pt-6 border-t border-canvas-soft text-center">
+              <div class="p-2.5 bg-canvas-soft rounded-[12px]">
+                <span class="block font-[900] text-ink text-lg">28</span>
+                <span class="text-[10px] text-mute uppercase font-semibold">Matches</span>
+              </div>
+              <div class="p-2.5 bg-canvas-soft rounded-[12px]">
+                <span class="block font-[900] text-positive-deep text-lg">0</span>
+                <span class="text-[10px] text-mute uppercase font-semibold">No-Shows</span>
+              </div>
+              <div class="p-2.5 bg-canvas-soft rounded-[12px]">
+                <span class="block font-[900] text-ink text-lg">19</span>
+                <span class="text-[10px] text-mute uppercase font-semibold">Endorsed</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Peer Badges -->
+          <div class="bg-canvas p-6 rounded-[24px] border border-[#d8dcd5]">
+            <h3 class="font-[900] text-xs text-ink uppercase tracking-wider mb-3">Fair Play Badges</h3>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-3 py-1 bg-canvas-soft text-ink text-xs font-semibold rounded-full border border-[#d0d4cd]">⏱️ Always Punctual (15)</span>
+              <span class="px-3 py-1 bg-canvas-soft text-ink text-xs font-semibold rounded-full border border-[#d0d4cd]">🤝 Team First (12)</span>
+              <span class="px-3 py-1 bg-canvas-soft text-ink text-xs font-semibold rounded-full border border-[#d0d4cd]">🌟 Great Sport (8)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Sports Passport & Skill Matrix -->
+        <div class="lg:col-span-8 space-y-6">
+          <div class="bg-canvas p-6 sm:p-7 rounded-[24px] border border-[#d8dcd5] space-y-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-2xl font-[900] text-ink tracking-tight">Sports & Activity Passport</h3>
+                <p class="text-xs text-mute mt-0.5">Your verified skill tiers and preferred positions.</p>
+              </div>
+              <button onclick="showToast('Skill evaluation form opened')" class="text-xs text-ink font-semibold underline hover:text-mute">+ Add Sport</button>
+            </div>
+
+            <!-- Activity Rows -->
+            <div class="space-y-3">
+              
+              <!-- Sport 1 -->
+              <div class="p-4 rounded-[16px] bg-canvas-soft border border-[#d0d4cd] flex items-center justify-between">
+                <div class="flex items-center space-x-3.5">
+                  <div class="w-11 h-11 rounded-[12px] bg-canvas text-ink flex items-center justify-center text-xl border border-ink">⚽</div>
+                  <div>
+                    <h4 class="font-bold text-sm text-ink">Soccer / Football</h4>
+                    <p class="text-xs text-mute">Role: Left Winger / Midfield • 4 yrs exp</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="px-3 py-1 bg-ink text-canvas text-xs font-bold rounded-full">Intermediate</span>
+                  <span class="block text-[10px] text-mute mt-1 font-mono">6 Captain verifications</span>
+                </div>
+              </div>
+
+              <!-- Sport 2 -->
+              <div class="p-4 rounded-[16px] bg-canvas-soft border border-[#d0d4cd] flex items-center justify-between">
+                <div class="flex items-center space-x-3.5">
+                  <div class="w-11 h-11 rounded-[12px] bg-canvas text-ink flex items-center justify-center text-xl border border-ink">🏸</div>
+                  <div>
+                    <h4 class="font-bold text-sm text-ink">Badminton</h4>
+                    <p class="text-xs text-mute">Format: Doubles • Front Court Attacking</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="px-3 py-1 bg-ink text-canvas text-xs font-bold rounded-full">Advanced</span>
+                  <span class="block text-[10px] text-mute mt-1 font-mono">Tournament participant</span>
+                </div>
+              </div>
+
+              <!-- Sport 3 -->
+              <div class="p-4 rounded-[16px] bg-canvas-soft border border-[#d0d4cd] flex items-center justify-between">
+                <div class="flex items-center space-x-3.5">
+                  <div class="w-11 h-11 rounded-[12px] bg-canvas text-ink flex items-center justify-center text-xl border border-ink">🎲</div>
+                  <div>
+                    <h4 class="font-bold text-sm text-ink">Strategy Board Games</h4>
+                    <p class="text-xs text-mute">Catan, Scythe, Terraforming Mars</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="px-3 py-1 bg-canvas text-ink text-xs font-bold rounded-full border border-ink">Enthusiast</span>
+                  <span class="block text-[10px] text-mute mt-1 font-mono">12 game nights</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Availability Calendar Matrix -->
+            <div class="pt-4 border-t border-canvas-soft">
+              <h4 class="text-xs font-[900] text-ink uppercase tracking-wider mb-3">Weekly Playing Availability</h4>
+              <div class="grid grid-cols-7 gap-2 text-center text-xs">
+                <div class="p-2.5 rounded-[12px] bg-canvas-soft text-mute font-medium">Mon<br><span class="text-[10px]">Busy</span></div>
+                <div class="p-2.5 rounded-[12px] bg-primary-pale text-positive-deep font-semibold border border-primary-neutral">Tue<br><span class="text-[10px]">7pm-9pm</span></div>
+                <div class="p-2.5 rounded-[12px] bg-canvas-soft text-mute font-medium">Wed<br><span class="text-[10px]">Busy</span></div>
+                <div class="p-2.5 rounded-[12px] bg-primary-pale text-positive-deep font-semibold border border-primary-neutral">Thu<br><span class="text-[10px]">6pm-9pm</span></div>
+                <div class="p-2.5 rounded-[12px] bg-canvas-soft text-mute font-medium">Fri<br><span class="text-[10px]">Busy</span></div>
+                <div class="p-2.5 rounded-[12px] bg-primary text-ink font-bold border border-ink">Sat<br><span class="text-[10px]">Morning</span></div>
+                <div class="p-2.5 rounded-[12px] bg-primary text-ink font-bold border border-ink">Sun<br><span class="text-[10px]">All Day</span></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER (footer: dark ink #0e0f0c band from design.md) ================= -->
+  <footer class="bg-ink text-canvas-soft py-12 mt-16 border-t border-[#252822]">
+    <div class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        
+        <div class="space-y-3">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 rounded-[8px] bg-primary text-ink flex items-center justify-center font-black">
+              <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+            </div>
+            <span class="text-xl font-[900] text-canvas tracking-tight">teamup</span>
+          </div>
+          <p class="text-xs text-mute leading-relaxed">
+            The modern social sports and activity finding network. Move together, play anywhere.
+          </p>
+        </div>
+
+        <div>
+          <h5 class="text-xs font-bold uppercase tracking-wider text-canvas mb-3">Popular Sports</h5>
+          <ul class="space-y-2 text-xs text-mute">
+            <li><a href="#" class="hover:text-primary transition">Soccer & Pickup Football</a></li>
+            <li><a href="#" class="hover:text-primary transition">Pickleball Ladders</a></li>
+            <li><a href="#" class="hover:text-primary transition">Badminton Doubles</a></li>
+            <li><a href="#" class="hover:text-primary transition">Tabletop & Board Games</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h5 class="text-xs font-bold uppercase tracking-wider text-canvas mb-3">Community</h5>
+          <ul class="space-y-2 text-xs text-mute">
+            <li><a href="#" class="hover:text-primary transition">Attendance Reliability (Karma)</a></li>
+            <li><a href="#" class="hover:text-primary transition">Emergency Substitute Alerts</a></li>
+            <li><a href="#" class="hover:text-primary transition">Code of Conduct</a></li>
+            <li><a href="#" class="hover:text-primary transition">Venue Partner Portal</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h5 class="text-xs font-bold uppercase tracking-wider text-canvas mb-3">Get Involved</h5>
+          <p class="text-xs text-mute mb-3">Ready to host your own weekend tournament?</p>
+          <button onclick="openCreateModal()" class="w-full py-2.5 bg-primary hover:bg-primary-active text-ink font-semibold rounded-[24px] text-xs transition">
+            Host a Game Now
+          </button>
+        </div>
+
+      </div>
+
+      <div class="pt-8 border-t border-[#252822] flex flex-col sm:flex-row items-center justify-between text-xs text-mute gap-4">
+        <span>&copy; 2026 TeamUp & SocialFinding. Built following the Wise design system.</span>
+        <div class="flex space-x-6">
+          <a href="#" class="hover:text-canvas">Privacy Policy</a>
+          <a href="#" class="hover:text-canvas">Terms of Service</a>
+          <a href="#" class="hover:text-canvas">Security</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= MODAL: CREATE NEW ACTIVITY ================= -->
+  <div id="modal-create" class="fixed inset-0 z-50 bg-ink/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-canvas rounded-[24px] max-w-lg w-full p-7 border border-ink shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between border-b border-canvas-soft pb-4">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-mute">New Activity</span>
+          <h3 class="text-2xl font-[900] text-ink tracking-tight">Host a Game</h3>
+        </div>
+        <button onclick="closeCreateModal()" class="p-2 text-mute hover:text-ink rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form onsubmit="handleCreateEvent(event)" class="space-y-4 text-xs sm:text-sm">
+        <div>
+          <label class="block font-semibold text-ink mb-1">Activity Title</label>
+          <input id="new-title" required type="text" placeholder="e.g., 5v5 Sunset Pickup Basketball" class="w-full px-4 py-2.5 bg-canvas-soft border border-ink rounded-[12px] text-ink focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-ink mb-1">Sport / Category</label>
+            <select id="new-sport" class="w-full px-3 py-2.5 bg-canvas-soft border border-ink rounded-[12px] text-ink focus:outline-none">
+              <option value="Soccer">Soccer / Football</option>
+              <option value="Basketball">Basketball</option>
+              <option value="Badminton">Badminton</option>
+              <option value="Pickleball">Pickleball</option>
+              <option value="Running">Running</option>
+              <option value="Board Games">Board Games</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-ink mb-1">Skill Requirement</label>
+            <select id="new-skill" class="w-full px-3 py-2.5 bg-canvas-soft border border-ink rounded-[12px] text-ink focus:outline-none">
+              <option value="All Levels">All Levels Welcome</option>
+              <option value="Beginner">Beginner Friendly</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced Only</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-ink mb-1">Date & Time</label>
+            <input id="new-datetime" required type="datetime-local" class="w-full px-3 py-2.5 bg-canvas-soft border border-ink rounded-[12px] text-ink focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-ink mb-1">Player Capacity (Max)</label>
+            <input id="new-capacity" required type="number" min="2" max="50" value="10" class="w-full px-3 py-2.5 bg-canvas-soft border border-ink rounded-[12px] text-ink focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-ink mb-1">Venue / Location Name</label>
+          <input id="new-venue" required type="text" placeholder="e.g., Central Sports Arena, Court 4" class="w-full px-4 py-2.5 bg-canvas-soft border border-ink rounded-[12px] text-ink focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold text-ink mb-1">Cost per Person</label>
+            <input id="new-cost" type="text" placeholder="Free or $5 (Court share)" class="w-full px-3 py-2.5 bg-canvas-soft border border-ink rounded-[12px] text-ink focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-semibold text-ink mb-1">Join Policy</label>
+            <select id="new-policy" class="w-full px-3 py-2.5 bg-canvas-soft border border-ink rounded-[12px] text-ink focus:outline-none">
+              <option value="instant">Instant RSVP (Open)</option>
+              <option value="request">Request to Join (Approval)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-ink mb-1">Host Notes / Equipment</label>
+          <textarea id="new-notes" rows="2" placeholder="e.g., Bring dark/light shirts. Cleats allowed on turf." class="w-full px-4 py-2.5 bg-canvas-soft border border-ink rounded-[12px] text-ink focus:outline-none"></textarea>
+        </div>
+
+        <div class="pt-4 border-t border-canvas-soft flex items-center justify-end space-x-3">
+          <button type="button" onclick="closeCreateModal()" class="px-5 py-2.5 text-body font-semibold hover:text-ink transition">Cancel</button>
+          <button type="submit" class="px-6 py-2.5 bg-primary hover:bg-primary-active text-ink font-semibold rounded-[24px] transition">Publish Activity</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: EVENT DETAILS & ROSTER RSVP ================= -->
+  <div id="modal-event-detail" class="fixed inset-0 z-50 bg-ink/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div id="modal-event-content" class="bg-canvas rounded-[24px] max-w-xl w-full p-7 border border-ink shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+      <!-- Injected dynamically by showEventModal(id) -->
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER (ex-toast: 24px radius, ink background, primary green accent) -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 bg-ink text-canvas px-5 py-3.5 rounded-[24px] border border-[#2b2e27] shadow-xl flex items-center space-x-3 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+    <div id="toast-icon" class="text-primary font-bold"><i data-lucide="check" class="w-5 h-5 stroke-[3]"></i></div>
+    <span id="toast-message" class="text-xs sm:text-sm font-semibold">Notification message</span>
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    // Mock Data Store: Events
+    let eventsData = [
+      {
+        id: 1,
+        title: "5v5 Turf Soccer Match (Intermediate)",
+        sport: "Soccer",
+        icon: "⚽",
+        skill: "Intermediate",
+        venue: "Riverside Park Turf A",
+        address: "742 Riverside Dr, Metro City",
+        distanceKm: 1.2,
+        lat: 37.7749,
+        lng: -122.4194,
+        dateTimeStr: "Today, 7:00 PM - 8:30 PM",
+        cost: "$5 / player",
+        confirmedPlayers: 8,
+        maxPlayers: 10,
+        host: { name: "David Ross", karma: 99, avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces" },
+        userJoined: true,
+        roster: [
+          { name: "David Ross", role: "Host / Captain", karma: 99 },
+          { name: "Alex Morgan (You)", role: "Confirmed", karma: 98 },
+          { name: "Elena Rostova", role: "Confirmed", karma: 96 },
+          { name: "Kenji Sato", role: "Confirmed", karma: 95 },
+          { name: "Carlos Gomez", role: "Confirmed", karma: 92 },
+          { name: "Tom Becker", role: "Confirmed", karma: 97 },
+          { name: "Zack Taylor", role: "Confirmed", karma: 89 },
+          { name: "Samira Khan", role: "Confirmed", karma: 100 }
+        ],
+        notes: "Bring both light and dark shirts. Shin guards recommended. Turf cleats only."
+      },
+      {
+        id: 2,
+        title: "Casual Pickup Basketball Run",
+        sport: "Basketball",
+        icon: "🏀",
+        skill: "All Levels",
+        venue: "Sunset Community Gym Court 2",
+        address: "1200 14th Ave, Metro City",
+        distanceKm: 2.5,
+        lat: 37.7610,
+        lng: -122.4280,
+        dateTimeStr: "Tomorrow, 6:00 PM - 8:00 PM",
+        cost: "Free",
+        confirmedPlayers: 7,
+        maxPlayers: 8,
+        host: { name: "Marcus Reed", karma: 94, avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=80&h=80&fit=crop&crop=faces" },
+        userJoined: false,
+        roster: [
+          { name: "Marcus Reed", role: "Host", karma: 94 },
+          { name: "Jayden Cole", role: "Confirmed", karma: 91 },
+          { name: "Travis Scott", role: "Confirmed", karma: 88 },
+          { name: "Leo Martin", role: "Confirmed", karma: 95 },
+          { name: "Nate Diaz", role: "Confirmed", karma: 93 },
+          { name: "Chris Paul", role: "Confirmed", karma: 99 },
+          { name: "Andre Iguodala", role: "Confirmed", karma: 97 }
+        ],
+        notes: "Indoor hardwood court. Bring clean indoor shoes!"
+      },
+      {
+        id: 3,
+        title: "Intermediate Doubles Badminton Match",
+        sport: "Badminton",
+        icon: "🏸",
+        skill: "Intermediate",
+        venue: "Olympic Sports Hall (Court 3)",
+        address: "50 Olympic Blvd, Metro City",
+        distanceKm: 3.1,
+        lat: 37.7850,
+        lng: -122.4050,
+        dateTimeStr: "Thursday, 6:30 PM - 8:30 PM",
+        cost: "$4 / player",
+        confirmedPlayers: 3,
+        maxPlayers: 4,
+        host: { name: "Linda Chen", karma: 97, avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&h=80&fit=crop&crop=faces" },
+        userJoined: false,
+        roster: [
+          { name: "Linda Chen", role: "Host", karma: 97 },
+          { name: "Andy Lau", role: "Confirmed", karma: 92 },
+          { name: "Mei Ling", role: "Confirmed", karma: 98 }
+        ],
+        notes: "Need 1 player for balanced doubles! Feather shuttles provided by host."
+      },
+      {
+        id: 4,
+        title: "Saturday Morning 5K & Coffee Social Run",
+        sport: "Running",
+        icon: "🏃",
+        skill: "All Levels",
+        venue: "Marina Green Trailhead",
+        address: "Marina Blvd, Bay Area",
+        distanceKm: 0.8,
+        lat: 37.8030,
+        lng: -122.4350,
+        dateTimeStr: "Saturday, 8:30 AM",
+        cost: "Free",
+        confirmedPlayers: 14,
+        maxPlayers: 20,
+        host: { name: "Chloe Bennett", karma: 99, avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=faces" },
+        userJoined: false,
+        roster: [
+          { name: "Chloe Bennett", role: "Organizer", karma: 99 },
+          { name: "George King", role: "Confirmed", karma: 90 }
+        ],
+        notes: "Casual 6:00/km pace. Coffee and bagels together right after!"
+      },
+      {
+        id: 5,
+        title: "Pickleball Doubles Ladder & Scrimmage",
+        sport: "Pickleball",
+        icon: "🏓",
+        skill: "Advanced",
+        venue: "Presidio Tennis & Pickleball Courts",
+        address: "Presidio Gate 3, Metro City",
+        distanceKm: 4.2,
+        lat: 37.7980,
+        lng: -122.4600,
+        dateTimeStr: "Friday, 5:30 PM",
+        cost: "$3 / player",
+        confirmedPlayers: 5,
+        maxPlayers: 6,
+        host: { name: "Robert Miller", karma: 93, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face" },
+        userJoined: false,
+        roster: [
+          { name: "Robert Miller", role: "Host", karma: 93 }
+        ],
+        notes: "3.5+ DUPR rating preferred. Fast-paced rotations."
+      },
+      {
+        id: 6,
+        title: "Friday Board Games: Catan & Terraforming Mars",
+        sport: "Board Games",
+        icon: "🎲",
+        skill: "Beginner",
+        venue: "The Meeples Lounge & Cafe",
+        address: "320 Market Street, 2nd Fl",
+        distanceKm: 2.1,
+        lat: 37.7900,
+        lng: -122.4000,
+        dateTimeStr: "Friday, 7:00 PM",
+        cost: "1 drink order",
+        confirmedPlayers: 5,
+        maxPlayers: 6,
+        host: { name: "Marcus Vance", karma: 100, avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=80&h=80&fit=crop&crop=faces" },
+        userJoined: false,
+        roster: [
+          { name: "Marcus Vance", role: "Host", karma: 100 }
+        ],
+        notes: "We teach the rules! Super chill atmosphere."
+      }
+    ];
+
+    let mapInstance = null;
+    let mapMarkers = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initMap();
+      renderEvents();
+      lucide.createIcons();
+
+      const now = new Date();
+      now.setHours(now.getHours() + 2);
+      now.setMinutes(0);
+      const isoStr = now.toISOString().slice(0, 16);
+      const dtInput = document.getElementById("new-datetime");
+      if (dtInput) dtInput.value = isoStr;
+    });
+
+    // Initialize Map with clean CartoDB Voyager tiles matching calm tone
+    function initMap() {
+      const mapContainer = document.getElementById("map");
+      if (!mapContainer) return;
+
+      mapInstance = L.map("map").setView([37.7749, -122.4194], 12);
+
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+        attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+        maxZoom: 18
+      }).addTo(mapInstance);
+
+      updateMapMarkers(eventsData);
+    }
+
+    function updateMapMarkers(eventsList) {
+      if (!mapInstance) return;
+
+      mapMarkers.forEach(m => mapInstance.removeLayer(m));
+      mapMarkers = [];
+
+      eventsList.forEach(event => {
+        // Pin styled with Wise design language: ink border & primary lime green pill
+        const customHtml = `
+          <div style="background: #9fe870; color: #0e0f0c; width: 36px; height: 36px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 2px solid #0e0f0c; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15);">
+            ${event.icon}
+          </div>
+        `;
+        const customIcon = L.divIcon({
+          html: customHtml,
+          className: "custom-map-pin",
+          iconSize: [36, 36],
+          iconAnchor: [18, 18]
+        });
+
+        const marker = L.marker([event.lat, event.lng], { icon: customIcon }).addTo(mapInstance);
+        
+        const popupContent = `
+          <div style="font-family: 'Inter', sans-serif; min-width: 190px; padding: 6px;">
+            <div style="font-size: 11px; font-weight: 700; color: #0e0f0c; text-transform: uppercase;">${event.sport}</div>
+            <div style="font-weight: 900; font-size: 14px; color: #0e0f0c; margin: 2px 0;">${event.title}</div>
+            <div style="font-size: 11px; color: #454745;">📍 ${event.venue}</div>
+            <div style="font-size: 11px; color: #454745; margin-bottom: 8px;">⏰ ${event.dateTimeStr}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 700; color: #0e0f0c;">${event.confirmedPlayers}/${event.maxPlayers} Spots</span>
+              <button onclick="openModalForEvent(${event.id})" style="background: #9fe870; color: #0e0f0c; border: 1px solid #0e0f0c; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; cursor: pointer;">Details</button>
+            </div>
+          </div>
+        `;
+        marker.bindPopup(popupContent);
+        mapMarkers.push(marker);
+      });
+    }
+
+    // Render Event Cards Feed
+    function renderEvents(filterFn = null) {
+      const container = document.getElementById("events-grid");
+      const matchCountSpan = document.getElementById("match-count");
+      
+      const filtered = filterFn ? eventsData.filter(filterFn) : eventsData;
+      matchCountSpan.innerText = `${filtered.length} games`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="bg-canvas p-12 text-center rounded-[24px] border border-[#d8dcd5]">
+            <i data-lucide="search-x" class="w-12 h-12 text-mute mx-auto mb-3"></i>
+            <h4 class="font-[900] text-lg text-ink">No activities match your filters</h4>
+            <p class="text-xs text-body mt-1">Try expanding your distance radius or selecting all sports.</p>
+            <button onclick="resetFilters()" class="mt-4 px-6 py-2.5 bg-primary hover:bg-primary-active text-ink font-semibold rounded-[24px] text-xs transition">Reset Filters</button>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = filtered.map(ev => {
+        const spotsLeft = ev.maxPlayers - ev.confirmedPlayers;
+        const progressPercent = (ev.confirmedPlayers / ev.maxPlayers) * 100;
+        const isFull = spotsLeft <= 0;
+        
+        return `
+          <!-- Card Content: pure white canvas, 24px radius, sits on sage -->
+          <div class="bg-canvas rounded-[24px] border border-[#d8dcd5] p-6 transition duration-150 flex flex-col justify-between group">
+            
+            <div>
+              <!-- Header Badges -->
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                  <span class="px-3 py-1 bg-canvas-soft text-ink text-xs font-semibold rounded-full border border-[#d0d4cd] flex items-center gap-1.5">
+                    <span>${ev.icon}</span>
+                    <span>${ev.sport}</span>
+                  </span>
+                  <span class="px-2.5 py-0.5 bg-canvas-soft text-body text-[11px] font-medium rounded-full">
+                    ${ev.skill}
+                  </span>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs font-semibold text-ink">${ev.distanceKm} km away</span>
+                </div>
+              </div>
+
+              <!-- Title: 900 weight display style -->
+              <h3 onclick="openModalForEvent(${ev.id})" class="text-lg font-[900] text-ink hover:text-mute transition cursor-pointer mb-2 leading-snug">
+                ${ev.title}
+              </h3>
+
+              <!-- Venue & Details -->
+              <div class="space-y-1 text-xs text-body mb-5">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="map-pin" class="w-3.5 h-3.5 text-mute"></i>
+                  <span>${ev.venue}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="clock" class="w-3.5 h-3.5 text-mute"></i>
+                  <span class="font-medium text-ink">${ev.dateTimeStr}</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="tag" class="w-3.5 h-3.5 text-mute"></i>
+                  <span>${ev.cost}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer: Capacity & CTA Button -->
+            <div class="pt-4 border-t border-canvas-soft flex items-center justify-between gap-4">
+              
+              <!-- Spot tracker -->
+              <div class="flex-1 max-w-[200px]">
+                <div class="flex justify-between text-[11px] font-semibold mb-1.5">
+                  <span class="${isFull ? 'text-negative font-bold' : 'text-body'}">
+                    ${isFull ? 'Waitlist Only' : `${spotsLeft} spots remaining`}
+                  </span>
+                  <span class="text-mute font-mono">${ev.confirmedPlayers}/${ev.maxPlayers}</span>
+                </div>
+                <div class="w-full bg-canvas-soft rounded-full h-2 overflow-hidden border border-[#d0d4cd]">
+                  <div class="h-full rounded-full ${isFull ? 'bg-negative' : 'bg-ink'}" style="width: ${progressPercent}%"></div>
+                </div>
+              </div>
+
+              <!-- Buttons: Pill 24px shape -->
+              <div class="flex items-center space-x-2">
+                <button onclick="openModalForEvent(${ev.id})" class="px-4 py-2 bg-canvas-soft hover:bg-[#d8dcd5] text-ink text-xs font-semibold rounded-[24px] transition">
+                  Details
+                </button>
+                
+                ${ev.userJoined ? `
+                  <button onclick="toggleJoinEvent(${ev.id})" class="px-5 py-2 bg-primary-pale hover:bg-negative-bg hover:text-white text-positive-deep border border-primary-neutral text-xs font-semibold rounded-[24px] transition flex items-center space-x-1.5">
+                    <i data-lucide="check" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                    <span>Joined</span>
+                  </button>
+                ` : `
+                  <button onclick="toggleJoinEvent(${ev.id})" class="px-5 py-2 ${isFull ? 'bg-canvas text-ink border border-ink hover:bg-canvas-soft' : 'bg-primary hover:bg-primary-active text-ink'} text-xs font-semibold rounded-[24px] transition">
+                    ${isFull ? 'Join Waitlist' : 'RSVP Spot'}
+                  </button>
+                `}
+              </div>
+
+            </div>
+
+          </div>
+        `;
+      }).join("");
+
+      lucide.createIcons();
+    }
+
+    // Filter Logic
+    function applyFilters() {
+      const searchVal = document.getElementById("search-input").value.toLowerCase();
+      const sportVal = document.getElementById("filter-sport").value;
+      const skillVal = document.getElementById("filter-skill").value;
+      const radiusVal = parseFloat(document.getElementById("radius-slider").value);
+
+      const filterFn = (ev) => {
+        const matchSearch = ev.title.toLowerCase().includes(searchVal) ||
+                            ev.venue.toLowerCase().includes(searchVal) ||
+                            ev.sport.toLowerCase().includes(searchVal);
+        const matchSport = (sportVal === "all") || (ev.sport === sportVal);
+        const matchSkill = (skillVal === "all") || (ev.skill.includes(skillVal)) || (ev.skill === "All Levels");
+        const matchRadius = ev.distanceKm <= radiusVal;
+
+        return matchSearch && matchSport && matchSkill && matchRadius;
+      };
+
+      renderEvents(filterFn);
+      const filtered = eventsData.filter(filterFn);
+      updateMapMarkers(filtered);
+    }
+
+    function updateRadius(val) {
+      document.getElementById("radius-display").innerText = `Within ${val} km`;
+      applyFilters();
+    }
+
+    function syncHeroRadius(val) {
+      document.getElementById("hero-distance-label").innerText = `Within ${val} km`;
+      document.getElementById("radius-slider").value = val;
+      updateRadius(val);
+    }
+
+    function syncHeroSport(val) {
+      document.getElementById("filter-sport").value = val;
+      applyFilters();
+    }
+
+    function scrollToDiscovery() {
+      document.getElementById("view-explore").scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetFilters() {
+      document.getElementById("search-input").value = "";
+      document.getElementById("filter-sport").value = "all";
+      document.getElementById("filter-skill").value = "all";
+      document.getElementById("radius-slider").value = "10";
+      document.getElementById("radius-display").innerText = "Within 10 km";
+      document.getElementById("hero-sport-select").value = "all";
+      document.getElementById("hero-distance-label").innerText = "Within 10 km";
+      renderEvents();
+      updateMapMarkers(eventsData);
+    }
+
+    // Toggle RSVP State
+    function toggleJoinEvent(eventId) {
+      const ev = eventsData.find(e => e.id === eventId);
+      if (!ev) return;
+
+      if (ev.userJoined) {
+        ev.userJoined = false;
+        ev.confirmedPlayers = Math.max(0, ev.confirmedPlayers - 1);
+        ev.roster = ev.roster.filter(p => !p.name.includes("You"));
+        showToast(`Left "${ev.title}". Slot freed for others.`);
+      } else {
+        if (ev.confirmedPlayers < ev.maxPlayers) {
+          ev.userJoined = true;
+          ev.confirmedPlayers++;
+          ev.roster.push({ name: "Alex Morgan (You)", role: "Confirmed", karma: 98 });
+          showToast(`RSVP Confirmed for "${ev.title}"! Added to squad chat.`);
+        } else {
+          showToast(`Added to Waitlist for "${ev.title}". We will alert you if a spot opens.`);
+        }
+      }
+
+      applyFilters();
+      
+      const modal = document.getElementById("modal-event-detail");
+      if (!modal.classList.contains("hidden")) {
+        openModalForEvent(eventId);
+      }
+    }
+
+    // Modal Details View
+    function openModalForEvent(eventId) {
+      const ev = eventsData.find(e => e.id === eventId);
+      if (!ev) return;
+
+      const modalContent = document.getElementById("modal-event-content");
+      const isFull = ev.confirmedPlayers >= ev.maxPlayers;
+
+      modalContent.innerHTML = `
+        <div class="flex items-center justify-between border-b border-canvas-soft pb-4">
+          <div class="flex items-center space-x-3">
+            <span class="text-3xl">${ev.icon}</span>
+            <div>
+              <span class="text-[11px] font-bold text-mute uppercase tracking-wider">${ev.sport} • ${ev.skill}</span>
+              <h3 class="text-xl font-[900] text-ink tracking-tight">${ev.title}</h3>
+            </div>
+          </div>
+          <button onclick="closeEventModal()" class="p-1 text-mute hover:text-ink rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <div class="space-y-4 text-xs sm:text-sm">
+          
+          <!-- Key Meta Bar (Surface-contrast: canvas-soft on canvas) -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-canvas-soft p-4 rounded-[16px] border border-[#d0d4cd]">
+            <div>
+              <span class="text-mute text-[10px] uppercase font-bold block">When</span>
+              <span class="font-bold text-ink">${ev.dateTimeStr}</span>
+            </div>
+            <div>
+              <span class="text-mute text-[10px] uppercase font-bold block">Fee</span>
+              <span class="font-bold text-ink">${ev.cost}</span>
+            </div>
+            <div>
+              <span class="text-mute text-[10px] uppercase font-bold block">Roster</span>
+              <span class="font-bold ${isFull ? 'text-negative' : 'text-positive-deep'}">${ev.confirmedPlayers} / ${ev.maxPlayers} Spots</span>
+            </div>
+          </div>
+
+          <!-- Location Info -->
+          <div>
+            <h4 class="font-bold text-ink mb-1 flex items-center gap-1.5">
+              <i data-lucide="map-pin" class="w-4 h-4 text-ink"></i>
+              <span>Venue & Location</span>
+            </h4>
+            <p class="text-body">${ev.venue}</p>
+            <p class="text-xs text-mute">${ev.address} (${ev.distanceKm} km away)</p>
+          </div>
+
+          <!-- Host Info -->
+          <div class="flex items-center justify-between p-3.5 bg-canvas-soft rounded-[16px] border border-[#d0d4cd]">
+            <div class="flex items-center space-x-3">
+              <img src="${ev.host.avatar}" class="w-10 h-10 rounded-full object-cover border border-ink" alt="Host">
+              <div>
+                <span class="font-bold text-ink block">${ev.host.name} <span class="text-[10px] text-mute font-normal">(Host)</span></span>
+                <span class="text-xs text-positive-deep font-semibold">Reliability: ${ev.host.karma}%</span>
+              </div>
+            </div>
+            <button onclick="switchTab('chat'); closeEventModal();" class="text-xs font-semibold text-ink bg-canvas border border-ink px-4 py-2 rounded-[24px] hover:bg-canvas-soft transition">
+              Message Host
+            </button>
+          </div>
+
+          <!-- Instructions / Rules -->
+          <div>
+            <h4 class="font-bold text-ink mb-1">Host Notes & Equipment</h4>
+            <p class="text-body bg-canvas-soft p-3 rounded-[12px] leading-relaxed">${ev.notes}</p>
+          </div>
+
+          <!-- Confirmed Roster List -->
+          <div>
+            <h4 class="font-bold text-ink mb-2 flex items-center justify-between">
+              <span>Confirmed Roster (${ev.roster.length})</span>
+              <span class="text-[11px] text-mute font-normal">Self check-in supported</span>
+            </h4>
+            <div class="max-h-36 overflow-y-auto space-y-1.5 pr-1">
+              ${ev.roster.map(p => `
+                <div class="flex items-center justify-between p-2.5 rounded-[12px] bg-canvas-soft text-xs">
+                  <div class="flex items-center space-x-2.5">
+                    <div class="w-6 h-6 rounded-full bg-ink text-canvas font-bold flex items-center justify-center text-[10px]">${p.name.charAt(0)}</div>
+                    <span class="font-semibold text-ink">${p.name}</span>
+                    <span class="text-[10px] text-mute">(${p.role})</span>
+                  </div>
+                  <span class="text-[10px] font-bold text-positive-deep bg-primary-pale px-2 py-0.5 rounded-full">${p.karma}% Karma</span>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+
+        </div>
+
+        <div class="pt-4 border-t border-canvas-soft flex items-center justify-between">
+          <button onclick="switchTab('chat'); closeEventModal();" class="text-xs font-bold text-ink hover:text-mute flex items-center space-x-1.5">
+            <i data-lucide="message-square" class="w-4 h-4"></i>
+            <span>Open Squad Chat</span>
+          </button>
+          
+          <div class="flex items-center space-x-2">
+            <button onclick="closeEventModal()" class="px-5 py-2.5 text-body hover:text-ink rounded-[24px] text-xs font-semibold transition">Cancel</button>
+            <button onclick="toggleJoinEvent(${ev.id})" class="px-6 py-2.5 ${ev.userJoined ? 'bg-negative-bg hover:bg-negative text-white' : (isFull ? 'bg-ink hover:bg-[#252822] text-canvas' : 'bg-primary hover:bg-primary-active text-ink')} text-xs font-semibold rounded-[24px] transition">
+              ${ev.userJoined ? 'Leave Match' : (isFull ? 'Join Waitlist' : 'Confirm RSVP')}
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById("modal-event-detail").classList.remove("hidden");
+      lucide.createIcons();
+    }
+
+    function closeEventModal() {
+      document.getElementById("modal-event-detail").classList.add("hidden");
+    }
+
+    // Modal Create Event
+    function openCreateModal() {
+      document.getElementById("modal-create").classList.remove("hidden");
+    }
+    function closeCreateModal() {
+      document.getElementById("modal-create").classList.add("hidden");
+    }
+
+    function handleCreateEvent(e) {
+      e.preventDefault();
+      const title = document.getElementById("new-title").value;
+      const sport = document.getElementById("new-sport").value;
+      const skill = document.getElementById("new-skill").value;
+      const capacity = parseInt(document.getElementById("new-capacity").value) || 10;
+      const venue = document.getElementById("new-venue").value;
+      const cost = document.getElementById("new-cost").value || "Free";
+      const notes = document.getElementById("new-notes").value || "Friendly match, all welcome!";
+
+      const iconsMap = {
+        "Soccer": "⚽",
+        "Basketball": "🏀",
+        "Badminton": "🏸",
+        "Pickleball": "🏓",
+        "Running": "🏃",
+        "Board Games": "🎲"
+      };
+
+      const newId = eventsData.length + 1;
+      const newEvent = {
+        id: newId,
+        title: title,
+        sport: sport,
+        icon: iconsMap[sport] || "🏅",
+        skill: skill,
+        venue: venue,
+        address: venue + ", Metro City",
+        distanceKm: 1.5,
+        lat: 37.7749 + (Math.random() - 0.5) * 0.04,
+        lng: -122.4194 + (Math.random() - 0.5) * 0.04,
+        dateTimeStr: "Tomorrow at 7:00 PM",
+        cost: cost,
+        confirmedPlayers: 1,
+        maxPlayers: capacity,
+        host: { name: "Alex Morgan (You)", karma: 98, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=faces" },
+        userJoined: true,
+        roster: [
+          { name: "Alex Morgan (You)", role: "Host / Captain", karma: 98 }
+        ],
+        notes: notes
+      };
+
+      eventsData.unshift(newEvent);
+      closeCreateModal();
+      applyFilters();
+      showToast(`Activity "${title}" hosted successfully!`);
+    }
+
+    // Chat Functions
+    function selectChatChannel(chanId) {
+      document.querySelectorAll(".chan-item").forEach(item => {
+        item.classList.remove("bg-canvas", "border-ink");
+        item.classList.add("border-transparent");
+      });
+      const active = document.getElementById(`chan-${chanId}`);
+      if (active) {
+        active.classList.add("bg-canvas", "border-ink");
+        active.classList.remove("border-transparent");
+      }
+
+      const titles = {
+        1: { title: "⚽ 5v5 Turf Soccer Match", sub: "8 Players in room • Today at 7:00 PM • Riverside Park" },
+        2: { title: "🏸 Badminton Doubles (Court 2)", sub: "3 Players in room • Thursday at 6:30 PM • Olympic Hall" },
+        3: { title: "💬 Sarah Jenkins (Captain)", sub: "Direct Message • Online 5m ago" }
+      };
+
+      if (titles[chanId]) {
+        document.getElementById("chat-title").innerText = titles[chanId].title;
+        document.getElementById("chat-subtitle").innerText = titles[chanId].sub;
+      }
+    }
+
+    function sendMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById("chat-input");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const container = document.getElementById("messages-container");
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const newMsg = `
+        <div class="flex items-start justify-end space-x-3">
+          <div class="space-y-1 text-right">
+            <div class="flex items-center justify-end space-x-2">
+              <span class="text-[10px] text-mute font-mono">${timeStr}</span>
+              <span class="text-xs font-bold text-ink">You</span>
+            </div>
+            <div class="bg-ink text-canvas p-3.5 rounded-[16px] rounded-tr-none text-xs text-left max-w-md leading-relaxed">
+              ${escapeHtml(text)}
+            </div>
+          </div>
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=faces" class="w-8 h-8 rounded-full border border-ink" alt="Avatar">
+        </div>
+      `;
+      container.insertAdjacentHTML("beforeend", newMsg);
+      input.value = "";
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function votePoll(btn) {
+      showToast("Vote recorded!");
+      btn.classList.add("bg-primary-neutral", "border-ink");
+    }
+
+    // View Switching
+    function switchTab(tabId) {
+      ["explore", "teams", "chat", "profile"].forEach(id => {
+        document.getElementById(`view-${id}`).classList.add("hidden");
+        const btn = document.getElementById(`tab-btn-${id}`);
+        if (btn) {
+          btn.classList.remove("bg-canvas", "text-ink", "shadow-sm");
+          btn.classList.add("text-body");
+        }
+      });
+
+      // Show/Hide hero band depending on view
+      const hero = document.getElementById("hero-section");
+      if (tabId === "explore") {
+        hero.classList.remove("hidden");
+      } else {
+        hero.classList.add("hidden");
+      }
+
+      document.getElementById(`view-${tabId}`).classList.remove("hidden");
+      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.add("bg-canvas", "text-ink", "shadow-sm");
+        activeBtn.classList.remove("text-body");
+      }
+
+      if (tabId === "explore" && mapInstance) {
+        setTimeout(() => mapInstance.invalidateSize(), 150);
+      }
+    }
+
+    // View Mode Toggle (Split, List, Map)
+    function setViewMode(mode) {
+      const colList = document.getElementById("col-list");
+      const colMap = document.getElementById("col-map");
+      const btnSplit = document.getElementById("btn-view-split");
+      const btnList = document.getElementById("btn-view-list");
+      const btnMap = document.getElementById("btn-view-map");
+
+      [btnSplit, btnList, btnMap].forEach(b => {
+        b.classList.remove("bg-canvas", "text-ink", "shadow-sm");
+        b.classList.add("text-mute");
+      });
+
+      if (mode === "split") {
+        colList.className = "lg:col-span-7 space-y-4";
+        colMap.className = "lg:col-span-5 sticky top-24 block";
+        btnSplit.classList.add("bg-canvas", "text-ink", "shadow-sm");
+      } else if (mode === "list") {
+        colList.className = "lg:col-span-12 space-y-4";
+        colMap.className = "hidden";
+        btnList.classList.add("bg-canvas", "text-ink", "shadow-sm");
+      } else if (mode === "map") {
+        colList.className = "hidden";
+        colMap.className = "lg:col-span-12";
+        btnMap.classList.add("bg-canvas", "text-ink", "shadow-sm");
+      }
+
+      if (mapInstance) {
+        setTimeout(() => mapInstance.invalidateSize(), 200);
+      }
+    }
+
+    // Emergency Substitute Banner
+    function triggerEmergencyAlert() {
+      document.getElementById("emergency-banner").classList.toggle("hidden");
+    }
+    function dismissEmergency() {
+      document.getElementById("emergency-banner").classList.add("hidden");
+    }
+    function quickJoinEmergency() {
+      dismissEmergency();
+      showToast("Accepted emergency sub invitation! Host notified.");
+      switchTab("chat");
+    }
+
+    // Toast Helper
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      const toastMsg = document.getElementById("toast-message");
+      toastMsg.innerText = message;
+      toast.classList.remove("translate-y-24", "opacity-0");
+      toast.classList.add("translate-y-0", "opacity-100");
+
+      setTimeout(() => {
+        toast.classList.remove("translate-y-0", "opacity-100");
+        toast.classList.add("translate-y-24", "opacity-0");
+      }, 3500);
+    }
+
+    function escapeHtml(string) {
+      return String(string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>
