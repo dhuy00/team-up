@@ -1,5 +1,5 @@
 "use client";
-import { Compass, Shield, MessageSquare, User } from "lucide-react";
+import { Compass, Shield, MessageSquare, User, Plus } from "lucide-react";
 import { useState } from "react";
 
 const Navigation = () => {
@@ -68,6 +68,14 @@ const Navigation = () => {
       ))}
       </div>
 
+      <span>
+        1 Sub Needed Nearby
+      </span>
+
+      <button>
+        <Plus/>
+        <span>Host Game</span>
+      </button>
     </div>
   );
 };

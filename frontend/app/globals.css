@@ -1,2 +1,48 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Brand & Accent */
+  --color-primary: #9fe870;
+  --color-primary-active: #cdffad;
+  --color-primary-neutral: #c5edab;
+  --color-primary-pale: #e2f6d5;
+
+  /* Surface */
+  --color-canvas: #ffffff;
+  --color-canvas-soft: #e8ebe6;
+
+  /* Text */
+  --color-ink: #0e0f0c;
+  --color-ink-deep: #163300;
+  --color-body: #454745;
+  --color-mute: #868685;
+
+  /* Semantic */
+  --color-positive: #2ead4b;
+  --color-positive-deep: #054d28;
+  --color-warning: #ffd11a;
+  --color-warning-deep: #b86700;
+  --color-warning-content: #4a3b1c;
+  --color-negative: #d03238;
+  --color-negative-deep: #a72027;
+  --color-negative-darkest: #a7000d;
+  --color-negative-bg: #320707;
+
+  /* Tertiary Accents */
+  --color-accent-orange: #ffc091;
+  --color-accent-cyan: #38c8ff;
+
+  /* Radii */
+  --radius-card: 24px;
+  --radius-pill: 9999px;
+  --radius-input: 12px;
+}
+
+body {
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #e8ebe6;
+  color: #0e0f0c;
+  font-feature-settings: "calt";
+}
