@@ -20,7 +20,7 @@ export function ThemeToggle() {
     );
   }
 
-  const nextTheme = theme === "dark" ? "light" : theme === "light" ? "system" : "dark";
+  const nextTheme = theme === "dark" ? "light" : "dark";
 
   return (
     <button

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TeamUp — Project Progress & Changelog Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          },
+          colors: {
+            primary: '#9fe870',
+            'primary-active': '#cdffad',
+            'primary-neutral': '#c5edab',
+            'primary-pale': '#e2f6d5',
+            canvas: '#ffffff',
+            'canvas-soft': '#e8ebe6',
+            ink: '#0e0f0c',
+            'ink-deep': '#163300',
+            body: '#454745',
+            mute: '#868685',
+            'border-base': '#d8dcd5',
+            'border-soft': '#e2e5df',
+            positive: '#2ead4b',
+            warning: '#ffd11a',
+            negative: '#d03238',
+          },
+          borderRadius: {
+            'card': '24px',
+            'pill': '9999px',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #e8ebe6;
+      color: #0e0f0c;
+      font-family: 'Inter', sans-serif;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.025em;
+    }
+    .badge-done { background: #e2f6d5; color: #163300; border: 1px solid #c5edab; }
+    .badge-wip { background: #fff8d6; color: #735100; border: 1px solid #ffd11a; }
+    .badge-pending { background: #f0f2ee; color: #666a63; border: 1px solid #d8dcd5; }
+    .badge-planned { background: #e8f4fc; color: #0b4e80; border: 1px solid #bce1f8; }
+  </style>
+</head>
+<body class="min-h-screen py-10 px-4 sm:px-6 lg:px-12">
+  <div class="max-w-6xl mx-auto space-y-8">
+
+    <!-- Top App Bar / Header -->
+    <header class="bg-white rounded-[24px] p-6 sm:p-8 shadow-sm border border-border-base flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div class="flex items-center space-x-4">
+        <div class="w-12 h-12 rounded-[16px] bg-ink flex items-center justify-center text-primary shadow-sm font-black text-xl">
+          TU
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl font-[900] text-ink tracking-tight">TeamUp &amp; SocialFinding</h1>
+            <span class="badge badge-wip">Phase 1 (MVP) Active</span>
+          </div>
+          <p class="text-sm font-medium text-mute mt-0.5">Project State, Development Progress &amp; Change Tracking</p>
+        </div>
+      </div>
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
+          <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Last Updated</span>
+          <span class="font-bold text-ink" id="last-updated">2026-10-17 21:04 (ICT)</span>
+        </div>
+        <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
+          <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Git Branch</span>
+          <span class="font-bold text-ink">main (uncommitted review updates)</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Key Metrics & Overview -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
+        <div class="text-xs font-bold text-mute uppercase tracking-wider">Overall Progress</div>
+        <div class="mt-2 text-3xl font-[900] text-ink">~50%</div>
+        <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
+          <div class="bg-primary h-full rounded-full" style="width: 50%"></div>
+        </div>
+        <div class="mt-2 text-xs text-mute font-medium">Phase 1 MVP UI refined &amp; reviewed</div>
+      </div>
+
+      <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
+        <div class="text-xs font-bold text-mute uppercase tracking-wider">Specifications &amp; Design</div>
+        <div class="mt-2 text-3xl font-[900] text-ink">100%</div>
+        <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
+          <div class="bg-positive h-full rounded-full" style="width: 100%"></div>
+        </div>
+        <div class="mt-2 text-xs text-positive font-bold">10 SRS docs + Full prototype</div>
+      </div>
+
+      <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
+        <div class="text-xs font-bold text-mute uppercase tracking-wider">Frontend App</div>
+        <div class="mt-2 text-3xl font-[900] text-ink">80%</div>
+        <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
+          <div class="bg-positive h-full rounded-full" style="width: 80%"></div>
+        </div>
+        <div class="mt-2 text-xs text-positive font-medium">All 4 views ported &amp; build passing</div>
+      </div>
+
+      <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
+        <div class="text-xs font-bold text-mute uppercase tracking-wider">Backend &amp; Database</div>
+        <div class="mt-2 text-3xl font-[900] text-ink">0%</div>
+        <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
+          <div class="bg-mute h-full rounded-full" style="width: 0%"></div>
+        </div>
+        <div class="mt-2 text-xs text-mute font-medium">Architecture defined, pending build</div>
+      </div>
+    </section>
+
+    <!-- Subsystems & Component Progress Table -->
+    <section class="bg-white rounded-[24px] p-6 sm:p-8 border border-border-base shadow-sm space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-[900] text-ink">Subsystem Status Breakdown</h2>
+          <p class="text-sm text-mute">Current state of modules across design, frontend, and backend</p>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr class="border-b border-border-base text-mute text-xs uppercase tracking-wider">
+              <th class="py-3 px-4 font-bold">Subsystem / Area</th>
+              <th class="py-3 px-4 font-bold">Scope / Technology</th>
+              <th class="py-3 px-4 font-bold">Status</th>
+              <th class="py-3 px-4 font-bold">Details &amp; Current Progress</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border-soft">
+            <!-- SRS -->
+            <tr>
+              <td class="py-4 px-4 font-bold text-ink">
+                SRS Specification
+                <span class="block text-xs font-normal text-mute">specification/*.md</span>
+              </td>
+              <td class="py-4 px-4 text-body">10 Modular Markdown Specs</td>
+              <td class="py-4 px-4"><span class="badge badge-done">Completed</span></td>
+              <td class="py-4 px-4 text-body">Executive summary, user personas, architecture, FRs (FR 1.1–5.2), NFRs, stack, ERD, roadmap, risks, acceptance criteria.</td>
+            </tr>
+
+            <!-- Design & Prototype -->
+            <tr>
+              <td class="py-4 px-4 font-bold text-ink">
+                Design &amp; Prototype
+                <span class="block text-xs font-normal text-mute">design.md, index.html</span>
+              </td>
+              <td class="py-4 px-4 text-body">Wise Design Language + HTML/Tailwind Prototype</td>
+              <td class="py-4 px-4"><span class="badge badge-done">Completed</span></td>
+              <td class="py-4 px-4 text-body">Wise aesthetic design tokens (colors, typography, 24px radii). Standalone 1650-line prototype featuring Explorer radar, Squads, Realtime chat, and Sports passport.</td>
+            </tr>
+
+            <!-- Frontend: Foundation -->
+            <tr>
+              <td class="py-4 px-4 font-bold text-ink">
+                Frontend: Setup &amp; Layout
+                <span class="block text-xs font-normal text-mute">frontend/app/</span>
+              </td>
+              <td class="py-4 px-4 text-body">Next.js 16, React 19, Tailwind v4</td>
+              <td class="py-4 px-4"><span class="badge badge-done">Completed</span></td>
+              <td class="py-4 px-4 text-body">Project bootstrapped, Inter typography configured, theme tokens mapped in globals.css, RootLayout configured.</td>
+            </tr>
+
+            <!-- Frontend: Navigation & Header -->
+            <tr>
+              <td class="py-4 px-4 font-bold text-ink">
+                Frontend: Navigation &amp; Shell
+                <span class="block text-xs font-normal text-mute">frontend/components/Navigation.tsx</span>
+              </td>
+              <td class="py-4 px-4 text-body">Lucide Icons, ThemeToggle, LanguageSelector</td>
+              <td class="py-4 px-4"><span class="badge badge-done">Completed</span></td>
+              <td class="py-4 px-4 text-body">Sticky navigation header with branding, tab pills, Host Game button, user avatar with karma rating badge.</td>
+            </tr>
+
+            <!-- Frontend: i18n & Theme -->
+            <tr>
+              <td class="py-4 px-4 font-bold text-ink">
+                Frontend: i18n &amp; Theming
+                <span class="block text-xs font-normal text-mute">frontend/context/, locales/</span>
+              </td>
+              <td class="py-4 px-4 text-body">next-themes + Custom LanguageContext</td>
+              <td class="py-4 px-4"><span class="badge badge-done">Completed</span></td>
+              <td class="py-4 px-4 text-body">Full English and Vietnamese translations wired up. Light / Dark mode persistence with reactive UI toggle.</td>
+            </tr>
+
+            <!-- Frontend: Hero & Explorer -->
+            <tr>
+              <td class="py-4 px-4 font-bold text-ink">
+                Frontend: Hero &amp; Game Explorer
+                <span class="block text-xs font-normal text-mute">frontend/components/home/, explore/</span>
+              </td>
+              <td class="py-4 px-4 text-body">HeroSection, Quick Match Finder, Live Radar, Event Cards</td>
+              <td class="py-4 px-4"><span class="badge badge-done">Completed</span></td>
+              <td class="py-4 px-4 text-body">Full React components with search query filtering, sport/skill filters, distance radius slider, interactive RSVP toggle, and match details modal.</td>
+            </tr>
+
+            <!-- Frontend: Squads, Chat, Passport & Wizard -->
+            <tr>
+              <td class="py-4 px-4 font-bold text-ink">
+                Frontend: Squads, Chat &amp; Passport
+                <span class="block text-xs font-normal text-mute">frontend/components/squads/, chat/, passport/</span>
+              </td>
+              <td class="py-4 px-4 text-body">Squad rosters, Live Chat UI, Player Karma Passport, Host Game Wizard</td>
+              <td class="py-4 px-4"><span class="badge badge-done">Completed</span></td>
+              <td class="py-4 px-4 text-body">All 4 top navigation views connected with state persistence. Interactive chat room messaging and CreateEventModal wizard.</td>
+            </tr>
+
+            <!-- Backend API -->
+            <tr>
+              <td class="py-4 px-4 font-bold text-ink">
+                Backend REST &amp; Real-time API
+                <span class="block text-xs font-normal text-mute">backend/ (to be initialized)</span>
+              </td>
+              <td class="py-4 px-4 text-body">FastAPI or NestJS + WebSockets</td>
+              <td class="py-4 px-4"><span class="badge badge-planned">Planned</span></td>
+              <td class="py-4 px-4 text-body">Authentication, match discovery endpoints, RSVP &amp; waitlist management, WebSocket chat room.</td>
+            </tr>
+
+            <!-- Database -->
+            <tr>
+              <td class="py-4 px-4 font-bold text-ink">
+                Database &amp; Geo Layer
+                <span class="block text-xs font-normal text-mute">PostgreSQL + PostGIS, Redis</span>
+              </td>
+              <td class="py-4 px-4 text-body">Spatial queries &amp; caching</td>
+              <td class="py-4 px-4"><span class="badge badge-planned">Planned</span></td>
+              <td class="py-4 px-4 text-body">PostGIS spatial indexing for radius search (ST_DWithin), Redis for chat pub/sub &amp; active game caching.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Phase 1 Roadmap Checklist -->
+    <section class="bg-white rounded-[24px] p-6 sm:p-8 border border-border-base shadow-sm space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-[900] text-ink">Phase 1 MVP Checklist</h2>
+          <p class="text-sm text-mute">Milestones according to specification/08-roadmap.md</p>
+        </div>
+        <span class="text-xs font-bold px-3 py-1 bg-canvas-soft rounded-pill border border-border-base">Weeks 1 – 6</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base flex items-start gap-3">
+          <span class="text-positive font-bold text-lg">✔</span>
+          <div>
+            <div class="font-bold text-sm text-ink">Frontend Shell &amp; Theme/Lang System</div>
+            <div class="text-xs text-mute mt-0.5">Next.js 16 setup, Tailwind v4 design tokens, English/Vietnamese i18n, Dark/Light modes.</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base flex items-start gap-3">
+          <span class="text-positive font-bold text-lg">✔</span>
+          <div>
+            <div class="font-bold text-sm text-ink">Sports Passport &amp; Karma Profile</div>
+            <div class="text-xs text-mute mt-0.5">Player profile with reliability karma percentage, endorsed badges, verified sports, and weekly availability grid.</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base flex items-start gap-3">
+          <span class="text-positive font-bold text-lg">✔</span>
+          <div>
+            <div class="font-bold text-sm text-ink">Event Creation Wizard</div>
+            <div class="text-xs text-mute mt-0.5">Host Game modal form: sport category, skill requirement, date/time, max player capacity, venue, fee, notes.</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base flex items-start gap-3">
+          <span class="text-positive font-bold text-lg">✔</span>
+          <div>
+            <div class="font-bold text-sm text-ink">Map &amp; List Discovery with Radius Filter</div>
+            <div class="text-xs text-mute mt-0.5">Interactive Local Game Radar, distance radius slider (1–25km), sport/skill filtering, real-time match feed.</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base flex items-start gap-3">
+          <span class="text-positive font-bold text-lg">✔</span>
+          <div>
+            <div class="font-bold text-sm text-ink">RSVP &amp; Basic Waitlist Management</div>
+            <div class="text-xs text-mute mt-0.5">One-click RSVP spot booking, spot cancellation, capacity progress bars, and modal roster view.</div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base flex items-start gap-3">
+          <span class="text-positive font-bold text-lg">✔</span>
+          <div>
+            <div class="font-bold text-sm text-ink">Event Group Chat Room</div>
+            <div class="text-xs text-mute mt-0.5">Channel switcher, pinned host announcements, and interactive real-time messaging interface.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Changelog & Audit Trail -->
+    <section class="bg-white rounded-[24px] p-6 sm:p-8 border border-border-base shadow-sm space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-[900] text-ink">Change Log &amp; Activity History</h2>
+          <p class="text-sm text-mute">Chronological log updated with every project modification</p>
+        </div>
+        <span class="text-xs font-semibold text-mute">Auto-updated on changes</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm border-collapse" id="changelog-table">
+          <thead>
+            <tr class="border-b border-border-base text-mute text-xs uppercase tracking-wider">
+              <th class="py-3 px-4 font-bold">Timestamp</th>
+              <th class="py-3 px-4 font-bold">Category</th>
+              <th class="py-3 px-4 font-bold">Change Summary</th>
+              <th class="py-3 px-4 font-bold">Affected Files</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry 0: Decoupled Navigation Routing & Constants Refactoring -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-17 21:04</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Route &amp; Constant Refactor</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Addressed all 3 items from updated review.md</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Item 1</strong>: Replaced hardcoded <code>"all"</code> with centralized <code>DEFAULT_SPORT_FILTER</code> constant in <code>HeroSection.tsx</code>, <code>ExploreSection.tsx</code>, and <code>CreateEventModal.tsx</code>.</li>
+                  <li><strong>Item 2</strong>: Replaced hardcoded quickFilter values with centralized <code>DEFAULT_QUICK_FILTER</code> in <code>page.tsx</code>.</li>
+                  <li><strong>Item 3</strong>: Created dedicated navigation routes architecture in <code>frontend/components/navigation/routes.tsx</code> containing all route definitions (<code>APP_ROUTES</code>) and page views (<code>ExplorePageView</code>, <code>SquadsPageView</code>, <code>ChatPageView</code>, <code>PassportPageView</code>); replaced all conditional <code>activeTab === ...</code> checks in <code>page.tsx</code> with dynamic <code>&lt;CurrentPageRenderer /&gt;</code>.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/constants/explore.ts, frontend/components/navigation/routes.tsx, frontend/app/page.tsx, frontend/components/Navigation.tsx, frontend/components/home/HeroSection.tsx, frontend/components/explore/ExploreSection.tsx, frontend/components/explore/CreateEventModal.tsx
+              </td>
+            </tr>
+            <!-- Entry 0: Comprehensive Review.md Refinements -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-17 20:55</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Review Updates</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Comprehensive audit &amp; updates across all 4 review.md requirements</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Item 1 (Terminology)</strong>: Completely removed user-facing "RSVP" references; updated <code>common.rsvpSpot</code> to "Book Spot" in English and "Đặt chỗ ngay" in Vietnamese; updated modal status copy to "Instant spot confirmation".</li>
+                  <li><strong>Item 2 (Primary Button Hover)</strong>: Elevated <code>.btn-primary</code> with smooth color shift to <code>var(--primary-active)</code> (#cdffad), micro-scale lift (<code>scale(1.01) translateY(-2px)</code>), and refined dual-layer ambient shadow; standardized button classes across Chat, Squads, Passport, and Explore.</li>
+                  <li><strong>Item 3 (Custom Dropdowns)</strong>: Added <code>@keyframes dropdownFadeIn</code> for silky-smooth popovers; converted <code>LanguageSelector.tsx</code> and <code>PassportSection.tsx</code> to custom animated popovers so zero native &lt;select&gt; elements remain.</li>
+                  <li><strong>Item 4 (Dynamic API &amp; Numeric Constants)</strong>: Added <code>fetchSportsApi()</code> simulation and <code>useEffect</code> hydration in <code>HeroSection</code>; extracted <code>EXPLORE_DISTANCE_CONFIG</code> and <code>EVENT_CAPACITY_CONFIG</code> to eliminate hardcoded numeric values across forms.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/constants/explore.ts, frontend/app/globals.css, frontend/components/ui/CustomSelect.tsx, frontend/components/ui/LanguageSelector.tsx, frontend/components/passport/PassportSection.tsx, frontend/components/home/HeroSection.tsx, frontend/components/explore/ExploreSection.tsx, frontend/components/explore/CreateEventModal.tsx, frontend/components/chat/ChatSection.tsx, frontend/components/squads/SquadsSection.tsx, frontend/locales/en.ts
+              </td>
+            </tr>
+
+            <!-- Entry 1: Review Feedback Implementation (review.md) -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-10 21:15</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Review Feedback</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Implemented all 4 items from review.md</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Item 1</strong>: Replaced confusing <em>"Real-time RSVP"</em> with intuitive <em>"Instant Spot Booking"</em> (en) and <em>"Đặt chỗ tức thì"</em> (vi).</li>
+                  <li><strong>Item 2</strong>: Added tactile elevation and soft lime glow hover effect (<code>.btn-primary</code>) across all primary buttons.</li>
+                  <li><strong>Item 3</strong>: Built reusable <code>CustomSelect</code> component with smooth popover animation, selected indicator, and click-outside/escape dismissal.</li>
+                  <li><strong>Item 4</strong>: Refactored <code>HeroSection</code> to dynamically render sport options from simulated API data (<code>SIMULATED_API_SPORTS</code>) and extracted distance values into centralized constants (<code>HERO_DISTANCE_CONFIG</code>).</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/constants/explore.ts, frontend/components/ui/CustomSelect.tsx, frontend/components/home/HeroSection.tsx, frontend/components/explore/ExploreSection.tsx, frontend/components/explore/CreateEventModal.tsx, frontend/components/Navigation.tsx, frontend/locales/en.ts, frontend/locales/vi.ts, frontend/app/globals.css
+              </td>
+            </tr>
+
+            <!-- Entry 2: Frontend Milestone - Port all prototype views -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-10 20:20</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Frontend (Milestone)</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Ported all 4 prototype views to Next.js components</strong>: Created <code>HeroSection</code>, <code>ExploreSection</code> with search and Local Radar, <code>EventDetailModal</code>, <code>CreateEventModal</code>, <code>SquadsSection</code>, <code>ChatSection</code>, and <code>PassportSection</code>. Configured reactive state management in <code>page.tsx</code> for tab switching, real-time RSVP spot reservation, and active chat messaging. Verified successful Next.js production build (Turbopack).
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/types/models.ts, frontend/lib/mockData.ts, frontend/components/home/*, frontend/components/explore/*, frontend/components/squads/*, frontend/components/chat/*, frontend/components/passport/*, frontend/app/page.tsx, frontend/components/Navigation.tsx
+              </td>
+            </tr>
+
+            <!-- Entry 2: Progress tracking initialization -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-10 19:55</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Progress Tracker</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Initialized progress tracking dashboard (progress.html)</strong>: Created comprehensive project state audit documenting specifications, design, frontend components, git history, and roadmap.
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">progress.html</td>
+            </tr>
+
+            <!-- Entry 2: Working copy adjustments -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-10 19:50</td>
+              <td class="py-3.5 px-4"><span class="badge badge-wip font-sans">Frontend</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Unstaged Navigation &amp; Theme Tweaks</strong>: Refined logo container gap, commented out emergency substitute alert pill, and simplified ThemeToggle logic to binary light/dark cycle.
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">frontend/components/Navigation.tsx, frontend/components/ui/ThemeToggle.tsx</td>
+            </tr>
+
+            <!-- Entry 3: Commit 132ef46 -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-09-29 20:53</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Commit 132ef46</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Add theme and language support</strong>: Added next-themes integration, ThemeToggle, LanguageSelector, LanguageContext, and translation dictionaries for English and Vietnamese.
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">frontend/components/ui/*, frontend/locales/*, frontend/context/*</td>
+            </tr>
+
+            <!-- Entry 4: Commit 9f46130 -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-09-28 20:48</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Commit 9f46130</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Configure CSS and fonts</strong>: Integrated Inter font weights, mapped Wise color tokens (primary, canvas, ink, semantic colors) in globals.css with dark mode variables.
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">frontend/app/globals.css, frontend/app/layout.tsx</td>
+            </tr>
+
+            <!-- Entry 5: Commit 29054b8 -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-09-28 20:30</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Commit 29054b8</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Add Navigation component</strong>: Built sticky top header with responsive navigation pills, Host Game button, and profile badge.
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">frontend/components/Navigation.tsx</td>
+            </tr>
+
+            <!-- Entry 6: Commit 5f793c8 -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-09-28 19:37</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Commit 5f793c8</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Initialize frontend application</strong>: Bootstrapped Next.js with TypeScript, Tailwind CSS v4, and Lucide React.
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">frontend/*</td>
+            </tr>
+
+            <!-- Entry 7: Commit 5a57980 -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-09-27 13:10</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Commit 5a57980</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Update project specification &amp; modular SRS</strong>: Reorganized requirements into 10 structured documentation chapters, created standalone index.html prototype and design.md.
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">specification/*, SPECIFICATION.md, index.html, design.md</td>
+            </tr>
+
+            <!-- FUTURE_ENTRIES_INSERT_ABOVE -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-mute py-4">
+      TeamUp Project Dashboard &bull; Maintained automatically across changes.
+    </footer>
+
+  </div>
+</body>
+</html>

@@ -91,3 +91,45 @@ body {
   font-feature-settings: "calt";
   transition: background-color 0.2s ease, color 0.2s ease;
 }
+
+/* Primary Button with enhanced interactive elevation and color transition */
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--ink);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-active);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 24px -4px rgba(159, 232, 112, 0.5), 0 2px 6px -1px rgba(0, 0, 0, 0.08);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 6px -1px rgba(159, 232, 112, 0.3);
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* Smooth Popover Dropdown Animation */
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-popover {
+  animation: dropdownFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top center;
+}

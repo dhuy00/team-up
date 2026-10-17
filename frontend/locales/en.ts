@@ -24,7 +24,7 @@ export const en: TranslationDictionary = {
     spotsRemaining: "{count} spots remaining",
     waitlistOnly: "Waitlist Only",
     joined: "Joined",
-    rsvpSpot: "RSVP Spot",
+    rsvpSpot: "Book Spot",
     details: "Details",
   },
   explore: {
@@ -33,7 +33,7 @@ export const en: TranslationDictionary = {
     exploreActiveGames: "Explore Active Games",
     browseSquads: "Browse Local Squads",
     quickMatchFinder: "Quick Match Finder",
-    realtimeRsvp: "Real-time RSVP",
+    realtimeRsvp: "Instant Spot Booking",
     sportActivity: "Sport / Activity",
     maxDistance: "Max Distance",
     findMatchesNearby: "Find Matches Nearby",

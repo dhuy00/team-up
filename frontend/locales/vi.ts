@@ -33,7 +33,7 @@ export const vi: TranslationDictionary = {
     exploreActiveGames: "Khám phá trận đấu đang mở",
     browseSquads: "Tìm đội nhóm địa phương",
     quickMatchFinder: "Tìm trận nhanh",
-    realtimeRsvp: "Đặt chỗ theo thời gian thực",
+    realtimeRsvp: "Đặt chỗ tức thì",
     sportActivity: "Môn thể thao / Hoạt động",
     maxDistance: "Khoảng cách tối đa",
     findMatchesNearby: "Tìm trận đấu gần đây",
