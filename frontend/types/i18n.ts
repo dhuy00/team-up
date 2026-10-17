@@ -91,4 +91,9 @@ export interface TranslationDictionary {
     en: string;
     vi: string;
   };
+  footer: {
+    builtWith: string;
+    tagline: string;
+    rights: string;
+  };
 }

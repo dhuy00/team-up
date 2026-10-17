@@ -3,9 +3,7 @@
 import React from "react";
 import { Compass, Shield, MessageSquare, User } from "lucide-react";
 import { EventActivity } from "@/types/models";
-import { QuickFilterState } from "@/constants/explore";
-import { HeroSection } from "@/components/home/HeroSection";
-import { ExploreSection } from "@/components/explore/ExploreSection";
+import { ExplorePageView } from "@/components/explore/ExplorePageView";
 import { SquadsSection } from "@/components/squads/SquadsSection";
 import { ChatSection } from "@/components/chat/ChatSection";
 import { PassportSection } from "@/components/passport/PassportSection";
@@ -23,50 +21,16 @@ export const NAV_TAB_IDS = {
 export type NavTabId = (typeof NAV_TAB_IDS)[keyof typeof NAV_TAB_IDS];
 
 /**
- * Shared props provided to each route page component
+ * General props passed to active route views
  */
 export interface AppPageProps {
-  events: EventActivity[];
-  onToggleJoin: (eventId: number) => void;
-  quickFilter: QuickFilterState;
-  onQuickFind: (sport: string, distanceKm: number) => void;
-  onExploreClick: () => void;
-  onNavigateTab: (tabId: number) => void;
-  onOpenCreateEvent: () => void;
+  onNavigateTab?: (tabId: number) => void;
+  onOpenCreateEvent?: () => void;
+  createdEvent?: EventActivity | null;
 }
 
 /**
- * Route 1: Explore Games & Match Finder Page
- */
-export const ExplorePageView: React.FC<AppPageProps> = ({
-  events,
-  onToggleJoin,
-  quickFilter,
-  onQuickFind,
-  onExploreClick,
-  onNavigateTab,
-}) => {
-  return (
-    <>
-      <HeroSection
-        onExploreClick={onExploreClick}
-        onBrowseSquadsClick={() => onNavigateTab(NAV_TAB_IDS.SQUADS)}
-        onQuickFind={onQuickFind}
-      />
-      <main className="flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <ExploreSection
-          events={events}
-          onToggleJoin={onToggleJoin}
-          selectedSport={quickFilter.sport}
-          selectedRadius={quickFilter.radius}
-        />
-      </main>
-    </>
-  );
-};
-
-/**
- * Route 2: Clubs & Squads Page
+ * Route 2: Clubs & Squads Page Wrapper
  */
 export const SquadsPageView: React.FC<AppPageProps> = ({
   onOpenCreateEvent,
@@ -79,7 +43,7 @@ export const SquadsPageView: React.FC<AppPageProps> = ({
 };
 
 /**
- * Route 3: Match & Squad Chat Page
+ * Route 3: Match & Squad Chat Page Wrapper
  */
 export const ChatPageView: React.FC<AppPageProps> = () => {
   return (
@@ -90,7 +54,7 @@ export const ChatPageView: React.FC<AppPageProps> = () => {
 };
 
 /**
- * Route 4: Sports Passport & Reliability Karma Page
+ * Route 4: Sports Passport & Reliability Karma Page Wrapper
  */
 export const PassportPageView: React.FC<AppPageProps> = () => {
   return (

@@ -91,4 +91,9 @@ export const en: TranslationDictionary = {
     en: "English",
     vi: "Tiếng Việt",
   },
+  footer: {
+    builtWith: "Built following the Wise design system.",
+    tagline: "Reliable Pickup Sports & Social Finding Platform",
+    rights: "© 2026 TeamUp & SocialFinding. All rights reserved.",
+  },
 };

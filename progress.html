@@ -83,7 +83,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Last Updated</span>
-          <span class="font-bold text-ink" id="last-updated">2026-10-17 21:04 (ICT)</span>
+          <span class="font-bold text-ink" id="last-updated">2026-10-17 21:24 (ICT)</span>
         </div>
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Git Branch</span>
@@ -336,6 +336,38 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: Component-Level State Encapsulation -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-17 21:24</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">State Encapsulation</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Fully encapsulated component-specific state directly inside respective components</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li>Moved <code>events</code>, <code>handleToggleJoin</code>, <code>quickFilter</code>, <code>handleQuickFind</code>, and <code>handleScrollToExplore</code> out of <code>page.tsx</code> directly into [<code>ExplorePageView.tsx</code>](file:///D:/project/team-up/frontend/components/explore/ExplorePageView.tsx).</li>
+                  <li>Cleaned <code>AppPageProps</code> down to lean routing props (<code>onNavigateTab</code>, <code>onOpenCreateEvent</code>, <code>createdEvent</code>).</li>
+                  <li>Reduced [<code>page.tsx</code>](file:///D:/project/team-up/frontend/app/page.tsx) to a minimal 48-line root shell managing only navigation state and global modal visibility.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/components/explore/ExplorePageView.tsx, frontend/components/navigation/routes.tsx, frontend/app/page.tsx
+              </td>
+            </tr>
+            <!-- Entry: Independent Localized Footer Component -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-17 21:14</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Footer Refactor</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Extracted independent localized Footer component &amp; removed hardcoded labels</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Item 1</strong>: Removed hardcoded route key ternary chain in footer navigation; now dynamically iterates over <code>APP_ROUTES</code> using <code>t(route.nameKey)</code>.</li>
+                  <li><strong>Item 2</strong>: Added full i18n support to footer with translations for rights, design system credits, and tagline in both English and Vietnamese.</li>
+                  <li><strong>Item 3</strong>: Moved footer out of <code>page.tsx</code> into dedicated [<code>Footer.tsx</code>](file:///D:/project/team-up/frontend/components/Footer.tsx) component with active tab change delegation.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/components/Footer.tsx, frontend/app/page.tsx, frontend/types/i18n.ts, frontend/locales/en.ts, frontend/locales/vi.ts
+              </td>
+            </tr>
             <!-- Entry 0: Decoupled Navigation Routing & Constants Refactoring -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-17 21:04</td>

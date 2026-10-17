@@ -91,4 +91,9 @@ export const vi: TranslationDictionary = {
     en: "English",
     vi: "Tiếng Việt",
   },
+  footer: {
+    builtWith: "Được xây dựng theo hệ thống thiết kế Wise.",
+    tagline: "Nền tảng kết nối thể thao & tìm kiếm đồng đội phong trào uy tín",
+    rights: "© 2026 TeamUp & SocialFinding. Bản quyền đã được bảo lưu.",
+  },
 };
