@@ -20,6 +20,7 @@ export interface TranslationDictionary {
     loading: string;
     save: string;
     cancel: string;
+    close: string;
     confirm: string;
     search: string;
     filter: string;
@@ -56,6 +57,19 @@ export interface TranslationDictionary {
     activeVenuesNearby: string;
     liveRadar: string;
     radarHint: string;
+  };
+  eventDetail: {
+    eventHost: string;
+    karmaPercent: string;
+    location: string;
+    schedule: string;
+    fee: string;
+    capacity: string;
+    spotsFilled: string;
+    hostNotes: string;
+    confirmedRoster: string;
+    leaveSpot: string;
+    joinWaitlist: string;
   };
   sports: {
     all: string;

@@ -83,7 +83,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Last Updated</span>
-          <span class="font-bold text-ink" id="last-updated">2026-10-25 12:15 (ICT)</span>
+          <span class="font-bold text-ink" id="last-updated">2026-10-25 13:40 (ICT)</span>
         </div>
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Git Branch</span>
@@ -336,6 +336,21 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: EventDetailModal i18n & Width -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-25 13:40</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Modal i18n &amp; UI</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Localized all EventDetailModal labels, widened modal, hid scrollbar &amp; added sticky top header</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Localization</strong>: Added <code>eventDetail</code> dictionary section (<code>eventHost</code>, <code>karmaPercent</code>, <code>location</code>, <code>schedule</code>, <code>fee</code>, <code>capacity</code>, <code>spotsFilled</code>, <code>hostNotes</code>, <code>confirmedRoster</code>, <code>leaveSpot</code>, <code>joinWaitlist</code>) in English and Vietnamese and wired up all labels in <code>EventDetailModal.tsx</code>.</li>
+                  <li><strong>Layout &amp; Scroll Polish</strong>: Widened modal container to <code>max-w-2xl</code>, increased modal padding (<code>px-7 sm:px-9 pb-7 sm:pb-9</code>), made the top header and close button sticky (<code>sticky top-0 z-10</code>), and added <code>.no-scrollbar</code> utility in <code>globals.css</code> to hide scrollbars while preserving scrolling.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/components/explore/EventDetailModal.tsx, frontend/app/globals.css, frontend/types/i18n.ts, frontend/locales/en.ts, frontend/locales/vi.ts
+              </td>
+            </tr>
             <!-- Entry: Layout Metadata & Explore Section i18n -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-25 12:15</td>
