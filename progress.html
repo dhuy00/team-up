@@ -83,7 +83,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Last Updated</span>
-          <span class="font-bold text-ink" id="last-updated">2026-10-25 14:10 (ICT)</span>
+          <span class="font-bold text-ink" id="last-updated">2026-10-25 15:04 (ICT)</span>
         </div>
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Git Branch</span>
@@ -336,6 +336,21 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: RadarVisualFeed Component Extraction -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-25 15:04</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Component Split</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Extracted RadarVisualFeed into a dedicated component</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li>Created <code>RadarVisualFeed.tsx</code> encapsulating the active venues nearby list and live radar badge.</li>
+                  <li>Replaced the inline <code>{/* Radar Visual Feed */}</code> block in <code>ExploreSection.tsx</code> with <code>&lt;RadarVisualFeed /&gt;</code>.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/components/explore/RadarVisualFeed.tsx, frontend/components/explore/ExploreSection.tsx
+              </td>
+            </tr>
             <!-- Entry: Unified Hero & Explore Filter State -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-25 14:10</td>
