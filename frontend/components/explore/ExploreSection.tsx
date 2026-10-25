@@ -9,8 +9,7 @@ import { CustomSelect } from "@/components/ui/CustomSelect";
 import {
   SIMULATED_API_SPORTS,
   SKILL_OPTIONS,
-  EXPLORE_DISTANCE_CONFIG,
-  HERO_DISTANCE_CONFIG,
+  DISTANCE_FILTER_CONFIG,
   DEFAULT_SPORT_FILTER,
   DEFAULT_SKILL_FILTER,
 } from "@/constants/explore";
@@ -18,32 +17,25 @@ import {
 interface ExploreSectionProps {
   events: EventActivity[];
   onToggleJoin: (eventId: number) => void;
-  selectedSport?: string;
-  selectedRadius?: number;
+  selectedSport: string;
+  selectedRadius: number;
+  onSportChange: (sport: string) => void;
+  onRadiusChange: (distanceKm: number) => void;
 }
 
 export const ExploreSection: React.FC<ExploreSectionProps> = ({
   events,
   onToggleJoin,
-  selectedSport = DEFAULT_SPORT_FILTER,
-  selectedRadius = HERO_DISTANCE_CONFIG.DEFAULT,
+  selectedSport,
+  selectedRadius,
+  onSportChange,
+  onRadiusChange,
 }) => {
   const { t } = useTranslation();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterSport, setFilterSport] = useState(selectedSport);
   const [filterSkill, setFilterSkill] = useState(DEFAULT_SKILL_FILTER);
-  const [radiusKm, setRadiusKm] = useState(selectedRadius);
   const [selectedEventForModal, setSelectedEventForModal] = useState<EventActivity | null>(null);
-
-  // Sync if props change
-  React.useEffect(() => {
-    if (selectedSport) setFilterSport(selectedSport);
-  }, [selectedSport]);
-
-  React.useEffect(() => {
-    if (selectedRadius) setRadiusKm(selectedRadius);
-  }, [selectedRadius]);
 
   const filteredEvents = useMemo(() => {
     return events.filter((ev) => {
@@ -56,8 +48,8 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
 
       // Sport
       const matchesSport =
-        filterSport === DEFAULT_SPORT_FILTER ||
-        ev.sport.toLowerCase() === filterSport.toLowerCase();
+        selectedSport === DEFAULT_SPORT_FILTER ||
+        ev.sport.toLowerCase() === selectedSport.toLowerCase();
 
       // Skill
       const matchesSkill =
@@ -65,17 +57,17 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
         ev.skill.toLowerCase() === filterSkill.toLowerCase();
 
       // Distance
-      const matchesDistance = ev.distanceKm <= radiusKm;
+      const matchesDistance = ev.distanceKm <= selectedRadius;
 
       return matchesSearch && matchesSport && matchesSkill && matchesDistance;
     });
-  }, [events, searchTerm, filterSport, filterSkill, radiusKm]);
+  }, [events, searchTerm, selectedSport, filterSkill, selectedRadius]);
 
   const handleResetFilters = () => {
     setSearchTerm("");
-    setFilterSport(DEFAULT_SPORT_FILTER);
+    onSportChange(DEFAULT_SPORT_FILTER);
     setFilterSkill(DEFAULT_SKILL_FILTER);
-    setRadiusKm(EXPLORE_DISTANCE_CONFIG.DEFAULT);
+    onRadiusChange(DISTANCE_FILTER_CONFIG.DEFAULT);
   };
 
   const sportOptions = useMemo(
@@ -120,8 +112,8 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
           <div className="flex flex-wrap items-center gap-2">
             <CustomSelect
               options={sportOptions}
-              value={filterSport}
-              onChange={(val) => setFilterSport(val)}
+              value={selectedSport}
+              onChange={(val) => onSportChange(val)}
               className="w-44"
               triggerClassName="py-2.5 px-3 text-xs"
             />
@@ -142,15 +134,15 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
             <span className="font-semibold text-ink">{t("explore.maxDistance")}:</span>
             <input
               type="range"
-              min={EXPLORE_DISTANCE_CONFIG.MIN}
-              max={EXPLORE_DISTANCE_CONFIG.MAX}
-              step={EXPLORE_DISTANCE_CONFIG.STEP}
-              value={radiusKm}
-              onChange={(e) => setRadiusKm(Number(e.target.value))}
+              min={DISTANCE_FILTER_CONFIG.MIN}
+              max={DISTANCE_FILTER_CONFIG.MAX}
+              step={DISTANCE_FILTER_CONFIG.STEP}
+              value={selectedRadius}
+              onChange={(e) => onRadiusChange(Number(e.target.value))}
               className="w-32 accent-ink cursor-pointer"
             />
             <span className="font-semibold text-ink bg-canvas-soft px-2.5 py-1 rounded-full border border-border">
-              {t("explore.distanceWithin", { distance: radiusKm })}
+              {t("explore.distanceWithin", { distance: selectedRadius })}
             </span>
           </div>
 

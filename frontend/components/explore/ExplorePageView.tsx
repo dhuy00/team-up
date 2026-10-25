@@ -80,12 +80,24 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
     handleScrollToExplore();
   };
 
+  const handleSportChange = (sport: string) => {
+    setQuickFilter((prev) => ({ ...prev, sport }));
+  };
+
+  const handleRadiusChange = (radius: number) => {
+    setQuickFilter((prev) => ({ ...prev, radius }));
+  };
+
   return (
     <>
       <HeroSection
         onExploreClick={handleScrollToExplore}
         onBrowseSquadsClick={() => onNavigateTab?.(NAV_TAB_IDS.SQUADS)}
         onQuickFind={handleQuickFind}
+        selectedSport={quickFilter.sport}
+        selectedRadius={quickFilter.radius}
+        onSportChange={handleSportChange}
+        onRadiusChange={handleRadiusChange}
       />
       <main className="flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ExploreSection
@@ -93,6 +105,8 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
           onToggleJoin={handleToggleJoin}
           selectedSport={quickFilter.sport}
           selectedRadius={quickFilter.radius}
+          onSportChange={handleSportChange}
+          onRadiusChange={handleRadiusChange}
         />
       </main>
     </>

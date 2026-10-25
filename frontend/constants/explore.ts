@@ -1,16 +1,12 @@
-export const HERO_DISTANCE_CONFIG = {
-  MIN: 1,
-  MAX: 25,
-  DEFAULT: 10,
-  STEP: 1,
-} as const;
-
-export const EXPLORE_DISTANCE_CONFIG = {
+export const DISTANCE_FILTER_CONFIG = {
   MIN: 1,
   MAX: 25,
   DEFAULT: 15,
   STEP: 1,
 } as const;
+
+export const HERO_DISTANCE_CONFIG = DISTANCE_FILTER_CONFIG;
+export const EXPLORE_DISTANCE_CONFIG = DISTANCE_FILTER_CONFIG;
 
 export const EVENT_CAPACITY_CONFIG = {
   MIN: 2,

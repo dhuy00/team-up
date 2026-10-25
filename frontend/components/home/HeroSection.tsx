@@ -42,7 +42,7 @@ import { ArrowRight } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { CustomSelect, CustomSelectOption } from "@/components/ui/CustomSelect";
 import {
-  HERO_DISTANCE_CONFIG,
+  DISTANCE_FILTER_CONFIG,
   SIMULATED_API_SPORTS,
   DEFAULT_SPORT_FILTER,
   fetchSportsApi,
@@ -53,6 +53,10 @@ interface HeroSectionProps {
   onExploreClick: () => void;
   onBrowseSquadsClick: () => void;
   onQuickFind: (sport: string, distanceKm: number) => void;
+  selectedSport?: string;
+  selectedRadius?: number;
+  onSportChange?: (sport: string) => void;
+  onRadiusChange?: (distanceKm: number) => void;
   availableSports?: SportConfigItem[];
 }
 
@@ -60,13 +64,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onExploreClick,
   onBrowseSquadsClick,
   onQuickFind,
+  selectedSport = DEFAULT_SPORT_FILTER,
+  selectedRadius = DISTANCE_FILTER_CONFIG.DEFAULT,
+  onSportChange,
+  onRadiusChange,
   availableSports = SIMULATED_API_SPORTS,
 }) => {
   const { t } = useTranslation();
 
   // Dynamic sports options simulated from API / variable (not hardcoded in JSX)
   const [sportsData, setSportsData] = useState<SportConfigItem[]>(availableSports);
-  const [selectedSport, setSelectedSport] = useState<string>(DEFAULT_SPORT_FILTER);
 
   // Simulating dynamic API response fetching
   useEffect(() => {
@@ -81,9 +88,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     };
   }, []);
 
-  // Distance value initialized from centralized constant (not hardcoded)
-  const [distance, setDistance] = useState<number>(HERO_DISTANCE_CONFIG.DEFAULT);
-
   // Transform dynamic sports data into CustomSelect options with translated labels
   const selectOptions: CustomSelectOption[] = sportsData.map((sport) => {
     // Resolve translation key dynamically, with fallback
@@ -97,7 +101,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onQuickFind(selectedSport, distance);
+    onQuickFind(selectedSport, selectedRadius);
   };
 
   return (
@@ -154,7 +158,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <CustomSelect
                     options={selectOptions}
                     value={selectedSport}
-                    onChange={(val) => setSelectedSport(val)}
+                    onChange={(val) => onSportChange?.(val)}
                     placeholder={t("sports.all")}
                   />
                 </div>
@@ -165,15 +169,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   </label>
                   <div className="flex items-center justify-between px-4 py-3 bg-canvas-soft border border-border rounded-[12px]">
                     <span className="text-sm font-semibold text-ink">
-                      {t("explore.distanceWithin", { distance })}
+                      {t("explore.distanceWithin", { distance: selectedRadius })}
                     </span>
                     <input
                       type="range"
-                      min={HERO_DISTANCE_CONFIG.MIN}
-                      max={HERO_DISTANCE_CONFIG.MAX}
-                      step={HERO_DISTANCE_CONFIG.STEP}
-                      value={distance}
-                      onChange={(e) => setDistance(Number(e.target.value))}
+                      min={DISTANCE_FILTER_CONFIG.MIN}
+                      max={DISTANCE_FILTER_CONFIG.MAX}
+                      step={DISTANCE_FILTER_CONFIG.STEP}
+                      value={selectedRadius}
+                      onChange={(e) => onRadiusChange?.(Number(e.target.value))}
                       className="w-32 accent-ink cursor-pointer"
                     />
                   </div>
