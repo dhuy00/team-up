@@ -83,11 +83,11 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Last Updated</span>
-          <span class="font-bold text-ink" id="last-updated">2026-10-17 21:24 (ICT)</span>
+          <span class="font-bold text-ink" id="last-updated">2026-10-25 12:15 (ICT)</span>
         </div>
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Git Branch</span>
-          <span class="font-bold text-ink">main (uncommitted review updates)</span>
+          <span class="font-bold text-ink">main (clean)</span>
         </div>
       </div>
     </header>
@@ -336,6 +336,21 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: Layout Metadata & Explore Section i18n -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-25 12:15</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">i18n Updates</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Localized layout metadata and ExploreSection radar strings per review.md</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Item 1 (layout.tsx)</strong>: Moved hardcoded <code>metadata.title</code> and <code>metadata.description</code> into language dictionaries (<code>en.ts</code>, <code>vi.ts</code>) and wired reactive <code>document.title</code> / meta description updates in <code>LanguageContext.tsx</code>.</li>
+                  <li><strong>Item 2 (ExploreSection.tsx)</strong>: Localized <code>km away</code>, <code>pins active</code>, <code>Active Venues Nearby</code>, <code>Live Radar</code>, and the radar footer hint using <code>useTranslation()</code> keys across English and Vietnamese locales.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/app/layout.tsx, frontend/components/explore/ExploreSection.tsx, frontend/context/LanguageContext.tsx, frontend/types/i18n.ts, frontend/locales/en.ts, frontend/locales/vi.ts
+              </td>
+            </tr>
             <!-- Entry: Component-Level State Encapsulation -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-17 21:24</td>

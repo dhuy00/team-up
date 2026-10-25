@@ -1,6 +1,10 @@
 export type Locale = "en" | "vi";
 
 export interface TranslationDictionary {
+  metadata: {
+    title: string;
+    description: string;
+  };
   nav: {
     exploreGames: string;
     clubsAndSquads: string;
@@ -46,6 +50,12 @@ export interface TranslationDictionary {
     noActivitiesFound: string;
     noActivitiesHint: string;
     localRadar: string;
+    distanceAway: string;
+    distanceShort: string;
+    pinsActive: string;
+    activeVenuesNearby: string;
+    liveRadar: string;
+    radarHint: string;
   };
   sports: {
     all: string;

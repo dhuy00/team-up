@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "@/components/providers/AppProviders";
+import { defaultLocale, dictionaries } from "@/locales";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -10,8 +11,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "TeamUp & SocialFinding — Sports & Activity Platform",
-  description: "Find local teammates, join recreational activities, and build your sports passport.",
+  title: dictionaries[defaultLocale].metadata.title,
+  description: dictionaries[defaultLocale].metadata.description,
 };
 
 export default function RootLayout({

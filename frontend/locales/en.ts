@@ -1,6 +1,10 @@
 import type { TranslationDictionary } from "@/types/i18n";
 
 export const en: TranslationDictionary = {
+  metadata: {
+    title: "TeamUp & SocialFinding — Sports & Activity Platform",
+    description: "Find local teammates, join recreational activities, and build your sports passport.",
+  },
   nav: {
     exploreGames: "Explore Games",
     clubsAndSquads: "Clubs & Squads",
@@ -46,6 +50,12 @@ export const en: TranslationDictionary = {
     noActivitiesFound: "No activities match your filters",
     noActivitiesHint: "Try expanding your distance radius or selecting all sports.",
     localRadar: "Local Game Radar",
+    distanceAway: "{distance} km away",
+    distanceShort: "{distance} km",
+    pinsActive: "{count} pins active",
+    activeVenuesNearby: "Active Venues Nearby",
+    liveRadar: "Live Radar",
+    radarHint: "Click any pin or activity above to view full roster and reserve your spot.",
   },
   sports: {
     all: "All Sports",

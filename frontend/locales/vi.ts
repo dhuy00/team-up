@@ -1,6 +1,10 @@
 import type { TranslationDictionary } from "@/types/i18n";
 
 export const vi: TranslationDictionary = {
+  metadata: {
+    title: "TeamUp & SocialFinding — Nền tảng Thể thao & Kết nối Đồng đội",
+    description: "Tìm kiếm đồng đội địa phương, tham gia các hoạt động thể thao giải trí và xây dựng hộ chiếu thể thao của bạn.",
+  },
   nav: {
     exploreGames: "Khám phá trận đấu",
     clubsAndSquads: "Câu lạc bộ & Đội nhóm",
@@ -46,6 +50,12 @@ export const vi: TranslationDictionary = {
     noActivitiesFound: "Không có trận đấu nào khớp với bộ lọc",
     noActivitiesHint: "Hãy thử mở rộng bán kính khoảng cách hoặc chọn tất cả các môn thể thao.",
     localRadar: "Radar trận đấu địa phương",
+    distanceAway: "Cách {distance} km",
+    distanceShort: "{distance} km",
+    pinsActive: "{count} điểm đang mở",
+    activeVenuesNearby: "Sân bãi đang hoạt động gần đây",
+    liveRadar: "Radar trực tiếp",
+    radarHint: "Nhấn vào bất kỳ địa điểm hoặc trận đấu nào ở trên để xem danh sách đội hình và đặt chỗ.",
   },
   sports: {
     all: "Tất cả môn",

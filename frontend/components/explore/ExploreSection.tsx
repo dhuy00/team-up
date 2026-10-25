@@ -214,7 +214,7 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
                         </div>
                         <div className="text-right">
                           <span className="text-xs font-semibold text-ink">
-                            {ev.distanceKm} km away
+                            {t("explore.distanceAway", { distance: ev.distanceKm })}
                           </span>
                         </div>
                       </div>
@@ -314,16 +314,16 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
                 {t("explore.localRadar")}
               </span>
               <span className="text-xs text-mute font-mono">
-                {filteredEvents.length} pins active
+                {t("explore.pinsActive", { count: filteredEvents.length })}
               </span>
             </div>
 
             {/* Radar Visual Feed */}
             <div className="bg-canvas-soft rounded-[16px] p-4 border border-border space-y-3">
               <div className="text-xs text-body font-semibold flex items-center justify-between">
-                <span>Active Venues Nearby</span>
+                <span>{t("explore.activeVenuesNearby")}</span>
                 <span className="text-primary-deep text-[10px] font-bold uppercase bg-primary-pale px-2 py-0.5 rounded-full border border-primary-neutral">
-                  Live Radar
+                  {t("explore.liveRadar")}
                 </span>
               </div>
 
@@ -346,7 +346,7 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <span className="text-[11px] font-mono font-bold text-ink block">{ev.distanceKm} km</span>
+                      <span className="text-[11px] font-mono font-bold text-ink block">{t("explore.distanceShort", { distance: ev.distanceKm })}</span>
                       <span className="text-[10px] text-positive-deep font-semibold">{ev.confirmedPlayers}/{ev.maxPlayers}</span>
                     </div>
                   </div>
@@ -355,7 +355,7 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
             </div>
 
             <div className="text-[11px] text-mute text-center">
-              Click any pin or activity above to view full roster and reserve your spot.
+              {t("explore.radarHint")}
             </div>
           </div>
         </div>

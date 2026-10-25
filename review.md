@@ -1,11 +1,7 @@
-1: page.tsx: {route.key === "explore"
-                    ? "Explore Games"
-                    : route.key === "squads"
-                    ? "Clubs & Squads"
-                    : route.key === "chats"
-                    ? "Messages"
-                    : "Sports Passport"}: Do not hard code like this, use something else
+layout.tsx: move export const metadata: Metadata = {
+  title: "TeamUp & SocialFinding — Sports & Activity Platform",
+  description: "Find local teammates, join recreational activities, and build your sports passport.",
+}; to a lang
 
-2: page.tsx: use language for footer, right now change language doesnt change the footer content
-
-3: move footer to an independant component
+Explore section.tsx
+km awa, pins active, Active Venues Nearby, Live Radar, Click any pin or activity above to view full roster and reserve your spot.: move to lang

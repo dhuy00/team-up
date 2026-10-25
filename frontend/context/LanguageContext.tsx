@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useCallback, useSyncExternalStore } from "react";
+import React, { createContext, useContext, useCallback, useEffect, useSyncExternalStore } from "react";
 import type { Locale } from "@/types/i18n";
 import { defaultLocale, dictionaries, supportedLocales, type LocaleOption } from "@/locales";
 
@@ -105,6 +105,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     },
     [locale]
   );
+
+  useEffect(() => {
+    const currentDict = dictionaries[locale] || dictionaries[defaultLocale];
+    document.documentElement.lang = locale;
+    document.title = currentDict.metadata.title;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", currentDict.metadata.description);
+    }
+  }, [locale]);
 
   return (
     <LanguageContext.Provider value={{ locale, setLocale, t, supportedLocales }}>
