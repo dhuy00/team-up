@@ -91,7 +91,7 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
   );
 
   return (
-    <section id="explore-section" className="space-y-6">
+    <section id="explore-section" className="space-y-6 scroll-mt-24">
       
       {/* Search & Filters Container */}
       <div className="bg-canvas p-6 rounded-[24px] border border-border space-y-4 shadow-sm transition-colors duration-200">

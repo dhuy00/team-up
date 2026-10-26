@@ -105,8 +105,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   return (
-    <section className="bg-canvas-soft border-b border-border transition-colors duration-200 py-12 md:py-16">
-      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="bg-canvas-soft border-b border-border transition-colors duration-200 min-h-[calc(100dvh-5rem)] flex items-center py-12 md:py-16">
+      <div className="max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           
           {/* Left: Headline in Wise-style Weight 900 Display & Lead */}
