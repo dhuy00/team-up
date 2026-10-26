@@ -18,6 +18,7 @@ import {
 interface ExploreSectionProps {
   events: EventActivity[];
   onToggleJoin: (eventId: number) => void;
+  onUpdateEvents?: (events: EventActivity[]) => void;
   selectedSport: string;
   selectedRadius: number;
   onSportChange: (sport: string) => void;
@@ -27,6 +28,7 @@ interface ExploreSectionProps {
 export const ExploreSection: React.FC<ExploreSectionProps> = ({
   events,
   onToggleJoin,
+  onUpdateEvents,
   selectedSport,
   selectedRadius,
   onSportChange,
@@ -314,7 +316,10 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
             {/* Radar Visual Feed */}
             <RadarVisualFeed
               events={filteredEvents}
+              allEvents={events}
+              selectedRadius={selectedRadius}
               onSelectEvent={setSelectedEventForModal}
+              onUpdateEvents={onUpdateEvents}
             />
 
             <div className="text-[11px] text-mute text-center">

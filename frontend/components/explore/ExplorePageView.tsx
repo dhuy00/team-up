@@ -103,6 +103,7 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
         <ExploreSection
           events={events}
           onToggleJoin={handleToggleJoin}
+          onUpdateEvents={setEvents}
           selectedSport={quickFilter.sport}
           selectedRadius={quickFilter.radius}
           onSportChange={handleSportChange}

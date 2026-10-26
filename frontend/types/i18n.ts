@@ -57,6 +57,13 @@ export interface TranslationDictionary {
     activeVenuesNearby: string;
     liveRadar: string;
     radarHint: string;
+    searchLocationPlaceholder: string;
+    useMyLocation: string;
+    locating: string;
+    scanArea: string;
+    radarCenter: string;
+    clickMapHint: string;
+    playersNearby: string;
   };
   eventDetail: {
     eventHost: string;
