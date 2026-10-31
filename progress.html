@@ -83,7 +83,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Last Updated</span>
-          <span class="font-bold text-ink" id="last-updated">2026-10-31 12:31 (ICT)</span>
+          <span class="font-bold text-ink" id="last-updated">2026-10-31 18:05 (ICT)</span>
         </div>
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Git Branch</span>
@@ -328,13 +328,13 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
         <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-ink">TC-1.1: Squad Creation, Search &amp; Detail Modal</span>
+            <span class="font-bold text-sm text-ink">TC-1.1: Squad Creation, Edit, Delete &amp; Detail Modal</span>
             <span class="badge badge-done">Squads</span>
           </div>
           <ol class="list-decimal pl-4 space-y-1 text-body">
             <li>Navigate to <strong>Clubs &amp; Squads</strong> tab and type <code>"Badminton"</code> or <code>"Riverside"</code> in the search bar, or select a sport filter &rarr; Verify cards filter live.</li>
-            <li>Click a squad card title or <strong>Details</strong> button &rarr; Verify <code>SquadDetailModal</code> opens showing captain, home venue, capacity, and press <code>Escape</code> to close.</li>
-            <li>Click <strong>Create a Squad</strong>, fill in name, abbreviation, sport, max members, and venue, then submit &rarr; Verify the new squad appears at the top of the list with status <em>Invite Requested ✓</em>.</li>
+            <li>Click <strong>Create a Squad</strong>, fill in name, sport, max members, and venue, then submit &rarr; Verify the 2–3 char badge abbreviation is auto-generated from the squad name and the card displays equal-width <strong>Details</strong> and <strong>Edit Squad</strong> buttons plus a top-right trash icon.</li>
+            <li>Click <strong>Edit Squad</strong> on the card (or inside <code>SquadDetailModal</code>) to update squad details, or click the top-right delete icon to confirm deletion via <code>ConfirmDialog</code>.</li>
           </ol>
         </div>
 
@@ -420,6 +420,37 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: Squad Edit & Delete + Auto Abbr -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 18:04</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Squad Edit &amp; Delete</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Added Edit Squad &amp; Delete Squad functionality and auto-derived badge abbreviation</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Auto-Derived Badge Abbreviation</strong>: Removed the manual 2–3 char abbreviation input from <code>CreateSquadModal.tsx</code> so Squad Name spans full width and <code>abbr</code> is automatically generated from the squad name initials.</li>
+                  <li><strong>Captain Card &amp; Modal Actions</strong>: Added a compact top-right delete icon button (with <code>ConfirmDialog</code>) and equal-width (<code>grid-cols-2</code>) <strong>Details</strong> and <strong>Edit Squad</strong> buttons on <code>SquadCard.tsx</code>, plus <strong>Edit Squad</strong> inside <code>SquadDetailModal.tsx</code>.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/components/squads/CreateSquadModal.tsx, frontend/components/squads/SquadCard.tsx, frontend/components/squads/SquadDetailModal.tsx, frontend/components/squads/SquadsSection.tsx, frontend/locales/en.ts, frontend/locales/vi.ts, frontend/types/i18n.ts, progress.html
+              </td>
+            </tr>
+            <!-- Entry: Match Edit + Horizontal Start/End DateTime Picker -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 16:59</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Match Edit &amp; Start/End Time</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Added Match Editing, horizontal portal DateTime picker with Start/End time bounds, and end-time overlap detection</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Horizontal Portal DateTime Picker</strong>: Aligned the calendar date picker and scrollable wheel/stepper time picker horizontally side-by-side in <code>CustomDateTimePicker.tsx</code> and rendered the popover via <code>createPortal</code> so it is never clipped by the form border.</li>
+                  <li><strong>Start &amp; End Time Selection + Guard</strong>: Added a <strong>Start / End</strong> segmented selector in <code>CustomDateTimePicker.tsx</code> that strictly prevents setting <code>End Time &le; Start Time</code>, formats match schedules without seconds, stores <code>endTimeIso</code>, and checks <code>[startMinutes, endMinutes)</code> interval overlaps in <code>scheduleConflict.ts</code>.</li>
+                  <li><strong>Edit Match Flow</strong>: Added <strong>Edit Match</strong> in <code>EventDetailModal.tsx</code> (alongside <strong>Close</strong>) to open <code>CreateEventModal.tsx</code> pre-filled with the match's current details.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/components/ui/CustomDateTimePicker.tsx, frontend/components/explore/CreateEventModal.tsx, frontend/components/explore/EventDetailModal.tsx, frontend/components/explore/ExploreSection.tsx, frontend/lib/scheduleConflict.ts, frontend/locales/en.ts, frontend/locales/vi.ts, frontend/types/i18n.ts, frontend/types/models.ts, progress.html
+              </td>
+            </tr>
             <!-- Entry: Custom DateTime Picker UI -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 12:31</td>
