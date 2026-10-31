@@ -68,3 +68,33 @@ export const SKILL_OPTIONS: SkillConfigItem[] = [
   { value: "Intermediate", labelKey: "skills.intermediate", fallbackLabel: "Intermediate" },
   { value: "Advanced", labelKey: "skills.advanced", fallbackLabel: "Advanced Only" },
 ];
+
+export function getSportIcon(sport: string): string {
+  const matched = SIMULATED_API_SPORTS.find(
+    (s) => s.value.toLowerCase() === sport.toLowerCase()
+  );
+  return matched?.icon ?? "🏆";
+}
+
+export function buildSportSelectOptions(
+  t: (path: string) => string,
+  options?: { includeAll?: boolean; sports?: SportConfigItem[] }
+) {
+  const includeAll = options?.includeAll ?? true;
+  const source = options?.sports ?? SIMULATED_API_SPORTS;
+
+  return source
+    .filter((s) => includeAll || s.value !== DEFAULT_SPORT_FILTER)
+    .map((s) => ({
+      value: s.value,
+      label: t(s.labelKey) || s.fallbackLabel,
+      icon: s.icon,
+    }));
+}
+
+export function buildSkillSelectOptions(t: (path: string) => string) {
+  return SKILL_OPTIONS.map((sk) => ({
+    value: sk.value,
+    label: t(sk.labelKey) || sk.fallbackLabel,
+  }));
+}

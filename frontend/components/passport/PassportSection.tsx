@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { Award, Check, Plus } from "lucide-react";
+import { Award, Check } from "lucide-react";
 import { UserProfile, SportPassportItem } from "@/types/models";
 import { mockUserProfile } from "@/lib/mockData";
 import { useTranslation } from "@/hooks/useTranslation";

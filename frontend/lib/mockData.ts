@@ -1,4 +1,61 @@
-import { EventActivity, TeamSquad, ChatChannel, UserProfile } from "@/types/models";
+import {
+  EventActivity,
+  TeamSquad,
+  ChatChannel,
+  UserProfile,
+  NearbyPlayer,
+} from "@/types/models";
+
+export const NEARBY_PLAYERS_SEED: NearbyPlayer[] = [
+  {
+    id: "p1",
+    name: "Minh Tuấn",
+    avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=80&h=80&fit=crop&crop=faces",
+    sport: "Soccer",
+    sportIcon: "⚽",
+    skill: "Intermediate",
+    karma: 98,
+    status: "Looking for 5v5 match tonight",
+    latOffset: 0.008,
+    lngOffset: 0.011,
+  },
+  {
+    id: "p2",
+    name: "Sarah Jenkins",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=faces",
+    sport: "Badminton",
+    sportIcon: "🏸",
+    skill: "Advanced",
+    karma: 99,
+    status: "Ready for doubles partner",
+    latOffset: -0.009,
+    lngOffset: 0.007,
+  },
+  {
+    id: "p3",
+    name: "Kenji Sato",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=faces",
+    sport: "Basketball",
+    sportIcon: "🏀",
+    skill: "All Levels",
+    karma: 95,
+    status: "At court — need 2 more for 3v3",
+    latOffset: 0.014,
+    lngOffset: -0.008,
+  },
+  {
+    id: "p4",
+    name: "Elena Rostova",
+    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&h=80&fit=crop&crop=faces",
+    sport: "Pickleball",
+    sportIcon: "🏓",
+    skill: "Intermediate",
+    karma: 97,
+    status: "Free this evening within 5km",
+    latOffset: -0.006,
+    lngOffset: -0.013,
+  },
+];
 
 export const initialEvents: EventActivity[] = [
   {

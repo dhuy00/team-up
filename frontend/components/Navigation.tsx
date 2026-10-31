@@ -63,7 +63,7 @@ const Navigation = ({ activeTab, onTabChange, onHostGameClick }: NavigationProps
                 }`}
               >
                 {route.icon({ className: "w-4 h-4" })}
-                <span>{t(route.nameKey as any)}</span>
+                <span>{t(route.nameKey)}</span>
               </button>
             );
           })}

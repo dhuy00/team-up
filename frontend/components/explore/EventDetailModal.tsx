@@ -31,13 +31,19 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
         {/* Sticky Header with Close Button */}
         <div className="sticky top-0 z-10 bg-canvas pt-5 sm:pt-6 pb-4 border-b border-border flex items-start justify-between gap-4">
           <div>
-            <div className="flex items-center space-x-2 mb-2">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
               <span className="px-3 py-1 bg-canvas-soft text-ink text-xs font-semibold rounded-full border border-border">
                 {event.icon} {event.sport}
               </span>
               <span className="px-2.5 py-0.5 bg-canvas-soft text-body text-xs font-medium rounded-full">
                 {event.skill}
               </span>
+              {event.userJoined && (
+                <span className="px-2.5 py-0.5 bg-primary-pale text-positive-deep border border-primary-neutral text-xs font-bold rounded-full inline-flex items-center gap-1">
+                  <Check className="w-3 h-3 stroke-[2.5]" />
+                  <span>{t("common.joined")}</span>
+                </span>
+              )}
             </div>
             <h3 className="text-xl sm:text-2xl font-[900] text-ink tracking-tight">
               {event.title}
@@ -172,8 +178,8 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
           >
             {event.userJoined ? (
               <>
-                <Check className="w-4 h-4 stroke-[3]" />
-                <span>{t("eventDetail.leaveSpot")}</span>
+                <X className="w-4 h-4 stroke-[2.5]" />
+                <span>{t("common.cancel")}</span>
               </>
             ) : isFull ? (
               <span>{t("eventDetail.joinWaitlist")}</span>

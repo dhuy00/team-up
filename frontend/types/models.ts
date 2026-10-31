@@ -1,3 +1,27 @@
+export interface GeoCoordinates {
+  lat: number;
+  lng: number;
+}
+
+export interface LocationPreset extends GeoCoordinates {
+  label: string;
+}
+
+export type RadarDisplayMode = "map" | "venues";
+
+export interface NearbyPlayer {
+  id: string;
+  name: string;
+  avatar: string;
+  sport: string;
+  sportIcon: string;
+  skill: string;
+  karma: number;
+  status: string;
+  latOffset: number;
+  lngOffset: number;
+}
+
 export interface Host {
   name: string;
   karma: number;

@@ -6,26 +6,18 @@ import { EventActivity } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import {
-  SIMULATED_API_SPORTS,
-  SKILL_OPTIONS,
   EVENT_CAPACITY_CONFIG,
-  DEFAULT_SPORT_FILTER,
+  getSportIcon,
+  buildSportSelectOptions,
+  buildSkillSelectOptions,
 } from "@/constants/explore";
+import { DEFAULT_RADAR_CENTER } from "@/constants/radar";
 
 interface CreateEventModalProps {
   isOpen: boolean;
   onClose: () => void;
   onEventCreated: (event: EventActivity) => void;
 }
-
-const SPORT_ICONS: Record<string, string> = {
-  Soccer: "⚽",
-  Basketball: "🏀",
-  Badminton: "🏸",
-  Pickleball: "🏓",
-  Running: "🏃",
-  "Board Games": "🎲",
-};
 
 export const CreateEventModal: React.FC<CreateEventModalProps> = ({
   isOpen,
@@ -43,18 +35,8 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
   const [cost, setCost] = useState("Free");
   const [notes, setNotes] = useState("");
 
-  const sportOptions = SIMULATED_API_SPORTS
-    .filter((s) => s.value !== DEFAULT_SPORT_FILTER)
-    .map((s) => ({
-      value: s.value,
-      label: t(s.labelKey as any) || s.fallbackLabel,
-      icon: s.icon,
-    }));
-
-  const skillOptions = SKILL_OPTIONS.map((sk) => ({
-    value: sk.value,
-    label: t(sk.labelKey as any) || sk.fallbackLabel,
-  }));
+  const sportOptions = buildSportSelectOptions(t, { includeAll: false });
+  const skillOptions = buildSkillSelectOptions(t);
 
   if (!isOpen) return null;
 
@@ -66,13 +48,13 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
       id: Date.now(),
       title,
       sport,
-      icon: SPORT_ICONS[sport] || "🏆",
+      icon: getSportIcon(sport),
       skill,
       venue,
       address: venue,
       distanceKm: 1.0,
-      lat: 37.7749,
-      lng: -122.4194,
+      lat: DEFAULT_RADAR_CENTER.lat,
+      lng: DEFAULT_RADAR_CENTER.lng,
       dateTimeStr: dateTime ? new Date(dateTime).toLocaleString() : "This weekend",
       cost: cost || "Free",
       confirmedPlayers: 1,

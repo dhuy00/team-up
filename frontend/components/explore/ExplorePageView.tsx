@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { EventActivity } from "@/types/models";
 import { initialEvents } from "@/lib/mockData";
 import {
@@ -31,16 +31,18 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
 }) => {
   // Encapsulated events state
   const [events, setEvents] = useState<EventActivity[]>(initialEvents);
+  const [lastSyncedCreatedId, setLastSyncedCreatedId] = useState<number | null>(
+    null
+  );
 
   // Encapsulated quick match filter state
   const [quickFilter, setQuickFilter] = useState<QuickFilterState>(DEFAULT_QUICK_FILTER);
 
   // Sync when a new activity is published from the Host Game wizard
-  useEffect(() => {
-    if (createdEvent) {
-      setEvents((prev) => [createdEvent, ...prev]);
-    }
-  }, [createdEvent]);
+  if (createdEvent && createdEvent.id !== lastSyncedCreatedId) {
+    setLastSyncedCreatedId(createdEvent.id);
+    setEvents((prev) => [createdEvent, ...prev]);
+  }
 
   // Encapsulated reservation / spot booking toggle handler
   const handleToggleJoin = (eventId: number) => {

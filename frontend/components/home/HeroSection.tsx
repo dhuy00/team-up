@@ -47,6 +47,7 @@ import {
   DEFAULT_SPORT_FILTER,
   fetchSportsApi,
   SportConfigItem,
+  buildSportSelectOptions,
 } from "@/constants/explore";
 
 interface HeroSectionProps {
@@ -89,14 +90,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   }, []);
 
   // Transform dynamic sports data into CustomSelect options with translated labels
-  const selectOptions: CustomSelectOption[] = sportsData.map((sport) => {
-    // Resolve translation key dynamically, with fallback
-    const localizedLabel = t(sport.labelKey as any) || sport.fallbackLabel;
-    return {
-      value: sport.value,
-      label: localizedLabel,
-      icon: sport.icon,
-    };
+  const selectOptions: CustomSelectOption[] = buildSportSelectOptions(t, {
+    sports: sportsData,
   });
 
   const handleSubmit = (e: React.FormEvent) => {

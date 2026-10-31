@@ -43,7 +43,7 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange }) => {
                 onClick={() => onTabChange?.(route.id)}
                 className="hover:text-canvas transition-colors cursor-pointer"
               >
-                {t(route.nameKey as any)}
+                {t(route.nameKey)}
               </button>
             ))}
           </div>
