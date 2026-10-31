@@ -31,7 +31,10 @@ function parse12HourTimeToMinutes(timeStr: string): number | null {
   return hours * 60 + minutes;
 }
 
-function getRelativeDayLabels(date: Date): string[] {
+function getRelativeDayLabels(date: Date): {
+  isoDate: string;
+  dayKeys: string[];
+} {
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const targetStart = new Date(
@@ -49,10 +52,13 @@ function getRelativeDayLabels(date: Date): string[] {
   )}-${String(date.getDate()).padStart(2, "0")}`;
   const weekday = WEEKDAYS[date.getDay()];
 
-  const keys = [isoDate, weekday];
+  const keys = [isoDate];
+  if (diffDays >= 0 && diffDays < 7) {
+    keys.push(weekday);
+  }
   if (diffDays === 0) keys.push("today");
   if (diffDays === 1) keys.push("tomorrow");
-  return keys;
+  return { isoDate, dayKeys: keys };
 }
 
 /**
@@ -60,18 +66,38 @@ function getRelativeDayLabels(date: Date): string[] {
  * and a `[startMinutes, endMinutes]` interval.
  */
 export function parseEventSchedule(
-  event: Pick<EventActivity, "dateTimeStr" | "startTimeIso">
-): { dayKeys: string[]; startMinutes: number; endMinutes: number } | null {
+  event: Pick<EventActivity, "dateTimeStr" | "startTimeIso" | "endTimeIso">
+): {
+  isoDate?: string;
+  dayKeys: string[];
+  startMinutes: number;
+  endMinutes: number;
+} | null {
   // 1. Check ISO timestamp if available
   if (event.startTimeIso) {
     const parsedDate = new Date(event.startTimeIso);
     if (!Number.isNaN(parsedDate.getTime())) {
       const startMinutes =
         parsedDate.getHours() * 60 + parsedDate.getMinutes();
+
+      let endMinutes = startMinutes + DEFAULT_DURATION_MINUTES;
+      if (event.endTimeIso) {
+        const parsedEnd = new Date(event.endTimeIso);
+        if (!Number.isNaN(parsedEnd.getTime())) {
+          const candidateEnd =
+            parsedEnd.getHours() * 60 + parsedEnd.getMinutes();
+          if (candidateEnd > startMinutes) {
+            endMinutes = candidateEnd;
+          }
+        }
+      }
+
+      const { isoDate, dayKeys } = getRelativeDayLabels(parsedDate);
       return {
-        dayKeys: getRelativeDayLabels(parsedDate),
+        isoDate,
+        dayKeys,
         startMinutes,
-        endMinutes: startMinutes + DEFAULT_DURATION_MINUTES,
+        endMinutes,
       };
     }
   }
@@ -80,12 +106,12 @@ export function parseEventSchedule(
 
   // 2. Check pattern: "<DayLabel>, <StartTime> [- <EndTime>]"
   // e.g. "Today, 7:00 PM - 8:30 PM" or "Friday, 5:30 PM"
-  const commaIdx = raw.indexOf(",");
+  const commaIdx = raw.lastIndexOf(",");
   if (commaIdx !== -1) {
     const dayPart = raw.slice(0, commaIdx).trim().toLowerCase();
     const timePart = raw.slice(commaIdx + 1).trim();
 
-    const rangeParts = timePart.split(/\s*-\s*/);
+    const rangeParts = timePart.split(/\s*[-–]\s*/);
     const startMinutes = parse12HourTimeToMinutes(rangeParts[0]);
     if (startMinutes !== null) {
       const endMinutes =
@@ -107,8 +133,10 @@ export function parseEventSchedule(
   if (!Number.isNaN(fallbackDate.getTime())) {
     const startMinutes =
       fallbackDate.getHours() * 60 + fallbackDate.getMinutes();
+    const { isoDate, dayKeys } = getRelativeDayLabels(fallbackDate);
     return {
-      dayKeys: getRelativeDayLabels(fallbackDate),
+      isoDate,
+      dayKeys,
       startMinutes,
       endMinutes: startMinutes + DEFAULT_DURATION_MINUTES,
     };
@@ -121,8 +149,8 @@ export function parseEventSchedule(
  * Returns true if two events occur on the same day and their time windows overlap.
  */
 export function doEventsOverlap(
-  eventA: Pick<EventActivity, "dateTimeStr" | "startTimeIso">,
-  eventB: Pick<EventActivity, "dateTimeStr" | "startTimeIso">
+  eventA: Pick<EventActivity, "dateTimeStr" | "startTimeIso" | "endTimeIso">,
+  eventB: Pick<EventActivity, "dateTimeStr" | "startTimeIso" | "endTimeIso">
 ): boolean {
   // Exact string match fallback
   if (
@@ -139,7 +167,10 @@ export function doEventsOverlap(
     return false;
   }
 
-  const sharesDay = parsedA.dayKeys.some((k) => parsedB.dayKeys.includes(k));
+  const sharesDay =
+    parsedA.isoDate && parsedB.isoDate
+      ? parsedA.isoDate === parsedB.isoDate
+      : parsedA.dayKeys.some((k) => parsedB.dayKeys.includes(k));
   if (!sharesDay) {
     return false;
   }
@@ -155,7 +186,10 @@ export function doEventsOverlap(
  * Finds an already-joined event that conflicts in schedule with `candidateEvent`.
  */
 export function findConflictingJoinedEvent(
-  candidateEvent: Pick<EventActivity, "id" | "dateTimeStr" | "startTimeIso">,
+  candidateEvent: Pick<
+    EventActivity,
+    "id" | "dateTimeStr" | "startTimeIso" | "endTimeIso"
+  >,
   allEvents: EventActivity[]
 ): EventActivity | null {
   for (const ev of allEvents) {

@@ -5,6 +5,7 @@ import { MapPin } from "lucide-react";
 import { EventActivity } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 import { EventDetailModal } from "./EventDetailModal";
+import { CreateEventModal } from "./CreateEventModal";
 import { RadarVisualFeed } from "./RadarVisualFeed";
 import { ExploreFilterBar } from "./ExploreFilterBar";
 import { EventCard } from "./EventCard";
@@ -50,6 +51,7 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
   const [eventIdPendingDelete, setEventIdPendingDelete] = useState<
     number | null
   >(null);
+  const [editingEvent, setEditingEvent] = useState<EventActivity | null>(null);
 
   const filteredEvents = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
@@ -189,15 +191,25 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
         <EventDetailModal
           event={selectedEventForModal}
           onClose={() => setSelectedEventIdForModal(null)}
-          onToggleJoin={onToggleJoin}
           onTransferHost={onTransferHost}
-          onDeleteEvent={(id) => setEventIdPendingDelete(id)}
-          onOpenMatchChat={(ev) => {
+          onEditEvent={(ev) => {
             setSelectedEventIdForModal(null);
-            onOpenMatchChat?.(ev);
+            setEditingEvent(ev);
           }}
         />
       )}
+
+      {/* Edit Match Modal */}
+      <CreateEventModal
+        isOpen={Boolean(editingEvent)}
+        onClose={() => setEditingEvent(null)}
+        editingEvent={editingEvent}
+        onEventUpdated={(updated) => {
+          onUpdateEvents?.(
+            events.map((ev) => (ev.id === updated.id ? updated : ev))
+          );
+        }}
+      />
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog

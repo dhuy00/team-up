@@ -22,13 +22,85 @@ import { DEFAULT_RADAR_CENTER } from "@/constants/radar";
 interface CreateEventModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onEventCreated: (event: EventActivity) => void;
+  onEventCreated?: (event: EventActivity) => void;
+  editingEvent?: EventActivity | null;
+  onEventUpdated?: (event: EventActivity) => void;
+}
+
+function getDefaultTomorrowDateTime(): string {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const y = tomorrow.getFullYear();
+  const m = String(tomorrow.getMonth() + 1).padStart(2, "0");
+  const d = String(tomorrow.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}T19:00`;
+}
+
+function getDefaultEndFromStart(startIso: string): string {
+  const [datePart, timePart] = (startIso || getDefaultTomorrowDateTime()).split(
+    "T"
+  );
+  const [hStr, mStr] = (timePart || "19:00").split(":");
+  const startTotal =
+    (parseInt(hStr || "19", 10) || 19) * 60 + (parseInt(mStr || "0", 10) || 0);
+  const endTotal = Math.min(23 * 60 + 59, startTotal + 90);
+  const endH = String(Math.floor(endTotal / 60)).padStart(2, "0");
+  const endM = String(endTotal % 60).padStart(2, "0");
+  return `${datePart}T${endH}:${endM}`;
+}
+
+function parseCostState(cost: string): { isFree: boolean; feeAmount: string } {
+  if (!cost || cost.trim().toLowerCase() === "free") {
+    return { isFree: true, feeAmount: "" };
+  }
+  const digits = cost.replace(/[^\d]/g, "");
+  if (!digits || Number(digits) <= 0) {
+    return { isFree: true, feeAmount: "" };
+  }
+  return { isFree: false, feeAmount: digits };
+}
+
+function formatMatchDateTimeStr(
+  startIso: string,
+  endIso: string,
+  locale: string
+): string {
+  const startObj = new Date(startIso);
+  if (Number.isNaN(startObj.getTime())) return startIso;
+
+  const datePart = new Intl.DateTimeFormat(
+    locale === "vi" ? "vi-VN" : "en-US",
+    {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    }
+  ).format(startObj);
+
+  const timeFormatter = new Intl.DateTimeFormat(
+    locale === "vi" ? "vi-VN" : "en-US",
+    {
+      hour: "numeric",
+      minute: "2-digit",
+    }
+  );
+  const startTimeFormatted = timeFormatter.format(startObj);
+
+  const endObj = endIso ? new Date(endIso) : null;
+  if (endObj && !Number.isNaN(endObj.getTime())) {
+    const endTimeFormatted = timeFormatter.format(endObj);
+    return `${datePart}, ${startTimeFormatted} - ${endTimeFormatted}`;
+  }
+
+  return `${datePart}, ${startTimeFormatted}`;
 }
 
 export const CreateEventModal: React.FC<CreateEventModalProps> = ({
   isOpen,
   onClose,
   onEventCreated,
+  editingEvent = null,
+  onEventUpdated,
 }) => {
   const { t, locale } = useTranslation();
   const toast = useToast();
@@ -37,17 +109,18 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
     initialEvents
   );
 
+  const isEditMode = Boolean(editingEvent);
+  const minCapacity = editingEvent
+    ? Math.max(EVENT_CAPACITY_CONFIG.MIN, editingEvent.confirmedPlayers)
+    : EVENT_CAPACITY_CONFIG.MIN;
+
   const [title, setTitle] = useState("");
   const [sport, setSport] = useState("Soccer");
   const [skill, setSkill] = useState("All Levels");
-  const [dateTime, setDateTime] = useState(() => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const y = tomorrow.getFullYear();
-    const m = String(tomorrow.getMonth() + 1).padStart(2, "0");
-    const d = String(tomorrow.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}T19:00`;
-  });
+  const [dateTime, setDateTime] = useState(getDefaultTomorrowDateTime);
+  const [endDateTime, setEndDateTime] = useState(() =>
+    getDefaultEndFromStart(getDefaultTomorrowDateTime())
+  );
   const [capacity, setCapacity] = useState<string>(
     String(EVENT_CAPACITY_CONFIG.DEFAULT)
   );
@@ -57,6 +130,43 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
   const [feeAmount, setFeeAmount] = useState<string>("");
   const [costError, setCostError] = useState(false);
   const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (editingEvent) {
+      const initialStart =
+        editingEvent.startTimeIso || getDefaultTomorrowDateTime();
+      const initialEnd =
+        editingEvent.endTimeIso || getDefaultEndFromStart(initialStart);
+      setTitle(editingEvent.title);
+      setSport(editingEvent.sport);
+      setSkill(editingEvent.skill);
+      setDateTime(initialStart);
+      setEndDateTime(initialEnd);
+      setCapacity(String(editingEvent.maxPlayers));
+      setCapacityError(false);
+      setVenue(editingEvent.venue);
+      const parsedCost = parseCostState(editingEvent.cost);
+      setIsFree(parsedCost.isFree);
+      setFeeAmount(parsedCost.feeAmount);
+      setCostError(false);
+      setNotes(editingEvent.notes || "");
+    } else {
+      const defaultStart = getDefaultTomorrowDateTime();
+      setTitle("");
+      setSport("Soccer");
+      setSkill("All Levels");
+      setDateTime(defaultStart);
+      setEndDateTime(getDefaultEndFromStart(defaultStart));
+      setCapacity(String(EVENT_CAPACITY_CONFIG.DEFAULT));
+      setCapacityError(false);
+      setVenue("");
+      setIsFree(true);
+      setFeeAmount("");
+      setCostError(false);
+      setNotes("");
+    }
+  }, [isOpen, editingEvent]);
 
   const sportOptions = useMemo(
     () => buildSportSelectOptions(t, { includeAll: false }),
@@ -123,7 +233,7 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
     }
 
     setCapacity(sanitized);
-    setCapacityError(numericVal < EVENT_CAPACITY_CONFIG.MIN);
+    setCapacityError(numericVal < minCapacity);
   };
 
   const handleFeeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -177,13 +287,13 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
     if (
       !capacity ||
       Number.isNaN(numericCapacity) ||
-      numericCapacity < EVENT_CAPACITY_CONFIG.MIN ||
+      numericCapacity < minCapacity ||
       numericCapacity > EVENT_CAPACITY_CONFIG.MAX
     ) {
       setCapacityError(true);
       toast.error(
         t("toast.invalidCapacity", {
-          min: EVENT_CAPACITY_CONFIG.MIN,
+          min: minCapacity,
           max: EVENT_CAPACITY_CONFIG.MAX,
         })
       );
@@ -204,6 +314,57 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
           : `$${numericFee} ${t("createEvent.currencyPerPlayer")}`;
     }
 
+    if (dateTime && endDateTime) {
+      const startMs = new Date(dateTime).getTime();
+      const endMs = new Date(endDateTime).getTime();
+      if (!Number.isNaN(startMs) && !Number.isNaN(endMs) && endMs <= startMs) {
+        toast.error(t("toast.invalidEndTime"));
+        return;
+      }
+    }
+
+    if (editingEvent) {
+      const updatedActivity: EventActivity = {
+        ...editingEvent,
+        title: title.trim(),
+        sport,
+        icon: getSportIcon(sport),
+        skill,
+        venue: venue.trim(),
+        address: venue.trim(),
+        dateTimeStr: dateTime
+          ? formatMatchDateTimeStr(dateTime, endDateTime, locale)
+          : editingEvent.dateTimeStr,
+        startTimeIso: dateTime || editingEvent.startTimeIso,
+        endTimeIso: endDateTime || editingEvent.endTimeIso,
+        cost: formattedCost,
+        maxPlayers: numericCapacity,
+        notes: notes.trim(),
+      };
+
+      const otherEvents = existingEvents.filter(
+        (ev) => ev.id !== editingEvent.id
+      );
+      const conflictingEvent = findConflictingJoinedEvent(
+        updatedActivity,
+        otherEvents
+      );
+      if (conflictingEvent) {
+        toast.error(
+          t("toast.scheduleConflict", {
+            title: conflictingEvent.title,
+            time: conflictingEvent.dateTimeStr,
+          })
+        );
+        return;
+      }
+
+      onEventUpdated?.(updatedActivity);
+      toast.success(t("toast.eventUpdated"));
+      onClose();
+      return;
+    }
+
     const newActivity: EventActivity = {
       id: Date.now(),
       title: title.trim(),
@@ -216,9 +377,10 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
       lat: DEFAULT_RADAR_CENTER.lat,
       lng: DEFAULT_RADAR_CENTER.lng,
       dateTimeStr: dateTime
-        ? new Date(dateTime).toLocaleString()
+        ? formatMatchDateTimeStr(dateTime, endDateTime, locale)
         : "This weekend",
       startTimeIso: dateTime || undefined,
+      endTimeIso: endDateTime || undefined,
       cost: formattedCost,
       confirmedPlayers: 1,
       maxPlayers: numericCapacity,
@@ -248,7 +410,7 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
       return;
     }
 
-    onEventCreated(newActivity);
+    onEventCreated?.(newActivity);
     toast.success(t("toast.eventCreated"));
 
     setTitle("");
@@ -273,13 +435,17 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
         <div className="flex items-center justify-between border-b border-border pb-4">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-mute">
-              {t("createEvent.badge")}
+              {isEditMode
+                ? t("createEvent.editBadge")
+                : t("createEvent.badge")}
             </span>
             <h3
               id="create-event-title"
               className="text-2xl font-[900] text-ink tracking-tight"
             >
-              {t("createEvent.title")}
+              {isEditMode
+                ? t("createEvent.editTitle")
+                : t("createEvent.title")}
             </h3>
           </div>
           <button
@@ -340,6 +506,8 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
               <CustomDateTimePicker
                 value={dateTime}
                 onChange={setDateTime}
+                endValue={endDateTime}
+                onEndChange={setEndDateTime}
               />
             </div>
             <div>
@@ -363,7 +531,7 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
               {capacityError && (
                 <p className="text-[11px] text-negative font-semibold mt-1">
                   {t("createEvent.capacityInvalidError", {
-                    min: EVENT_CAPACITY_CONFIG.MIN,
+                    min: minCapacity,
                     max: EVENT_CAPACITY_CONFIG.MAX,
                   })}
                 </p>
@@ -494,7 +662,9 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
               type="submit"
               className="btn-primary px-6 py-2.5 rounded-[24px] text-sm shadow-sm cursor-pointer"
             >
-              {t("createEvent.publishActivity")}
+              {isEditMode
+                ? t("createEvent.saveChanges")
+                : t("createEvent.publishActivity")}
             </button>
           </div>
         </form>

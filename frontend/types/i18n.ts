@@ -34,6 +34,7 @@ export interface TranslationDictionary {
     deleteMatch: string;
     deleteMatchConfirmTitle: string;
     deleteMatchConfirmMessage: string;
+    editMatch: string;
     rsvpSpot: string;
     details: string;
   };
@@ -89,6 +90,9 @@ export interface TranslationDictionary {
   createEvent: {
     badge: string;
     title: string;
+    editBadge: string;
+    editTitle: string;
+    saveChanges: string;
     activityTitle: string;
     activityTitlePlaceholder: string;
     sportCategory: string;
@@ -101,6 +105,8 @@ export interface TranslationDictionary {
     thisSunPreset: string;
     selectDateLabel: string;
     selectTimeLabel: string;
+    startTimeLabel: string;
+    endTimeLabel: string;
     playerCapacity: string;
     capacityInvalidError: string;
     venueLabel: string;
@@ -205,6 +211,7 @@ export interface TranslationDictionary {
   };
   toast: {
     eventCreated: string;
+    eventUpdated: string;
     spotBooked: string;
     spotLeft: string;
     scheduleConflict: string;
@@ -213,6 +220,7 @@ export interface TranslationDictionary {
     matchDeleted: string;
     invalidCost: string;
     invalidCapacity: string;
+    invalidEndTime: string;
     squadCreated: string;
     inviteRequested: string;
     inviteCancelled: string;

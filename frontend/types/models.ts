@@ -47,6 +47,7 @@ export interface EventActivity {
   lng: number;
   dateTimeStr: string;
   startTimeIso?: string;
+  endTimeIso?: string;
   cost: string;
   confirmedPlayers: number;
   maxPlayers: number;

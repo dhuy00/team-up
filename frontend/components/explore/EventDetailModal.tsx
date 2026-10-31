@@ -9,9 +9,8 @@ import {
   Tag,
   Award,
   Check,
-  MessageSquare,
   Crown,
-  Trash2,
+  Pencil,
 } from "lucide-react";
 import { EventActivity } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -20,19 +19,15 @@ import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 interface EventDetailModalProps {
   event: EventActivity | null;
   onClose: () => void;
-  onToggleJoin: (eventId: number) => void;
   onTransferHost?: (eventId: number, newHostName: string) => void;
-  onDeleteEvent?: (eventId: number) => void;
-  onOpenMatchChat?: (event: EventActivity) => void;
+  onEditEvent?: (event: EventActivity) => void;
 }
 
 export const EventDetailModal: React.FC<EventDetailModalProps> = ({
   event,
   onClose,
-  onToggleJoin,
   onTransferHost,
-  onDeleteEvent,
-  onOpenMatchChat,
+  onEditEvent,
 }) => {
   const { t } = useTranslation();
 
@@ -48,9 +43,6 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
   }, [event, onClose]);
 
   if (!event) return null;
-
-  const spotsLeft = event.maxPlayers - event.confirmedPlayers;
-  const isFull = spotsLeft <= 0;
 
   const isUserHost = Boolean(
     event.isUserHost || event.host.name.includes("(You)")
@@ -265,48 +257,14 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
             {t("common.close")}
           </button>
 
-          {onOpenMatchChat && (
+          {isUserHost && onEditEvent && (
             <button
               type="button"
-              onClick={() => onOpenMatchChat(event)}
-              className="px-5 py-2.5 bg-canvas hover:bg-canvas-soft text-ink font-semibold rounded-[24px] border border-ink transition cursor-pointer text-sm flex items-center space-x-1.5"
+              onClick={() => onEditEvent(event)}
+              className="btn-primary px-6 py-2.5 rounded-[24px] text-sm font-semibold transition cursor-pointer shadow-sm flex items-center space-x-2"
             >
-              <MessageSquare className="w-4 h-4" />
-              <span>{t("eventDetail.openMatchChat")}</span>
-            </button>
-          )}
-
-          {isSoloHost ? (
-            <button
-              type="button"
-              onClick={() => onDeleteEvent?.(event.id)}
-              className="px-6 py-2.5 rounded-[24px] text-sm font-semibold transition cursor-pointer shadow-sm flex items-center space-x-2 bg-canvas text-negative border border-negative hover:bg-negative/10"
-            >
-              <Trash2 className="w-4 h-4 stroke-[2.5]" />
-              <span>{t("common.deleteMatch")}</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => onToggleJoin(event.id)}
-              className={`px-6 py-2.5 rounded-[24px] text-sm font-semibold transition cursor-pointer shadow-sm flex items-center space-x-2 ${
-                event.userJoined
-                  ? "bg-canvas text-negative border border-negative hover:bg-negative/10"
-                  : isFull
-                  ? "bg-ink text-canvas hover:bg-ink/80"
-                  : "btn-primary"
-              }`}
-            >
-              {event.userJoined ? (
-                <>
-                  <X className="w-4 h-4 stroke-[2.5]" />
-                  <span>{t("eventDetail.leaveSpot")}</span>
-                </>
-              ) : isFull ? (
-                <span>{t("eventDetail.joinWaitlist")}</span>
-              ) : (
-                <span>{t("common.rsvpSpot")}</span>
-              )}
+              <Pencil className="w-4 h-4 stroke-[2.5]" />
+              <span>{t("common.editMatch")}</span>
             </button>
           )}
         </div>
