@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { X, Shield, MapPin, Users, Award, Check } from "lucide-react";
 import { TeamSquad } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 
 interface SquadDetailModalProps {
   squad: TeamSquad | null;
@@ -19,6 +20,8 @@ export const SquadDetailModal: React.FC<SquadDetailModalProps> = ({
   onRequestInvite,
 }) => {
   const { t } = useTranslation();
+
+  useLockBodyScroll(Boolean(squad));
 
   useEffect(() => {
     if (!squad) return;

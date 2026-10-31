@@ -8,6 +8,7 @@ import { EventDetailModal } from "./EventDetailModal";
 import { RadarVisualFeed } from "./RadarVisualFeed";
 import { ExploreFilterBar } from "./ExploreFilterBar";
 import { EventCard } from "./EventCard";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import {
   DISTANCE_FILTER_CONFIG,
   DEFAULT_SPORT_FILTER,
@@ -17,6 +18,8 @@ import {
 interface ExploreSectionProps {
   events: EventActivity[];
   onToggleJoin: (eventId: number) => void;
+  onTransferHost?: (eventId: number, newHostName: string) => void;
+  onDeleteEvent?: (eventId: number) => void;
   onUpdateEvents?: (events: EventActivity[]) => void;
   onOpenMatchChat?: (event: EventActivity) => void;
   selectedSport: string;
@@ -28,6 +31,8 @@ interface ExploreSectionProps {
 export const ExploreSection: React.FC<ExploreSectionProps> = ({
   events,
   onToggleJoin,
+  onTransferHost,
+  onDeleteEvent,
   onUpdateEvents,
   onOpenMatchChat,
   selectedSport,
@@ -40,6 +45,9 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSkill, setFilterSkill] = useState(DEFAULT_SKILL_FILTER);
   const [selectedEventIdForModal, setSelectedEventIdForModal] = useState<
+    number | null
+  >(null);
+  const [eventIdPendingDelete, setEventIdPendingDelete] = useState<
     number | null
   >(null);
 
@@ -66,11 +74,26 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
     });
   }, [events, searchTerm, selectedSport, filterSkill, selectedRadius]);
 
-  // Derive the active modal event directly from `events` so join/leave updates stay automatically in sync
+  // Derive the active modal event directly from `events` so join/leave/host updates stay automatically in sync
   const selectedEventForModal = useMemo(
     () => events.find((ev) => ev.id === selectedEventIdForModal) ?? null,
     [events, selectedEventIdForModal]
   );
+
+  const eventPendingDelete = useMemo(
+    () => events.find((ev) => ev.id === eventIdPendingDelete) ?? null,
+    [events, eventIdPendingDelete]
+  );
+
+  const handleConfirmDelete = () => {
+    if (eventIdPendingDelete !== null) {
+      onDeleteEvent?.(eventIdPendingDelete);
+      if (selectedEventIdForModal === eventIdPendingDelete) {
+        setSelectedEventIdForModal(null);
+      }
+      setEventIdPendingDelete(null);
+    }
+  };
 
   const handleResetFilters = () => {
     setSearchTerm("");
@@ -107,8 +130,9 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
                 {t("explore.noActivitiesHint")}
               </p>
               <button
+                type="button"
                 onClick={handleResetFilters}
-                className="mt-4 px-6 py-2.5 btn-primary font-semibold rounded-[24px] text-xs shadow-xs"
+                className="mt-4 px-6 py-2.5 btn-primary font-semibold rounded-[24px] text-xs shadow-xs cursor-pointer"
               >
                 {t("explore.resetFilters")}
               </button>
@@ -123,6 +147,7 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
                     setSelectedEventIdForModal(selected.id)
                   }
                   onToggleJoin={onToggleJoin}
+                  onDeleteEvent={(id) => setEventIdPendingDelete(id)}
                 />
               ))}
             </div>
@@ -165,12 +190,27 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
           event={selectedEventForModal}
           onClose={() => setSelectedEventIdForModal(null)}
           onToggleJoin={onToggleJoin}
+          onTransferHost={onTransferHost}
+          onDeleteEvent={(id) => setEventIdPendingDelete(id)}
           onOpenMatchChat={(ev) => {
             setSelectedEventIdForModal(null);
             onOpenMatchChat?.(ev);
           }}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(eventPendingDelete)}
+        title={t("common.deleteMatchConfirmTitle")}
+        message={t("common.deleteMatchConfirmMessage", {
+          title: eventPendingDelete?.title || "",
+        })}
+        confirmLabel={t("common.deleteMatch")}
+        cancelLabel={t("common.cancel")}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setEventIdPendingDelete(null)}
+      />
     </section>
   );
 };

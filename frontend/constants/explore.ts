@@ -10,7 +10,7 @@ export const EXPLORE_DISTANCE_CONFIG = DISTANCE_FILTER_CONFIG;
 
 export const EVENT_CAPACITY_CONFIG = {
   MIN: 2,
-  MAX: 50,
+  MAX: 100,
   DEFAULT: 10,
 } as const;
 

@@ -29,6 +29,11 @@ export interface TranslationDictionary {
     spotsRemaining: string;
     waitlistOnly: string;
     joined: string;
+    hostStatus: string;
+    free: string;
+    deleteMatch: string;
+    deleteMatchConfirmTitle: string;
+    deleteMatchConfirmMessage: string;
     rsvpSpot: string;
     details: string;
   };
@@ -78,6 +83,8 @@ export interface TranslationDictionary {
     leaveSpot: string;
     joinWaitlist: string;
     openMatchChat: string;
+    makeHost: string;
+    hostCannotLeaveHint: string;
   };
   createEvent: {
     badge: string;
@@ -87,11 +94,22 @@ export interface TranslationDictionary {
     sportCategory: string;
     skillRequirement: string;
     dateTime: string;
+    dateTimePlaceholder: string;
+    todayPreset: string;
+    tomorrowPreset: string;
+    thisSatPreset: string;
+    thisSunPreset: string;
+    selectDateLabel: string;
+    selectTimeLabel: string;
     playerCapacity: string;
+    capacityInvalidError: string;
     venueLabel: string;
     venuePlaceholder: string;
     costLabel: string;
     costPlaceholder: string;
+    freeCheckbox: string;
+    costInvalidError: string;
+    currencyPerPlayer: string;
     notesLabel: string;
     notesPlaceholder: string;
     publishActivity: string;
@@ -184,5 +202,22 @@ export interface TranslationDictionary {
     builtWith: string;
     tagline: string;
     rights: string;
+  };
+  toast: {
+    eventCreated: string;
+    spotBooked: string;
+    spotLeft: string;
+    scheduleConflict: string;
+    hostCannotLeave: string;
+    hostTransferred: string;
+    matchDeleted: string;
+    invalidCost: string;
+    invalidCapacity: string;
+    squadCreated: string;
+    inviteRequested: string;
+    inviteCancelled: string;
+    bioSaved: string;
+    sportAdded: string;
+    sportRemoved: string;
   };
 }

@@ -5,6 +5,7 @@ import { Trash2 } from "lucide-react";
 import { SportPassportItem } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 import { CustomSelect, CustomSelectOption } from "@/components/ui/CustomSelect";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { getSportIcon } from "@/constants/explore";
 
 interface SportSkillMatrixProps {
@@ -23,6 +24,8 @@ export const SportSkillMatrix: React.FC<SportSkillMatrixProps> = ({
   const [newSportName, setNewSportName] = useState("");
   const [newSportRole, setNewSportRole] = useState("");
   const [newSportTier, setNewSportTier] = useState("Intermediate");
+  const [sportPendingDelete, setSportPendingDelete] =
+    useState<SportPassportItem | null>(null);
 
   const tierOptions: CustomSelectOption[] = useMemo(
     () => [
@@ -150,7 +153,7 @@ export const SportSkillMatrix: React.FC<SportSkillMatrixProps> = ({
               {sports.length > 1 && (
                 <button
                   type="button"
-                  onClick={() => onRemoveSport(sport.id)}
+                  onClick={() => setSportPendingDelete(sport)}
                   aria-label={t("passport.removeSport")}
                   title={t("passport.removeSport")}
                   className="p-1.5 text-mute hover:text-negative rounded-full hover:bg-canvas transition cursor-pointer"
@@ -162,6 +165,23 @@ export const SportSkillMatrix: React.FC<SportSkillMatrixProps> = ({
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        isOpen={Boolean(sportPendingDelete)}
+        title={t("passport.removeSport")}
+        message={t("common.deleteMatchConfirmMessage", {
+          title: sportPendingDelete?.name || "",
+        })}
+        confirmLabel={t("passport.removeSport")}
+        cancelLabel={t("common.cancel")}
+        onConfirm={() => {
+          if (sportPendingDelete) {
+            onRemoveSport(sportPendingDelete.id);
+            setSportPendingDelete(null);
+          }
+        }}
+        onCancel={() => setSportPendingDelete(null)}
+      />
     </div>
   );
 };

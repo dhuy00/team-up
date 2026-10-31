@@ -5,12 +5,14 @@ import { UserProfile, SportPassportItem } from "@/types/models";
 import { mockUserProfile } from "@/lib/mockData";
 import { useTranslation } from "@/hooks/useTranslation";
 import { usePersistentState } from "@/hooks/usePersistentState";
+import { useToast } from "@/context/ToastContext";
 import { KarmaIdentityCard } from "./KarmaIdentityCard";
 import { SportSkillMatrix } from "./SportSkillMatrix";
 import { WeeklyAvailabilityGrid } from "./WeeklyAvailabilityGrid";
 
 export const PassportSection: React.FC = () => {
   const { t } = useTranslation();
+  const toast = useToast();
   const [profile, setProfile] = usePersistentState<UserProfile>(
     "teamup_user_profile",
     mockUserProfile
@@ -21,6 +23,7 @@ export const PassportSection: React.FC = () => {
       ...prev,
       bio: nextBio,
     }));
+    toast.success(t("toast.bioSaved"));
   };
 
   const handleAddSport = (newSport: SportPassportItem) => {
@@ -28,6 +31,7 @@ export const PassportSection: React.FC = () => {
       ...prev,
       sports: [...prev.sports, newSport],
     }));
+    toast.success(t("toast.sportAdded", { sport: newSport.name }));
   };
 
   const handleRemoveSport = (sportId: number) => {
@@ -35,6 +39,7 @@ export const PassportSection: React.FC = () => {
       ...prev,
       sports: prev.sports.filter((s) => s.id !== sportId),
     }));
+    toast.info(t("toast.sportRemoved"));
   };
 
   const handleToggleDayStatus = (dayIndex: number) => {

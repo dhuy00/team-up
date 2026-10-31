@@ -46,11 +46,13 @@ export interface EventActivity {
   lat: number;
   lng: number;
   dateTimeStr: string;
+  startTimeIso?: string;
   cost: string;
   confirmedPlayers: number;
   maxPlayers: number;
   host: Host;
   userJoined: boolean;
+  isUserHost?: boolean;
   roster: RosterPlayer[];
   notes: string;
   joinPolicy?: "instant" | "request";

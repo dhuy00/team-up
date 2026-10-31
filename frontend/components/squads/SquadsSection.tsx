@@ -6,6 +6,7 @@ import { TeamSquad } from "@/types/models";
 import { initialSquads } from "@/lib/mockData";
 import { useTranslation } from "@/hooks/useTranslation";
 import { usePersistentState } from "@/hooks/usePersistentState";
+import { useToast } from "@/context/ToastContext";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import {
   DEFAULT_SPORT_FILTER,
@@ -17,6 +18,7 @@ import { SquadDetailModal } from "./SquadDetailModal";
 
 export const SquadsSection: React.FC = () => {
   const { t } = useTranslation();
+  const toast = useToast();
 
   const [squads, setSquads] = usePersistentState<TeamSquad[]>(
     "teamup_squads",
@@ -53,16 +55,23 @@ export const SquadsSection: React.FC = () => {
   }, [squads, searchQuery, selectedSport]);
 
   const handleRequestInvite = (squadId: number) => {
+    const alreadyRequested = requestedSquads.includes(squadId);
     setRequestedSquads((prev) =>
-      prev.includes(squadId)
+      alreadyRequested
         ? prev.filter((id) => id !== squadId)
         : [...prev, squadId]
     );
+    if (alreadyRequested) {
+      toast.info(t("toast.inviteCancelled"));
+    } else {
+      toast.success(t("toast.inviteRequested"));
+    }
   };
 
   const handleSquadCreated = (newSquad: TeamSquad) => {
     setSquads((prev) => [newSquad, ...prev]);
     setRequestedSquads((prev) => [...prev, newSquad.id]);
+    toast.success(t("toast.squadCreated"));
   };
 
   return (
@@ -93,7 +102,7 @@ export const SquadsSection: React.FC = () => {
             placeholder={t("clubs.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-canvas-soft border border-border rounded-[14px] text-xs text-ink placeholder:text-mute focus:border-ink focus:outline-none"
+            className="w-full h-11 pl-10 pr-4 bg-canvas-soft border border-border rounded-[14px] text-xs sm:text-sm text-ink placeholder:text-mute focus:border-ink focus:outline-none"
           />
         </div>
         <div className="w-full sm:w-56">
@@ -101,7 +110,7 @@ export const SquadsSection: React.FC = () => {
             options={sportOptions}
             value={selectedSport}
             onChange={setSelectedSport}
-            triggerClassName="py-2.5 px-3.5 text-xs bg-canvas-soft rounded-[14px]"
+            triggerClassName="h-11 py-0 px-3.5 text-xs bg-canvas-soft rounded-[14px]"
           />
         </div>
       </div>

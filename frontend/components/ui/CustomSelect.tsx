@@ -98,11 +98,11 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
       >
         <div className="flex items-center gap-2 truncate">
           {selectedOption?.icon && (
-            <span className="shrink-0 flex items-center text-base">
+            <span className="shrink-0 flex items-center text-sm leading-none">
               {selectedOption.icon}
             </span>
           )}
-          <span className="truncate">
+          <span className="truncate leading-snug">
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>

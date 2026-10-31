@@ -4,8 +4,12 @@ import React, { useState, useEffect, useMemo } from "react";
 import { X } from "lucide-react";
 import { TeamSquad } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 import { CustomSelect } from "@/components/ui/CustomSelect";
-import { buildSportSelectOptions } from "@/constants/explore";
+import {
+  EVENT_CAPACITY_CONFIG,
+  buildSportSelectOptions,
+} from "@/constants/explore";
 
 interface CreateSquadModalProps {
   isOpen: boolean;
@@ -23,7 +27,7 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
   const [name, setName] = useState("");
   const [abbr, setAbbr] = useState("");
   const [sport, setSport] = useState("Soccer");
-  const [maxMembers, setMaxMembers] = useState(16);
+  const [maxMembers, setMaxMembers] = useState<string>("16");
   const [venue, setVenue] = useState("");
   const [description, setDescription] = useState("");
 
@@ -31,6 +35,8 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
     () => buildSportSelectOptions(t, { includeAll: false }),
     [t]
   );
+
+  useLockBodyScroll(isOpen);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -43,9 +49,36 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
 
   if (!isOpen) return null;
 
+  const handleMaxMembersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value;
+    if (raw === "") {
+      setMaxMembers("");
+      return;
+    }
+    const sanitized = raw.replace(/\D/g, "").replace(/^0+/, "");
+    if (sanitized !== raw) {
+      e.currentTarget.value = sanitized;
+    }
+    if (Number(sanitized) > EVENT_CAPACITY_CONFIG.MAX) {
+      setMaxMembers(String(EVENT_CAPACITY_CONFIG.MAX));
+      return;
+    }
+    setMaxMembers(sanitized);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !venue.trim()) return;
+
+    const numericMax = Number(maxMembers);
+    if (
+      !maxMembers ||
+      Number.isNaN(numericMax) ||
+      numericMax < EVENT_CAPACITY_CONFIG.MIN ||
+      numericMax > EVENT_CAPACITY_CONFIG.MAX
+    ) {
+      return;
+    }
 
     const derivedAbbr =
       abbr.trim().toUpperCase() ||
@@ -64,7 +97,7 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
       abbr: derivedAbbr,
       variant: "white",
       memberCount: 1,
-      maxMembers: Number(maxMembers) || 16,
+      maxMembers: numericMax,
       description:
         description.trim() ||
         "Weekly practice and competitive scrimmages. Reliable players welcome!",
@@ -77,6 +110,7 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
     onSquadCreated(newSquad);
     setName("");
     setAbbr("");
+    setMaxMembers("16");
     setVenue("");
     setDescription("");
     onClose();
@@ -160,11 +194,11 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
               </label>
               <input
                 required
-                type="number"
-                min={2}
-                max={50}
+                type="text"
+                inputMode="numeric"
+                placeholder={`${EVENT_CAPACITY_CONFIG.MIN} - ${EVENT_CAPACITY_CONFIG.MAX}`}
                 value={maxMembers}
-                onChange={(e) => setMaxMembers(Number(e.target.value))}
+                onChange={handleMaxMembersChange}
                 className="w-full px-3 py-2.5 bg-canvas-soft border border-border rounded-[12px] text-ink focus:border-ink focus:outline-none"
               />
             </div>

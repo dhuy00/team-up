@@ -83,7 +83,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Last Updated</span>
-          <span class="font-bold text-ink" id="last-updated">2026-10-31 10:42 (ICT)</span>
+          <span class="font-bold text-ink" id="last-updated">2026-10-31 12:31 (ICT)</span>
         </div>
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Git Branch</span>
@@ -372,6 +372,30 @@
             <li>Join an event, send a chat message, create a squad, or edit your passport, then refresh the browser (<code>F5</code>) &rarr; Verify all changes persist via <code>localStorage</code>.</li>
           </ol>
         </div>
+
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-ink">TC-1.5: Host a Game Currency ($ / VND), Free Checkbox, Capacity (2–100) &amp; Leading-Zero Fix</span>
+            <span class="badge badge-done">review.md</span>
+          </div>
+          <ol class="list-decimal pl-4 space-y-1 text-body">
+            <li>Click <strong>Host Game</strong> &rarr; Verify modal is widened (<code>max-w-2xl</code>) and <strong>Player Capacity (2–100)</strong> defaults to <code>10</code>.</li>
+            <li>Clear the <strong>Player Capacity</strong> field completely with Backspace &rarr; Verify the input becomes completely empty (no stuck <code>0</code> left behind). Try typing <code>001</code> or <code>012</code> &rarr; Verify leading zeros are stripped immediately (becomes <code>1</code> or <code>12</code>), values <code>&gt; 100</code> clamp to <code>100</code>, and values <code>&lt; 2</code> show an inline validation error and toast.</li>
+            <li>Uncheck <strong>Free activity</strong> &rarr; Verify currency displays <code>$</code> in English and <code>VND</code> in Vietnamese, and typing <code>&lt;= 0</code> is blocked.</li>
+          </ol>
+        </div>
+
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-ink">TC-1.6: Host Status Badge, Pass Host Role &amp; Confirm Dialog on Delete + Toasts</span>
+            <span class="badge badge-done">review.md</span>
+          </div>
+          <ol class="list-decimal pl-4 space-y-1 text-body">
+            <li>Create a new match via <strong>Host Game</strong> &rarr; Verify toast appears, the card shows a dark <strong>👑 Host</strong> badge, and the button shows <strong>Delete Match</strong>. Click <strong>Delete Match</strong> &rarr; Verify <code>ConfirmDialog</code> opens asking for confirmation. Click <strong>Cancel</strong> (or press <code>Escape</code>) &rarr; Verify match is kept. Click <strong>Delete Match</strong> and confirm &rarr; Verify match is deleted with a toast.</li>
+            <li>On an event where you are Host with registered teammates (e.g., <em>Saturday Morning 5K &amp; Coffee Social Run</em>), try clicking <strong>Cancel / Leave Game Spot</strong> &rarr; Verify leaving is blocked with a warning toast instructing you to pass the Host role first.</li>
+            <li>Inside <code>EventDetailModal</code>, click <strong>Pass Host</strong> next to a teammate in the roster &rarr; Verify toast confirms Host transfer, your badge switches from <strong>Host</strong> to <strong>Joined</strong>, and you can now leave the match.</li>
+          </ol>
+        </div>
       </div>
     </section>
 
@@ -396,6 +420,128 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: Custom DateTime Picker UI -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 12:31</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Custom DateTime Picker</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Replaced native HTML datetime-local input with Wise-styled CustomDateTimePicker with scrollable wheel drums</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li>Created <code>CustomDateTimePicker.tsx</code> featuring an interactive month calendar grid (with disabled past dates) followed by a scrollable Hour, Minute, and <code>AM/PM</code> drum wheel (supports mouse-wheel/trackpad scrolling via non-passive <code>wheel</code> listeners, clicking prev/next drum numbers or chevrons, and direct numeric typing).</li>
+                  <li>Integrated <code>CustomDateTimePicker</code> into <code>CreateEventModal.tsx</code> with uniform <code>h-11</code> height matching the adjacent Player Capacity input.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/components/ui/CustomDateTimePicker.tsx, frontend/components/explore/CreateEventModal.tsx, frontend/locales/en.ts, frontend/locales/vi.ts, frontend/types/i18n.ts, progress.html
+              </td>
+            </tr>
+            <!-- Entry: Schedule Conflict Detection -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 11:48</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Schedule Conflict Guard</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Prevented users from booking or hosting overlapping matches at the same time</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li>Created <code>lib/scheduleConflict.ts</code> (<code>parseEventSchedule</code>, <code>doEventsOverlap</code>, <code>findConflictingJoinedEvent</code>) to detect overlapping time intervals across both human-readable schedules (e.g. <code>Today, 7:00 PM - 8:30 PM</code> vs. <code>Today, 7:30 PM - 9:00 PM</code>) and ISO timestamps.</li>
+                  <li>Wired conflict validation into <code>ExplorePageView.tsx</code> (when booking a spot) and <code>CreateEventModal.tsx</code> (when hosting a new match) with localized EN/VI error toast feedback.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/lib/scheduleConflict.ts, frontend/components/explore/ExplorePageView.tsx, frontend/components/explore/CreateEventModal.tsx, frontend/lib/mockData.ts, frontend/locales/en.ts, frontend/locales/vi.ts, frontend/types/i18n.ts, frontend/types/models.ts, progress.html
+              </td>
+            </tr>
+            <!-- Entry: Filter Bar Uniform Height Alignment -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 11:42</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Filter Bar Alignment</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Unified heights of Search Bar, Sport Selection, and Skill Level Selection across filter bars</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li>Standardized search input and both <code>CustomSelect</code> triggers in <code>ExploreFilterBar.tsx</code> (and <code>SquadsSection.tsx</code>) to a uniform <code>h-11</code> (<code>44px</code>) height with vertically centered search icon (<code>top-1/2 -translate-y-1/2</code>).</li>
+                  <li>Set <code>leading-none</code> on the emoji icon container in <code>CustomSelect.tsx</code> so options with icons (Sport) and options without icons (Skill Level) render at the exact same trigger height.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/components/explore/ExploreFilterBar.tsx, frontend/components/ui/CustomSelect.tsx, frontend/components/squads/SquadsSection.tsx, progress.html
+              </td>
+            </tr>
+            <!-- Entry: Modal Body Scroll Lock -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 11:38</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Modal Scroll Lock</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Locked outer page scrolling whenever any modal or dialog is open</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li>Created <code>useLockBodyScroll.ts</code> with reference-counted scroll locking (<code>document.body.style.overflow = "hidden"</code> + scrollbar width compensation) so stacked modals (e.g. <code>EventDetailModal</code> + <code>ConfirmDialog</code>) stay locked until the last modal closes.</li>
+                  <li>Wired <code>useLockBodyScroll</code> into <code>CreateEventModal.tsx</code>, <code>EventDetailModal.tsx</code>, <code>CreateSquadModal.tsx</code>, <code>SquadDetailModal.tsx</code>, and <code>ConfirmDialog.tsx</code>.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/hooks/useLockBodyScroll.ts, frontend/components/explore/CreateEventModal.tsx, frontend/components/explore/EventDetailModal.tsx, frontend/components/squads/CreateSquadModal.tsx, frontend/components/squads/SquadDetailModal.tsx, frontend/components/ui/ConfirmDialog.tsx, progress.html
+              </td>
+            </tr>
+            <!-- Entry: Delete Confirmation Dialog -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 11:34</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Confirm Dialog</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Added reusable ConfirmDialog modal for match &amp; sport deletion</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li>Created <code>ConfirmDialog.tsx</code> with localized EN/VI confirmation prompt, warning icon badge, <code>Escape</code> key support, and destructive confirm button.</li>
+                  <li>Wired <code>ConfirmDialog</code> into <code>ExploreSection.tsx</code> (when deleting a match from <code>EventCard</code> or <code>EventDetailModal</code>) and <code>SportSkillMatrix.tsx</code> (when removing a sport from Sports Passport).</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/components/ui/ConfirmDialog.tsx, frontend/components/explore/ExploreSection.tsx, frontend/components/explore/EventDetailModal.tsx, frontend/components/passport/SportSkillMatrix.tsx, frontend/locales/en.ts, frontend/locales/vi.ts, frontend/types/i18n.ts, progress.html
+              </td>
+            </tr>
+            <!-- Entry: Toast Top-Right Position, Vertical Center Alignment & Toastify Animations -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 11:31</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Toast Animations &amp; UI</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Added Toastify-style spring entrance/exit animations, countdown progress bar, top-right position &amp; vertical center alignment</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Top-Right &amp; Center Aligned</strong>: Positioned toast stack at <code>top-5 right-5</code> with <code>items-center</code> vertical alignment between the icon badge, text, and close button.</li>
+                  <li><strong>Toastify Animations</strong>: Added <code>toastSlideIn</code> (spring overshoot from right), <code>toastSlideOut</code> (smooth exit transition before unmount), <code>toastIconPop</code> (elastic icon pop), and an animated bottom countdown progress bar (<code>toastProgress</code>) in <code>globals.css</code> and <code>ToastContext.tsx</code>.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/context/ToastContext.tsx, frontend/app/globals.css, progress.html
+              </td>
+            </tr>
+            <!-- Entry: Player Capacity 100 Limit & Leading-Zero Input Fix -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 11:14</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Bug Fix &amp; Validation</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Fixed Player Capacity input bug (stuck 0 on delete / leading zeros 001) &amp; raised limit to 100 players</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>100-Player Capacity Limit</strong>: Updated <code>EVENT_CAPACITY_CONFIG.MAX</code> from <code>50</code> to <code>100</code> in <code>constants/explore.ts</code>.</li>
+                  <li><strong>Fixed Stuck 0 &amp; Leading Zeros (001)</strong>: Switched <code>capacity</code> state in <code>CreateEventModal.tsx</code> (and <code>maxMembers</code> in <code>CreateSquadModal.tsx</code>) from <code>Number(e.target.value)</code> (which coerced empty strings <code>""</code> to <code>0</code>) to a sanitized string state with <code>inputMode="numeric"</code> that allows full deletion to <code>""</code>, strips leading zeros (<code>/^0+/</code>), blocks leading <code>0</code> keystrokes, and validates <code>2 &le; capacity &le; 100</code>.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/constants/explore.ts, frontend/components/explore/CreateEventModal.tsx, frontend/components/squads/CreateSquadModal.tsx, frontend/locales/en.ts, frontend/locales/vi.ts, frontend/types/i18n.ts, progress.html
+              </td>
+            </tr>
+            <!-- Entry: review.md Feedback Updates -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 11:08</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Review Feedback</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Implemented all feedback items from review.md</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Locale Currency &amp; Free Checkbox</strong>: Displayed <code>$</code> in English and <code>VND</code> in Vietnamese inside <code>CreateEventModal.tsx</code>; added a <em>Free activity (No fee)</em> checkbox and strict <code>&gt; 0</code> numeric validation blocking <code>&lt;= 0</code> inputs.</li>
+                  <li><strong>Wider Host Game Modal</strong>: Expanded <code>CreateEventModal.tsx</code> container from <code>max-w-lg</code> to <code>max-w-2xl</code>.</li>
+                  <li><strong>Distinct Host Status, Role Transfer &amp; Match Deletion</strong>: Added a <strong>👑 Host</strong> badge (<code>common.hostStatus</code>) distinct from <em>Joined</em>; enforced that a Host with teammates must pass the Host role (<code>Pass Host</code> button in roster) before leaving, or can directly <strong>Delete Match</strong> when no other players are registered.</li>
+                  <li><strong>Global Toast Notifications</strong>: Created <code>ToastContext.tsx</code> and wired toast notifications across event creation, booking/leaving spots, host role transfer, match deletion, squad creation, and passport updates.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/context/ToastContext.tsx, frontend/components/providers/AppProviders.tsx, frontend/components/explore/CreateEventModal.tsx, frontend/components/explore/EventCard.tsx, frontend/components/explore/EventDetailModal.tsx, frontend/components/explore/ExploreSection.tsx, frontend/components/explore/ExplorePageView.tsx, frontend/locales/en.ts, frontend/locales/vi.ts, frontend/types/i18n.ts, frontend/types/models.ts, progress.html
+              </td>
+            </tr>
             <!-- Entry: Phase 1 Complete -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 10:40</td>

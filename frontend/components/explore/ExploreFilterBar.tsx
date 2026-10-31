@@ -42,16 +42,16 @@ export const ExploreFilterBar: React.FC<ExploreFilterBarProps> = ({
 
   return (
     <div className="bg-canvas p-6 rounded-[24px] border border-border space-y-4 shadow-sm transition-colors duration-200">
-      <div className="flex flex-col lg:flex-row gap-3">
+      <div className="flex flex-col lg:flex-row lg:items-center gap-3">
         {/* Search Bar */}
         <div className="flex-1 relative">
-          <Search className="w-5 h-5 absolute left-4 top-3 text-mute" />
+          <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-mute pointer-events-none" />
           <input
             type="text"
             placeholder={t("explore.searchPlaceholder")}
             value={searchTerm}
             onChange={(e) => onSearchTermChange(e.target.value)}
-            className="w-full pl-11 pr-4 py-2.5 bg-canvas-soft border border-border rounded-[12px] text-sm text-ink placeholder:text-mute focus:border-ink focus:outline-none transition"
+            className="w-full h-11 pl-11 pr-4 bg-canvas-soft border border-border rounded-[12px] text-xs sm:text-sm text-ink placeholder:text-mute focus:border-ink focus:outline-none transition"
           />
         </div>
 
@@ -61,16 +61,16 @@ export const ExploreFilterBar: React.FC<ExploreFilterBarProps> = ({
             options={sportOptions}
             value={selectedSport}
             onChange={onSportChange}
-            className="w-44"
-            triggerClassName="py-2.5 px-3 text-xs"
+            className="w-48"
+            triggerClassName="h-11 py-0 px-3.5 text-xs"
           />
 
           <CustomSelect
             options={skillOptions}
             value={filterSkill}
             onChange={onSkillChange}
-            className="w-40"
-            triggerClassName="py-2.5 px-3 text-xs"
+            className="w-44"
+            triggerClassName="h-11 py-0 px-3.5 text-xs"
           />
         </div>
       </div>

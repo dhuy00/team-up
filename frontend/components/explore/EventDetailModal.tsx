@@ -2,14 +2,27 @@
 
 import React, { useEffect } from "react";
 import Image from "next/image";
-import { X, MapPin, Clock, Tag, Award, Check, MessageSquare } from "lucide-react";
+import {
+  X,
+  MapPin,
+  Clock,
+  Tag,
+  Award,
+  Check,
+  MessageSquare,
+  Crown,
+  Trash2,
+} from "lucide-react";
 import { EventActivity } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 
 interface EventDetailModalProps {
   event: EventActivity | null;
   onClose: () => void;
   onToggleJoin: (eventId: number) => void;
+  onTransferHost?: (eventId: number, newHostName: string) => void;
+  onDeleteEvent?: (eventId: number) => void;
   onOpenMatchChat?: (event: EventActivity) => void;
 }
 
@@ -17,9 +30,13 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
   event,
   onClose,
   onToggleJoin,
+  onTransferHost,
+  onDeleteEvent,
   onOpenMatchChat,
 }) => {
   const { t } = useTranslation();
+
+  useLockBodyScroll(Boolean(event));
 
   useEffect(() => {
     if (!event) return;
@@ -34,6 +51,14 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
 
   const spotsLeft = event.maxPlayers - event.confirmedPlayers;
   const isFull = spotsLeft <= 0;
+
+  const isUserHost = Boolean(
+    event.isUserHost || event.host.name.includes("(You)")
+  );
+  const isSoloHost = isUserHost && event.roster.length <= 1;
+
+  const displayCost =
+    event.cost.toLowerCase() === "free" ? t("common.free") : event.cost;
 
   return (
     <div
@@ -53,11 +78,18 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
               <span className="px-2.5 py-0.5 bg-canvas-soft text-body text-xs font-medium rounded-full">
                 {event.skill}
               </span>
-              {event.userJoined && (
-                <span className="px-2.5 py-0.5 bg-primary-pale text-positive-deep border border-primary-neutral text-xs font-bold rounded-full inline-flex items-center gap-1">
-                  <Check className="w-3 h-3 stroke-[2.5]" />
-                  <span>{t("common.joined")}</span>
+              {isUserHost ? (
+                <span className="px-2.5 py-0.5 bg-ink text-primary border border-ink text-xs font-bold rounded-full inline-flex items-center gap-1 shadow-2xs">
+                  <Crown className="w-3 h-3 stroke-[2.5]" />
+                  <span>{t("common.hostStatus")}</span>
                 </span>
+              ) : (
+                event.userJoined && (
+                  <span className="px-2.5 py-0.5 bg-primary-pale text-positive-deep border border-primary-neutral text-xs font-bold rounded-full inline-flex items-center gap-1">
+                    <Check className="w-3 h-3 stroke-[2.5]" />
+                    <span>{t("common.joined")}</span>
+                  </span>
+                )
               )}
             </div>
             <h3
@@ -137,7 +169,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
               <span className="block text-[11px] text-mute uppercase font-semibold">
                 {t("eventDetail.fee")}
               </span>
-              <span className="font-semibold text-ink">{event.cost}</span>
+              <span className="font-semibold text-ink">{displayCost}</span>
             </div>
           </div>
 
@@ -167,31 +199,59 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
           </div>
         )}
 
-        {/* Confirmed Roster */}
+        {/* Confirmed Roster + Host Role Transfer */}
         <div>
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
             <span className="text-xs font-bold uppercase tracking-wider text-mute">
               {t("eventDetail.confirmedRoster", { count: event.roster.length })}
             </span>
           </div>
-          <div className="space-y-2 max-h-48 overflow-y-auto no-scrollbar">
-            {event.roster.map((player, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-2.5 bg-canvas-soft rounded-[12px] text-xs"
-              >
-                <div className="flex items-center space-x-2">
-                  <span className="w-6 h-6 rounded-full bg-ink text-canvas flex items-center justify-center font-bold text-[10px]">
-                    {player.name.charAt(0)}
-                  </span>
-                  <span className="font-semibold text-ink">{player.name}</span>
-                  <span className="text-mute text-[11px]">({player.role})</span>
+
+          {isUserHost && !isSoloHost && (
+            <div className="mb-3 px-3.5 py-2.5 rounded-[12px] bg-[#fff8d6] dark:bg-[#3d320a] border border-[#ebdca2] dark:border-[#57460c] text-xs text-[#735100] dark:text-[#fef08a] font-medium flex items-center gap-2">
+              <Crown className="w-4 h-4 shrink-0" />
+              <span>{t("eventDetail.hostCannotLeaveHint")}</span>
+            </div>
+          )}
+
+          <div className="space-y-2 max-h-52 overflow-y-auto no-scrollbar">
+            {event.roster.map((player, index) => {
+              const isSelf = player.name.includes("(You)");
+              return (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-2.5 bg-canvas-soft rounded-[12px] text-xs gap-2"
+                >
+                  <div className="flex items-center space-x-2 min-w-0">
+                    <span className="w-6 h-6 rounded-full bg-ink text-canvas flex items-center justify-center font-bold text-[10px] shrink-0">
+                      {player.name.charAt(0)}
+                    </span>
+                    <span className="font-semibold text-ink truncate">
+                      {player.name}
+                    </span>
+                    <span className="text-mute text-[11px] shrink-0">
+                      ({player.role})
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    {isUserHost && !isSelf && onTransferHost && (
+                      <button
+                        type="button"
+                        onClick={() => onTransferHost(event.id, player.name)}
+                        className="px-2.5 py-1 bg-ink hover:bg-ink/80 text-primary text-[11px] font-bold rounded-full inline-flex items-center gap-1 transition cursor-pointer"
+                      >
+                        <Crown className="w-3 h-3" />
+                        <span>{t("eventDetail.makeHost")}</span>
+                      </button>
+                    )}
+                    <span className="font-mono text-[11px] font-bold text-positive-deep bg-primary-pale px-2 py-0.5 rounded-full border border-primary-neutral">
+                      {player.karma}%
+                    </span>
+                  </div>
                 </div>
-                <span className="font-mono text-[11px] font-bold text-positive-deep bg-primary-pale px-2 py-0.5 rounded-full border border-primary-neutral">
-                  {player.karma}%
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -216,28 +276,39 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
             </button>
           )}
 
-          <button
-            type="button"
-            onClick={() => onToggleJoin(event.id)}
-            className={`px-6 py-2.5 rounded-[24px] text-sm font-semibold transition cursor-pointer shadow-sm flex items-center space-x-2 ${
-              event.userJoined
-                ? "bg-canvas text-negative border border-negative hover:bg-negative/10"
-                : isFull
-                ? "bg-ink text-canvas hover:bg-ink/80"
-                : "btn-primary"
-            }`}
-          >
-            {event.userJoined ? (
-              <>
-                <X className="w-4 h-4 stroke-[2.5]" />
-                <span>{t("eventDetail.leaveSpot")}</span>
-              </>
-            ) : isFull ? (
-              <span>{t("eventDetail.joinWaitlist")}</span>
-            ) : (
-              <span>{t("common.rsvpSpot")}</span>
-            )}
-          </button>
+          {isSoloHost ? (
+            <button
+              type="button"
+              onClick={() => onDeleteEvent?.(event.id)}
+              className="px-6 py-2.5 rounded-[24px] text-sm font-semibold transition cursor-pointer shadow-sm flex items-center space-x-2 bg-canvas text-negative border border-negative hover:bg-negative/10"
+            >
+              <Trash2 className="w-4 h-4 stroke-[2.5]" />
+              <span>{t("common.deleteMatch")}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onToggleJoin(event.id)}
+              className={`px-6 py-2.5 rounded-[24px] text-sm font-semibold transition cursor-pointer shadow-sm flex items-center space-x-2 ${
+                event.userJoined
+                  ? "bg-canvas text-negative border border-negative hover:bg-negative/10"
+                  : isFull
+                  ? "bg-ink text-canvas hover:bg-ink/80"
+                  : "btn-primary"
+              }`}
+            >
+              {event.userJoined ? (
+                <>
+                  <X className="w-4 h-4 stroke-[2.5]" />
+                  <span>{t("eventDetail.leaveSpot")}</span>
+                </>
+              ) : isFull ? (
+                <span>{t("eventDetail.joinWaitlist")}</span>
+              ) : (
+                <span>{t("common.rsvpSpot")}</span>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

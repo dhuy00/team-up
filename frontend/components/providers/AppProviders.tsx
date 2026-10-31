@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ThemeProvider } from "./ThemeProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { ToastProvider } from "@/context/ToastContext";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -12,7 +13,9 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange={false}
     >
-      <LanguageProvider>{children}</LanguageProvider>
+      <LanguageProvider>
+        <ToastProvider>{children}</ToastProvider>
+      </LanguageProvider>
     </ThemeProvider>
   );
 }
