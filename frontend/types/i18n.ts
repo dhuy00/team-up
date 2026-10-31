@@ -77,6 +77,24 @@ export interface TranslationDictionary {
     confirmedRoster: string;
     leaveSpot: string;
     joinWaitlist: string;
+    openMatchChat: string;
+  };
+  createEvent: {
+    badge: string;
+    title: string;
+    activityTitle: string;
+    activityTitlePlaceholder: string;
+    sportCategory: string;
+    skillRequirement: string;
+    dateTime: string;
+    playerCapacity: string;
+    venueLabel: string;
+    venuePlaceholder: string;
+    costLabel: string;
+    costPlaceholder: string;
+    notesLabel: string;
+    notesPlaceholder: string;
+    publishActivity: string;
   };
   sports: {
     all: string;
@@ -98,7 +116,35 @@ export interface TranslationDictionary {
     subtitle: string;
     createSquad: string;
     requestInvite: string;
+    inviteRequested: string;
     instantJoin: string;
+    searchPlaceholder: string;
+    membersCount: string;
+    captainLabel: string;
+    homeVenueLabel: string;
+    viewSquadDetails: string;
+    noSquadsFound: string;
+    modalBadge: string;
+    modalTitle: string;
+    squadNameLabel: string;
+    squadNamePlaceholder: string;
+    abbrLabel: string;
+    sportLabel: string;
+    maxMembersLabel: string;
+    venueLabel: string;
+    venuePlaceholder: string;
+    descriptionLabel: string;
+    descriptionPlaceholder: string;
+    publishSquad: string;
+  };
+  chat: {
+    squadMessages: string;
+    activeCount: string;
+    pinnedLabel: string;
+    inputPlaceholder: string;
+    youPrefix: string;
+    justNow: string;
+    hostBadge: string;
   };
   passport: {
     reliabilityKarma: string;
@@ -109,7 +155,19 @@ export interface TranslationDictionary {
     sportsPassportTitle: string;
     sportsPassportSubtitle: string;
     addSport: string;
+    addSportFormTitle: string;
+    sportNamePlaceholder: string;
+    rolePlaceholder: string;
+    saveSport: string;
+    removeSport: string;
+    selfAssessed: string;
+    editBio: string;
+    saveBio: string;
     availabilityTitle: string;
+    availabilityHint: string;
+    statusBusy: string;
+    statusPreferred: string;
+    statusPrimary: string;
   };
   theme: {
     light: string;

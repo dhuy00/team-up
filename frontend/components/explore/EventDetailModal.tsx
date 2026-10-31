@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
-import { X, MapPin, Clock, Tag, Award, Check } from "lucide-react";
+import { X, MapPin, Clock, Tag, Award, Check, MessageSquare } from "lucide-react";
 import { EventActivity } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -10,14 +10,25 @@ interface EventDetailModalProps {
   event: EventActivity | null;
   onClose: () => void;
   onToggleJoin: (eventId: number) => void;
+  onOpenMatchChat?: (event: EventActivity) => void;
 }
 
 export const EventDetailModal: React.FC<EventDetailModalProps> = ({
   event,
   onClose,
   onToggleJoin,
+  onOpenMatchChat,
 }) => {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (!event) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [event, onClose]);
 
   if (!event) return null;
 
@@ -25,9 +36,13 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
   const isFull = spotsLeft <= 0;
 
   return (
-    <div className="fixed inset-0 z-50 bg-ink/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-50 bg-ink/70 backdrop-blur-xs flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="event-detail-title"
+    >
       <div className="bg-canvas rounded-[24px] max-w-2xl w-full px-6 sm:px-7 border border-border shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto no-scrollbar transition-colors duration-200">
-        
         {/* Sticky Header with Close Button */}
         <div className="sticky top-0 z-10 bg-canvas pt-5 sm:pt-6 pb-4 border-b border-border flex items-start justify-between gap-4">
           <div>
@@ -45,12 +60,17 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                 </span>
               )}
             </div>
-            <h3 className="text-xl sm:text-2xl font-[900] text-ink tracking-tight">
+            <h3
+              id="event-detail-title"
+              className="text-xl sm:text-2xl font-[900] text-ink tracking-tight"
+            >
               {event.title}
             </h3>
           </div>
           <button
+            type="button"
             onClick={onClose}
+            aria-label={t("common.close")}
             className="sticky top-5 p-2 bg-canvas-soft hover:bg-border/60 text-mute hover:text-ink rounded-full transition cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
@@ -71,13 +91,19 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
               />
             </div>
             <div>
-              <div className="text-xs text-mute font-semibold uppercase">{t("eventDetail.eventHost")}</div>
-              <div className="font-bold text-sm text-ink">{event.host.name}</div>
+              <div className="text-xs text-mute font-semibold uppercase">
+                {t("eventDetail.eventHost")}
+              </div>
+              <div className="font-bold text-sm text-ink">
+                {event.host.name}
+              </div>
             </div>
           </div>
           <div className="flex items-center space-x-1.5 px-3 py-1 bg-primary-pale text-positive-deep border border-primary-neutral rounded-full text-xs font-bold">
             <Award className="w-3.5 h-3.5" />
-            <span>{t("eventDetail.karmaPercent", { karma: event.host.karma })}</span>
+            <span>
+              {t("eventDetail.karmaPercent", { karma: event.host.karma })}
+            </span>
           </div>
         </div>
 
@@ -86,7 +112,9 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
           <div className="p-3 bg-canvas-soft rounded-[12px] flex items-center space-x-2.5">
             <MapPin className="w-4 h-4 text-mute shrink-0" />
             <div>
-              <span className="block text-[11px] text-mute uppercase font-semibold">{t("eventDetail.location")}</span>
+              <span className="block text-[11px] text-mute uppercase font-semibold">
+                {t("eventDetail.location")}
+              </span>
               <span className="font-semibold text-ink">{event.venue}</span>
             </div>
           </div>
@@ -94,15 +122,21 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
           <div className="p-3 bg-canvas-soft rounded-[12px] flex items-center space-x-2.5">
             <Clock className="w-4 h-4 text-mute shrink-0" />
             <div>
-              <span className="block text-[11px] text-mute uppercase font-semibold">{t("eventDetail.schedule")}</span>
-              <span className="font-semibold text-ink">{event.dateTimeStr}</span>
+              <span className="block text-[11px] text-mute uppercase font-semibold">
+                {t("eventDetail.schedule")}
+              </span>
+              <span className="font-semibold text-ink">
+                {event.dateTimeStr}
+              </span>
             </div>
           </div>
 
           <div className="p-3 bg-canvas-soft rounded-[12px] flex items-center space-x-2.5">
             <Tag className="w-4 h-4 text-mute shrink-0" />
             <div>
-              <span className="block text-[11px] text-mute uppercase font-semibold">{t("eventDetail.fee")}</span>
+              <span className="block text-[11px] text-mute uppercase font-semibold">
+                {t("eventDetail.fee")}
+              </span>
               <span className="font-semibold text-ink">{event.cost}</span>
             </div>
           </div>
@@ -110,7 +144,9 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
           <div className="p-3 bg-canvas-soft rounded-[12px] flex items-center space-x-2.5">
             <div className="text-xs font-bold text-ink shrink-0">👥</div>
             <div>
-              <span className="block text-[11px] text-mute uppercase font-semibold">{t("eventDetail.capacity")}</span>
+              <span className="block text-[11px] text-mute uppercase font-semibold">
+                {t("eventDetail.capacity")}
+              </span>
               <span className="font-semibold text-ink">
                 {t("eventDetail.spotsFilled", {
                   confirmed: event.confirmedPlayers,
@@ -124,7 +160,9 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
         {/* Host Notes */}
         {event.notes && (
           <div className="p-3.5 rounded-[12px] bg-canvas-soft/60 border border-border text-xs text-body">
-            <span className="font-bold text-ink block mb-0.5">{t("eventDetail.hostNotes")}</span>
+            <span className="font-bold text-ink block mb-0.5">
+              {t("eventDetail.hostNotes")}
+            </span>
             {event.notes}
           </div>
         )}
@@ -158,15 +196,28 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
         </div>
 
         {/* Sticky Modal Action CTA */}
-        <div className="sticky bottom-0 z-10 bg-canvas pt-4 pb-5 sm:pb-6 border-t border-border flex items-center justify-between gap-3">
+        <div className="sticky bottom-0 z-10 bg-canvas pt-4 pb-5 sm:pb-6 border-t border-border flex flex-wrap items-center justify-center gap-3">
           <button
+            type="button"
             onClick={onClose}
             className="px-5 py-2.5 bg-canvas-soft hover:bg-border/60 text-ink font-semibold rounded-[24px] border border-border transition cursor-pointer text-sm"
           >
             {t("common.close")}
           </button>
 
+          {onOpenMatchChat && (
+            <button
+              type="button"
+              onClick={() => onOpenMatchChat(event)}
+              className="px-5 py-2.5 bg-canvas hover:bg-canvas-soft text-ink font-semibold rounded-[24px] border border-ink transition cursor-pointer text-sm flex items-center space-x-1.5"
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span>{t("eventDetail.openMatchChat")}</span>
+            </button>
+          )}
+
           <button
+            type="button"
             onClick={() => onToggleJoin(event.id)}
             className={`px-6 py-2.5 rounded-[24px] text-sm font-semibold transition cursor-pointer shadow-sm flex items-center space-x-2 ${
               event.userJoined
@@ -179,7 +230,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
             {event.userJoined ? (
               <>
                 <X className="w-4 h-4 stroke-[2.5]" />
-                <span>{t("common.cancel")}</span>
+                <span>{t("eventDetail.leaveSpot")}</span>
               </>
             ) : isFull ? (
               <span>{t("eventDetail.joinWaitlist")}</span>
@@ -188,7 +239,6 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
             )}
           </button>
         </div>
-
       </div>
     </div>
   );

@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { EventActivity } from "@/types/models";
 import { initialEvents } from "@/lib/mockData";
 import {
   DEFAULT_QUICK_FILTER,
   QuickFilterState,
 } from "@/constants/explore";
+import { usePersistentState } from "@/hooks/usePersistentState";
 import { HeroSection } from "@/components/home/HeroSection";
 import { ExploreSection } from "@/components/explore/ExploreSection";
 import { NAV_TAB_IDS } from "@/components/navigation/routes";
@@ -14,35 +15,30 @@ import { NAV_TAB_IDS } from "@/components/navigation/routes";
 export interface ExplorePageViewProps {
   onNavigateTab?: (tabId: number) => void;
   onOpenCreateEvent?: () => void;
+  onOpenMatchChat?: (event: EventActivity) => void;
   createdEvent?: EventActivity | null;
 }
 
-/**
- * ExplorePageView
- * Encapsulates all state, handlers, and sub-components specific to the Explore Games route:
- * - Local events list state
- * - Reservation / RSVP spot toggling (handleToggleJoin)
- * - Quick match finder state (quickFilter)
- * - Coordinated scroll and filter synchronization between Hero and Explore feed
- */
 export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
   onNavigateTab,
+  onOpenMatchChat,
   createdEvent,
 }) => {
-  // Encapsulated events state
-  const [events, setEvents] = useState<EventActivity[]>(initialEvents);
-  const [lastSyncedCreatedId, setLastSyncedCreatedId] = useState<number | null>(
-    null
+  const [events, setEvents] = usePersistentState<EventActivity[]>(
+    "teamup_events",
+    initialEvents
   );
-
-  // Encapsulated quick match filter state
-  const [quickFilter, setQuickFilter] = useState<QuickFilterState>(DEFAULT_QUICK_FILTER);
+  const [quickFilter, setQuickFilter] =
+    useState<QuickFilterState>(DEFAULT_QUICK_FILTER);
 
   // Sync when a new activity is published from the Host Game wizard
-  if (createdEvent && createdEvent.id !== lastSyncedCreatedId) {
-    setLastSyncedCreatedId(createdEvent.id);
-    setEvents((prev) => [createdEvent, ...prev]);
-  }
+  useEffect(() => {
+    if (!createdEvent) return;
+    setEvents((prev) => {
+      if (prev.some((ev) => ev.id === createdEvent.id)) return prev;
+      return [createdEvent, ...prev];
+    });
+  }, [createdEvent, setEvents]);
 
   // Encapsulated reservation / spot booking toggle handler
   const handleToggleJoin = (eventId: number) => {
@@ -55,7 +51,10 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
             : ev.confirmedPlayers - 1;
 
           const updatedRoster = nextJoined
-            ? [...ev.roster, { name: "Alex Morgan (You)", role: "Confirmed", karma: 98 }]
+            ? [
+                ...ev.roster,
+                { name: "Alex Morgan (You)", role: "Confirmed", karma: 98 },
+              ]
             : ev.roster.filter((p) => !p.name.includes("(You)"));
 
           return {
@@ -106,6 +105,7 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
           events={events}
           onToggleJoin={handleToggleJoin}
           onUpdateEvents={setEvents}
+          onOpenMatchChat={onOpenMatchChat}
           selectedSport={quickFilter.sport}
           selectedRadius={quickFilter.radius}
           onSportChange={handleSportChange}

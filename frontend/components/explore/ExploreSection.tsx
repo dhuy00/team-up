@@ -18,6 +18,7 @@ interface ExploreSectionProps {
   events: EventActivity[];
   onToggleJoin: (eventId: number) => void;
   onUpdateEvents?: (events: EventActivity[]) => void;
+  onOpenMatchChat?: (event: EventActivity) => void;
   selectedSport: string;
   selectedRadius: number;
   onSportChange: (sport: string) => void;
@@ -28,6 +29,7 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
   events,
   onToggleJoin,
   onUpdateEvents,
+  onOpenMatchChat,
   selectedSport,
   selectedRadius,
   onSportChange,
@@ -163,6 +165,10 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
           event={selectedEventForModal}
           onClose={() => setSelectedEventIdForModal(null)}
           onToggleJoin={onToggleJoin}
+          onOpenMatchChat={(ev) => {
+            setSelectedEventIdForModal(null);
+            onOpenMatchChat?.(ev);
+          }}
         />
       )}
     </section>

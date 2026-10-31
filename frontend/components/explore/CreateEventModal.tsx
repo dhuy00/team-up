@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { X } from "lucide-react";
 import { EventActivity } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -35,8 +35,20 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
   const [cost, setCost] = useState("Free");
   const [notes, setNotes] = useState("");
 
-  const sportOptions = buildSportSelectOptions(t, { includeAll: false });
-  const skillOptions = buildSkillSelectOptions(t);
+  const sportOptions = useMemo(
+    () => buildSportSelectOptions(t, { includeAll: false }),
+    [t]
+  );
+  const skillOptions = useMemo(() => buildSkillSelectOptions(t), [t]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -55,14 +67,17 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
       distanceKm: 1.0,
       lat: DEFAULT_RADAR_CENTER.lat,
       lng: DEFAULT_RADAR_CENTER.lng,
-      dateTimeStr: dateTime ? new Date(dateTime).toLocaleString() : "This weekend",
+      dateTimeStr: dateTime
+        ? new Date(dateTime).toLocaleString()
+        : "This weekend",
       cost: cost || "Free",
       confirmedPlayers: 1,
       maxPlayers: Number(capacity) || 10,
       host: {
         name: "Alex Morgan (You)",
         karma: 98,
-        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces",
+        avatar:
+          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces",
       },
       userJoined: true,
       roster: [{ name: "Alex Morgan (You)", role: "Host / Captain", karma: 98 }],
@@ -70,24 +85,36 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
     };
 
     onEventCreated(newActivity);
+    setTitle("");
+    setVenue("");
+    setNotes("");
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-ink/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-50 bg-ink/70 backdrop-blur-xs flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="create-event-title"
+    >
       <div className="bg-canvas rounded-[24px] max-w-lg w-full p-6 sm:p-7 border border-border shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto transition-colors duration-200">
-        
         <div className="flex items-center justify-between border-b border-border pb-4">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-mute">
-              New Activity
+              {t("createEvent.badge")}
             </span>
-            <h3 className="text-2xl font-[900] text-ink tracking-tight">
-              Host a Game
+            <h3
+              id="create-event-title"
+              className="text-2xl font-[900] text-ink tracking-tight"
+            >
+              {t("createEvent.title")}
             </h3>
           </div>
           <button
+            type="button"
             onClick={onClose}
+            aria-label={t("common.close")}
             className="p-2 text-mute hover:text-ink rounded-full transition cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -96,11 +123,13 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs sm:text-sm">
           <div>
-            <label className="block font-semibold text-ink mb-1">Activity Title</label>
+            <label className="block font-semibold text-ink mb-1">
+              {t("createEvent.activityTitle")}
+            </label>
             <input
               required
               type="text"
-              placeholder="e.g., 5v5 Sunset Pickup Basketball"
+              placeholder={t("createEvent.activityTitlePlaceholder")}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="w-full px-4 py-2.5 bg-canvas-soft border border-border rounded-[12px] text-ink focus:border-ink focus:outline-none"
@@ -109,7 +138,9 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-ink mb-1">Sport / Category</label>
+              <label className="block font-semibold text-ink mb-1">
+                {t("createEvent.sportCategory")}
+              </label>
               <CustomSelect
                 options={sportOptions}
                 value={sport}
@@ -118,7 +149,9 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
               />
             </div>
             <div>
-              <label className="block font-semibold text-ink mb-1">Skill Requirement</label>
+              <label className="block font-semibold text-ink mb-1">
+                {t("createEvent.skillRequirement")}
+              </label>
               <CustomSelect
                 options={skillOptions}
                 value={skill}
@@ -130,7 +163,9 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-ink mb-1">Date & Time</label>
+              <label className="block font-semibold text-ink mb-1">
+                {t("createEvent.dateTime")}
+              </label>
               <input
                 required
                 type="datetime-local"
@@ -140,7 +175,9 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
               />
             </div>
             <div>
-              <label className="block font-semibold text-ink mb-1">Player Capacity</label>
+              <label className="block font-semibold text-ink mb-1">
+                {t("createEvent.playerCapacity")}
+              </label>
               <input
                 required
                 type="number"
@@ -154,11 +191,13 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
           </div>
 
           <div>
-            <label className="block font-semibold text-ink mb-1">Venue / Location Name</label>
+            <label className="block font-semibold text-ink mb-1">
+              {t("createEvent.venueLabel")}
+            </label>
             <input
               required
               type="text"
-              placeholder="e.g., Central Sports Arena, Court 4"
+              placeholder={t("createEvent.venuePlaceholder")}
               value={venue}
               onChange={(e) => setVenue(e.target.value)}
               className="w-full px-4 py-2.5 bg-canvas-soft border border-border rounded-[12px] text-ink focus:border-ink focus:outline-none"
@@ -166,10 +205,12 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
           </div>
 
           <div>
-            <label className="block font-semibold text-ink mb-1">Cost per Person</label>
+            <label className="block font-semibold text-ink mb-1">
+              {t("createEvent.costLabel")}
+            </label>
             <input
               type="text"
-              placeholder="Free or $5 (Court share)"
+              placeholder={t("createEvent.costPlaceholder")}
               value={cost}
               onChange={(e) => setCost(e.target.value)}
               className="w-full px-3 py-2.5 bg-canvas-soft border border-border rounded-[12px] text-ink focus:border-ink focus:outline-none"
@@ -177,10 +218,12 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
           </div>
 
           <div>
-            <label className="block font-semibold text-ink mb-1">Host Notes / Equipment</label>
+            <label className="block font-semibold text-ink mb-1">
+              {t("createEvent.notesLabel")}
+            </label>
             <textarea
               rows={2}
-              placeholder="e.g., Bring dark/light shirts. Cleats allowed on turf."
+              placeholder={t("createEvent.notesPlaceholder")}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="w-full px-4 py-2.5 bg-canvas-soft border border-border rounded-[12px] text-ink focus:border-ink focus:outline-none"
@@ -197,9 +240,9 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
             </button>
             <button
               type="submit"
-              className="btn-primary px-6 py-2.5 rounded-[24px] text-sm shadow-sm"
+              className="btn-primary px-6 py-2.5 rounded-[24px] text-sm shadow-sm cursor-pointer"
             >
-              Publish Activity
+              {t("createEvent.publishActivity")}
             </button>
           </div>
         </form>

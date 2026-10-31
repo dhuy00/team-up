@@ -14,10 +14,17 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<number>(NAV_TAB_IDS.EXPLORE);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createdEvent, setCreatedEvent] = useState<EventActivity | null>(null);
+  const [focusedChatEvent, setFocusedChatEvent] =
+    useState<EventActivity | null>(null);
 
   const handleEventCreated = (newEvent: EventActivity) => {
     setCreatedEvent(newEvent);
     setActiveTab(NAV_TAB_IDS.EXPLORE);
+  };
+
+  const handleOpenMatchChat = (event: EventActivity) => {
+    setFocusedChatEvent(event);
+    setActiveTab(NAV_TAB_IDS.CHATS);
   };
 
   return (
@@ -34,7 +41,9 @@ export default function Home() {
         activeTab={activeTab}
         onNavigateTab={setActiveTab}
         onOpenCreateEvent={() => setIsCreateModalOpen(true)}
+        onOpenMatchChat={handleOpenMatchChat}
         createdEvent={createdEvent}
+        focusedChatEvent={focusedChatEvent}
       />
 
       {/* Host Game Wizard Modal */}

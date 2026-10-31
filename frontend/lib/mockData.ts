@@ -277,6 +277,7 @@ export const initialSquads: TeamSquad[] = [
 export const initialChatChannels: ChatChannel[] = [
   {
     id: 1,
+    eventId: 1,
     title: "5v5 Turf Soccer Match (#102)",
     subtitle: "8 Players in room • Today at 7:00 PM • Riverside Park",
     sportIcon: "⚽",
@@ -310,6 +311,7 @@ export const initialChatChannels: ChatChannel[] = [
   },
   {
     id: 2,
+    eventId: 3,
     title: "Badminton Doubles (Court 2)",
     subtitle: "3 Players in room • Thursday at 6:30 PM",
     sportIcon: "🏸",

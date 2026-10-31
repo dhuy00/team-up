@@ -83,6 +83,7 @@ export interface ChatMessage {
 
 export interface ChatChannel {
   id: number;
+  eventId?: number;
   title: string;
   subtitle: string;
   sportIcon: string;

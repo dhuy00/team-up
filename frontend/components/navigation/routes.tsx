@@ -26,18 +26,18 @@ export type NavTabId = (typeof NAV_TAB_IDS)[keyof typeof NAV_TAB_IDS];
 export interface AppPageProps {
   onNavigateTab?: (tabId: number) => void;
   onOpenCreateEvent?: () => void;
+  onOpenMatchChat?: (event: EventActivity) => void;
   createdEvent?: EventActivity | null;
+  focusedChatEvent?: EventActivity | null;
 }
 
 /**
  * Route 2: Clubs & Squads Page Wrapper
  */
-export const SquadsPageView: React.FC<AppPageProps> = ({
-  onOpenCreateEvent,
-}) => {
+export const SquadsPageView: React.FC<AppPageProps> = () => {
   return (
     <main className="flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <SquadsSection onOpenCreateSquad={onOpenCreateEvent} />
+      <SquadsSection />
     </main>
   );
 };
@@ -45,10 +45,10 @@ export const SquadsPageView: React.FC<AppPageProps> = ({
 /**
  * Route 3: Match & Squad Chat Page Wrapper
  */
-export const ChatPageView: React.FC<AppPageProps> = () => {
+export const ChatPageView: React.FC<AppPageProps> = ({ focusedChatEvent }) => {
   return (
     <main className="flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <ChatSection />
+      <ChatSection focusedEvent={focusedChatEvent} />
     </main>
   );
 };

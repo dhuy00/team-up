@@ -75,7 +75,7 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-2xl font-[900] text-ink tracking-tight">TeamUp &amp; SocialFinding</h1>
-            <span class="badge badge-wip">Phase 1 (MVP) Active</span>
+            <span class="badge badge-done">Phase 1 Completed</span>
           </div>
           <p class="text-sm font-medium text-mute mt-0.5">Project State, Development Progress &amp; Change Tracking</p>
         </div>
@@ -83,11 +83,11 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Last Updated</span>
-          <span class="font-bold text-ink" id="last-updated">2026-10-25 15:04 (ICT)</span>
+          <span class="font-bold text-ink" id="last-updated">2026-10-31 10:42 (ICT)</span>
         </div>
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Git Branch</span>
-          <span class="font-bold text-ink">main (clean)</span>
+          <span class="font-bold text-ink">main</span>
         </div>
       </div>
     </header>
@@ -96,11 +96,11 @@
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
         <div class="text-xs font-bold text-mute uppercase tracking-wider">Overall Progress</div>
-        <div class="mt-2 text-3xl font-[900] text-ink">~50%</div>
+        <div class="mt-2 text-3xl font-[900] text-ink">~60%</div>
         <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
-          <div class="bg-primary h-full rounded-full" style="width: 50%"></div>
+          <div class="bg-primary h-full rounded-full" style="width: 60%"></div>
         </div>
-        <div class="mt-2 text-xs text-mute font-medium">Phase 1 MVP UI refined &amp; reviewed</div>
+        <div class="mt-2 text-xs text-mute font-medium">Phase 1 Foundation &amp; UX Polish complete</div>
       </div>
 
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
@@ -109,16 +109,16 @@
         <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
           <div class="bg-positive h-full rounded-full" style="width: 100%"></div>
         </div>
-        <div class="mt-2 text-xs text-positive font-bold">10 SRS docs + Full prototype</div>
+        <div class="mt-2 text-xs text-positive font-bold">10 SRS docs + plan.md + prototype</div>
       </div>
 
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
-        <div class="text-xs font-bold text-mute uppercase tracking-wider">Frontend App</div>
-        <div class="mt-2 text-3xl font-[900] text-ink">80%</div>
+        <div class="text-xs font-bold text-mute uppercase tracking-wider">Frontend App (Phase 1)</div>
+        <div class="mt-2 text-3xl font-[900] text-ink">100%</div>
         <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
-          <div class="bg-positive h-full rounded-full" style="width: 80%"></div>
+          <div class="bg-positive h-full rounded-full" style="width: 100%"></div>
         </div>
-        <div class="mt-2 text-xs text-positive font-medium">All 4 views ported &amp; build passing</div>
+        <div class="mt-2 text-xs text-positive font-medium">Modularized, 100% EN/VI i18n &amp; persistent</div>
       </div>
 
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
@@ -315,6 +315,66 @@
       </div>
     </section>
 
+    <!-- QA & Manual Test Cases Suite -->
+    <section class="bg-white rounded-[24px] p-6 sm:p-8 border border-border-base shadow-sm space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-[900] text-ink">Task Test Cases &amp; Verification Suite</h2>
+          <p class="text-sm text-mute">Step-by-step test scenarios for verifying completed Phase 1 tasks</p>
+        </div>
+        <span class="badge badge-done">Phase 1 QA Ready</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-ink">TC-1.1: Squad Creation, Search &amp; Detail Modal</span>
+            <span class="badge badge-done">Squads</span>
+          </div>
+          <ol class="list-decimal pl-4 space-y-1 text-body">
+            <li>Navigate to <strong>Clubs &amp; Squads</strong> tab and type <code>"Badminton"</code> or <code>"Riverside"</code> in the search bar, or select a sport filter &rarr; Verify cards filter live.</li>
+            <li>Click a squad card title or <strong>Details</strong> button &rarr; Verify <code>SquadDetailModal</code> opens showing captain, home venue, capacity, and press <code>Escape</code> to close.</li>
+            <li>Click <strong>Create a Squad</strong>, fill in name, abbreviation, sport, max members, and venue, then submit &rarr; Verify the new squad appears at the top of the list with status <em>Invite Requested ✓</em>.</li>
+          </ol>
+        </div>
+
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-ink">TC-1.2: Explore Event &rarr; Match Chat Integration</span>
+            <span class="badge badge-done">Explore &amp; Chat</span>
+          </div>
+          <ol class="list-decimal pl-4 space-y-1 text-body">
+            <li>On <strong>Explore Games</strong>, click <strong>Details</strong> on any event card (e.g., <em>Casual Pickup Basketball Run</em>).</li>
+            <li>In <code>EventDetailModal</code>, click <strong>Open Match Chat</strong>.</li>
+            <li>Verify the app navigates directly to the <strong>Chat</strong> tab, automatically selects (or creates) that match's chat channel, displays the host's pinned announcement, and allows sending a new message.</li>
+          </ol>
+        </div>
+
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-ink">TC-1.3: Interactive Sports Passport Editing</span>
+            <span class="badge badge-done">Passport</span>
+          </div>
+          <ol class="list-decimal pl-4 space-y-1 text-body">
+            <li>Navigate to <strong>Sports Passport</strong> and click <strong>Edit Bio</strong> under the player bio &rarr; Modify text and click <strong>Save Bio</strong> &rarr; Verify bio updates inline.</li>
+            <li>Click <strong>+ Add Sport</strong>, enter <code>"Tennis"</code> and role, and click <strong>Save Sport</strong> &rarr; Verify the new sport row appears; click the trash icon to test removing a sport.</li>
+            <li>Click any day in <strong>Weekly Playing Availability</strong> (e.g., <code>Mon</code>) &rarr; Verify it cycles through <em>Busy &rarr; Evening/Preferred &rarr; Available/Primary</em>.</li>
+          </ol>
+        </div>
+
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-ink">TC-1.4: Client Persistence &amp; Full EN/VI Localization</span>
+            <span class="badge badge-done">i18n &amp; Storage</span>
+          </div>
+          <ol class="list-decimal pl-4 space-y-1 text-body">
+            <li>Switch language between <strong>English</strong> and <strong>Tiếng Việt</strong> in the top bar &rarr; Verify <code>CreateEventModal</code>, <code>SquadsSection</code>, <code>ChatSection</code>, and <code>PassportSection</code> translate 100% of labels.</li>
+            <li>Join an event, send a chat message, create a squad, or edit your passport, then refresh the browser (<code>F5</code>) &rarr; Verify all changes persist via <code>localStorage</code>.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
     <!-- Changelog & Audit Trail -->
     <section class="bg-white rounded-[24px] p-6 sm:p-8 border border-border-base shadow-sm space-y-6">
       <div class="flex items-center justify-between">
@@ -336,6 +396,38 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: Phase 1 Complete -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 10:40</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Phase 1 Complete</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Completed Phase 1: Chat &amp; Passport modularization, dedicated Squad modals, Event-to-Chat linking, 100% EN/VI localization, and localStorage persistence</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Chat Modularization</strong>: Extracted <code>ChannelSidebar.tsx</code>, <code>ChatMessageList.tsx</code>, and <code>ChatComposer.tsx</code> from <code>ChatSection.tsx</code>; linked <code>EventDetailModal</code> ("Open Match Chat") to auto-focus or create the event's chat channel.</li>
+                  <li><strong>Passport Modularization &amp; Interactivity</strong>: Extracted <code>KarmaIdentityCard.tsx</code> (with inline bio editing), <code>SportSkillMatrix.tsx</code> (with sport deletion), and <code>WeeklyAvailabilityGrid.tsx</code> (interactive click-to-cycle day status).</li>
+                  <li><strong>Clubs &amp; Squads Flow</strong>: Created dedicated <code>CreateSquadModal.tsx</code> and <code>SquadDetailModal.tsx</code>; added search query and sport filtering to <code>SquadsSection.tsx</code>.</li>
+                  <li><strong>Full i18n &amp; Persistence</strong>: Added <code>usePersistentState.ts</code> (via <code>useSyncExternalStore</code>) and localized all remaining strings in <code>en.ts</code> and <code>vi.ts</code>; added <code>Escape</code> key dismissal across all modals.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                plan.md, frontend/hooks/usePersistentState.ts, frontend/components/chat/*, frontend/components/passport/*, frontend/components/squads/*, frontend/components/explore/CreateEventModal.tsx, frontend/components/explore/EventDetailModal.tsx, frontend/locales/en.ts, frontend/locales/vi.ts, frontend/types/i18n.ts
+              </td>
+            </tr>
+            <!-- Entry: Commit 361284b Interactive Radar & Modularization -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 09:18</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Commit 361284b</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Modularized Radar, Explore, and Squad components and extracted shared utilities</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li>Extracted <code>EventCard.tsx</code>, <code>ExploreFilterBar.tsx</code>, <code>SquadCard.tsx</code>, and radar subcomponents (<code>RadarControls.tsx</code>, <code>RadarMapCanvas.tsx</code>, <code>RadarVenuesList.tsx</code>, <code>leafletPopupTemplates.ts</code>).</li>
+                  <li>Extracted shared hooks and utilities: <code>useLeafletLoader.ts</code>, <code>lib/geo.ts</code>, <code>services/geocoding.ts</code>, <code>constants/radar.ts</code>, and <code>types/leaflet.ts</code>.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/components/explore/*, frontend/components/explore/radar/*, frontend/components/squads/*, frontend/hooks/useLeafletLoader.ts, frontend/lib/geo.ts, frontend/services/geocoding.ts
+              </td>
+            </tr>
             <!-- Entry: RadarVisualFeed Component Extraction -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-25 15:04</td>
