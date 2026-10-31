@@ -15,6 +15,7 @@ import {
 import { SquadCard } from "./SquadCard";
 import { CreateSquadModal } from "./CreateSquadModal";
 import { SquadDetailModal } from "./SquadDetailModal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export const SquadsSection: React.FC = () => {
   const { t } = useTranslation();
@@ -33,6 +34,15 @@ export const SquadsSection: React.FC = () => {
   const [isCreateSquadOpen, setIsCreateSquadOpen] = useState(false);
   const [selectedSquadForDetail, setSelectedSquadForDetail] =
     useState<TeamSquad | null>(null);
+  const [editingSquad, setEditingSquad] = useState<TeamSquad | null>(null);
+  const [squadIdPendingDelete, setSquadIdPendingDelete] = useState<
+    number | null
+  >(null);
+
+  const squadPendingDelete = useMemo(
+    () => squads.find((sq) => sq.id === squadIdPendingDelete) ?? null,
+    [squads, squadIdPendingDelete]
+  );
 
   const sportOptions = useMemo(() => buildSportSelectOptions(t), [t]);
 
@@ -72,6 +82,27 @@ export const SquadsSection: React.FC = () => {
     setSquads((prev) => [newSquad, ...prev]);
     setRequestedSquads((prev) => [...prev, newSquad.id]);
     toast.success(t("toast.squadCreated"));
+  };
+
+  const handleSquadUpdated = (updatedSquad: TeamSquad) => {
+    setSquads((prev) =>
+      prev.map((sq) => (sq.id === updatedSquad.id ? updatedSquad : sq))
+    );
+    toast.success(t("toast.squadUpdated"));
+  };
+
+  const handleConfirmDeleteSquad = () => {
+    if (squadIdPendingDelete !== null) {
+      setSquads((prev) => prev.filter((sq) => sq.id !== squadIdPendingDelete));
+      setRequestedSquads((prev) =>
+        prev.filter((id) => id !== squadIdPendingDelete)
+      );
+      if (selectedSquadForDetail?.id === squadIdPendingDelete) {
+        setSelectedSquadForDetail(null);
+      }
+      setSquadIdPendingDelete(null);
+      toast.info(t("toast.squadDeleted"));
+    }
   };
 
   return (
@@ -140,6 +171,8 @@ export const SquadsSection: React.FC = () => {
               isRequested={requestedSquads.includes(squad.id)}
               onRequestInvite={handleRequestInvite}
               onSelectSquad={setSelectedSquadForDetail}
+              onEditSquad={(sq) => setEditingSquad(sq)}
+              onDeleteSquad={(id) => setSquadIdPendingDelete(id)}
             />
           ))}
         </div>
@@ -152,6 +185,14 @@ export const SquadsSection: React.FC = () => {
         onSquadCreated={handleSquadCreated}
       />
 
+      {/* Edit Squad Modal */}
+      <CreateSquadModal
+        isOpen={Boolean(editingSquad)}
+        onClose={() => setEditingSquad(null)}
+        editingSquad={editingSquad}
+        onSquadUpdated={handleSquadUpdated}
+      />
+
       {/* Dedicated Squad Detail Modal */}
       <SquadDetailModal
         squad={selectedSquadForDetail}
@@ -162,6 +203,23 @@ export const SquadsSection: React.FC = () => {
         }
         onClose={() => setSelectedSquadForDetail(null)}
         onRequestInvite={handleRequestInvite}
+        onEditSquad={(sq) => {
+          setSelectedSquadForDetail(null);
+          setEditingSquad(sq);
+        }}
+      />
+
+      {/* Delete Squad Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(squadPendingDelete)}
+        title={t("clubs.deleteSquadConfirmTitle")}
+        message={t("clubs.deleteSquadConfirmMessage", {
+          name: squadPendingDelete?.name || "",
+        })}
+        confirmLabel={t("clubs.deleteSquad")}
+        cancelLabel={t("common.cancel")}
+        onConfirm={handleConfirmDeleteSquad}
+        onCancel={() => setSquadIdPendingDelete(null)}
       />
     </section>
   );

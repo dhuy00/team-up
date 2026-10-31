@@ -150,6 +150,12 @@ export interface TranslationDictionary {
     noSquadsFound: string;
     modalBadge: string;
     modalTitle: string;
+    editModalBadge: string;
+    editModalTitle: string;
+    editSquad: string;
+    deleteSquad: string;
+    deleteSquadConfirmTitle: string;
+    deleteSquadConfirmMessage: string;
     squadNameLabel: string;
     squadNamePlaceholder: string;
     abbrLabel: string;
@@ -222,6 +228,8 @@ export interface TranslationDictionary {
     invalidCapacity: string;
     invalidEndTime: string;
     squadCreated: string;
+    squadUpdated: string;
+    squadDeleted: string;
     inviteRequested: string;
     inviteCancelled: string;
     bioSaved: string;

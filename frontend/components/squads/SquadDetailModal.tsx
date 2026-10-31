@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { X, Shield, MapPin, Users, Award, Check } from "lucide-react";
+import { X, Shield, MapPin, Users, Award, Check, Pencil } from "lucide-react";
 import { TeamSquad } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
@@ -11,6 +11,7 @@ interface SquadDetailModalProps {
   isRequested: boolean;
   onClose: () => void;
   onRequestInvite: (squadId: number) => void;
+  onEditSquad?: (squad: TeamSquad) => void;
 }
 
 export const SquadDetailModal: React.FC<SquadDetailModalProps> = ({
@@ -18,6 +19,7 @@ export const SquadDetailModal: React.FC<SquadDetailModalProps> = ({
   isRequested,
   onClose,
   onRequestInvite,
+  onEditSquad,
 }) => {
   const { t } = useTranslation();
 
@@ -33,6 +35,8 @@ export const SquadDetailModal: React.FC<SquadDetailModalProps> = ({
   }, [squad, onClose]);
 
   if (!squad) return null;
+
+  const isCaptain = squad.captain.includes("(You)");
 
   return (
     <div
@@ -130,24 +134,37 @@ export const SquadDetailModal: React.FC<SquadDetailModalProps> = ({
           >
             {t("common.close")}
           </button>
-          <button
-            type="button"
-            onClick={() => onRequestInvite(squad.id)}
-            className={`px-6 py-2.5 font-semibold rounded-[24px] text-xs sm:text-sm transition cursor-pointer shadow-sm flex items-center gap-1.5 ${
-              isRequested
-                ? "bg-primary-pale text-positive-deep border border-primary-neutral"
-                : "btn-primary"
-            }`}
-          >
-            {isRequested ? (
-              <>
-                <Check className="w-4 h-4 stroke-[2.5]" />
-                <span>{t("clubs.inviteRequested")}</span>
-              </>
-            ) : (
-              <span>{t("clubs.requestInvite")}</span>
-            )}
-          </button>
+          {isCaptain ? (
+            onEditSquad && (
+              <button
+                type="button"
+                onClick={() => onEditSquad(squad)}
+                className="btn-primary px-6 py-2.5 font-semibold rounded-[24px] text-xs sm:text-sm transition cursor-pointer shadow-sm flex items-center gap-1.5"
+              >
+                <Pencil className="w-4 h-4 stroke-[2.5]" />
+                <span>{t("clubs.editSquad")}</span>
+              </button>
+            )
+          ) : (
+            <button
+              type="button"
+              onClick={() => onRequestInvite(squad.id)}
+              className={`px-6 py-2.5 font-semibold rounded-[24px] text-xs sm:text-sm transition cursor-pointer shadow-sm flex items-center gap-1.5 ${
+                isRequested
+                  ? "bg-primary-pale text-positive-deep border border-primary-neutral"
+                  : "btn-primary"
+              }`}
+            >
+              {isRequested ? (
+                <>
+                  <Check className="w-4 h-4 stroke-[2.5]" />
+                  <span>{t("clubs.inviteRequested")}</span>
+                </>
+              ) : (
+                <span>{t("clubs.requestInvite")}</span>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

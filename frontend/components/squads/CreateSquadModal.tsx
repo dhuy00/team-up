@@ -14,22 +14,47 @@ import {
 interface CreateSquadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSquadCreated: (newSquad: TeamSquad) => void;
+  onSquadCreated?: (newSquad: TeamSquad) => void;
+  editingSquad?: TeamSquad | null;
+  onSquadUpdated?: (updatedSquad: TeamSquad) => void;
 }
 
 export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
   isOpen,
   onClose,
   onSquadCreated,
+  editingSquad = null,
+  onSquadUpdated,
 }) => {
   const { t } = useTranslation();
 
+  const isEditMode = Boolean(editingSquad);
+  const minMembers = editingSquad
+    ? Math.max(EVENT_CAPACITY_CONFIG.MIN, editingSquad.memberCount)
+    : EVENT_CAPACITY_CONFIG.MIN;
+
   const [name, setName] = useState("");
-  const [abbr, setAbbr] = useState("");
   const [sport, setSport] = useState("Soccer");
   const [maxMembers, setMaxMembers] = useState<string>("16");
   const [venue, setVenue] = useState("");
   const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (editingSquad) {
+      setName(editingSquad.name);
+      setSport(editingSquad.sport);
+      setMaxMembers(String(editingSquad.maxMembers));
+      setVenue(editingSquad.venue);
+      setDescription(editingSquad.description);
+    } else {
+      setName("");
+      setSport("Soccer");
+      setMaxMembers("16");
+      setVenue("");
+      setDescription("");
+    }
+  }, [isOpen, editingSquad]);
 
   const sportOptions = useMemo(
     () => buildSportSelectOptions(t, { includeAll: false }),
@@ -74,21 +99,36 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
     if (
       !maxMembers ||
       Number.isNaN(numericMax) ||
-      numericMax < EVENT_CAPACITY_CONFIG.MIN ||
+      numericMax < minMembers ||
       numericMax > EVENT_CAPACITY_CONFIG.MAX
     ) {
       return;
     }
 
-    const derivedAbbr =
-      abbr.trim().toUpperCase() ||
-      name
-        .trim()
-        .split(/\s+/)
-        .map((w) => w[0])
-        .join("")
-        .slice(0, 3)
-        .toUpperCase();
+    const derivedAbbr = name
+      .trim()
+      .split(/\s+/)
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 3)
+      .toUpperCase();
+
+    if (editingSquad) {
+      const updatedSquad: TeamSquad = {
+        ...editingSquad,
+        name: name.trim(),
+        sport,
+        abbr: derivedAbbr,
+        maxMembers: numericMax,
+        description:
+          description.trim() ||
+          "Weekly practice and competitive scrimmages. Reliable players welcome!",
+        venue: venue.trim(),
+      };
+      onSquadUpdated?.(updatedSquad);
+      onClose();
+      return;
+    }
 
     const newSquad: TeamSquad = {
       id: Date.now(),
@@ -107,9 +147,8 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
       statValue: "All Levels",
     };
 
-    onSquadCreated(newSquad);
+    onSquadCreated?.(newSquad);
     setName("");
-    setAbbr("");
     setMaxMembers("16");
     setVenue("");
     setDescription("");
@@ -127,13 +166,13 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
         <div className="flex items-center justify-between border-b border-border pb-4">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-mute">
-              {t("clubs.modalBadge")}
+              {isEditMode ? t("clubs.editModalBadge") : t("clubs.modalBadge")}
             </span>
             <h3
               id="create-squad-title"
               className="text-2xl font-[900] text-ink tracking-tight"
             >
-              {t("clubs.modalTitle")}
+              {isEditMode ? t("clubs.editModalTitle") : t("clubs.modalTitle")}
             </h3>
           </div>
           <button
@@ -147,33 +186,18 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs sm:text-sm">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="sm:col-span-2">
-              <label className="block font-semibold text-ink mb-1">
-                {t("clubs.squadNameLabel")}
-              </label>
-              <input
-                required
-                type="text"
-                placeholder={t("clubs.squadNamePlaceholder")}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2.5 bg-canvas-soft border border-border rounded-[12px] text-ink focus:border-ink focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="block font-semibold text-ink mb-1">
-                {t("clubs.abbrLabel")}
-              </label>
-              <input
-                type="text"
-                maxLength={3}
-                placeholder="MSC"
-                value={abbr}
-                onChange={(e) => setAbbr(e.target.value)}
-                className="w-full px-3 py-2.5 bg-canvas-soft border border-border rounded-[12px] text-ink uppercase focus:border-ink focus:outline-none"
-              />
-            </div>
+          <div>
+            <label className="block font-semibold text-ink mb-1">
+              {t("clubs.squadNameLabel")}
+            </label>
+            <input
+              required
+              type="text"
+              placeholder={t("clubs.squadNamePlaceholder")}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-4 py-2.5 bg-canvas-soft border border-border rounded-[12px] text-ink focus:border-ink focus:outline-none"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -243,7 +267,9 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
               type="submit"
               className="btn-primary px-6 py-2.5 rounded-[24px] text-sm shadow-sm cursor-pointer"
             >
-              {t("clubs.publishSquad")}
+              {isEditMode
+                ? t("createEvent.saveChanges")
+                : t("clubs.publishSquad")}
             </button>
           </div>
         </form>

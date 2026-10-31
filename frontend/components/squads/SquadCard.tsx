@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Check } from "lucide-react";
+import { Check, Trash2, Pencil } from "lucide-react";
 import { TeamSquad } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -10,6 +10,8 @@ interface SquadCardProps {
   isRequested: boolean;
   onRequestInvite: (squadId: number) => void;
   onSelectSquad?: (squad: TeamSquad) => void;
+  onEditSquad?: (squad: TeamSquad) => void;
+  onDeleteSquad?: (squadId: number) => void;
 }
 
 interface VariantStyleConfig {
@@ -93,9 +95,12 @@ export const SquadCard: React.FC<SquadCardProps> = ({
   isRequested,
   onRequestInvite,
   onSelectSquad,
+  onEditSquad,
+  onDeleteSquad,
 }) => {
   const { t } = useTranslation();
   const styles = SQUAD_VARIANT_STYLES[squad.variant];
+  const isCaptain = squad.captain.includes("(You)");
 
   const topBadgeText =
     squad.variant === "dark"
@@ -112,7 +117,20 @@ export const SquadCard: React.FC<SquadCardProps> = ({
       <div>
         <div className="flex items-center justify-between mb-4">
           <span className={styles.topBadge}>{topBadgeText}</span>
-          <span className={styles.memberCounter}>{memberCountText}</span>
+          <div className="flex items-center gap-2">
+            <span className={styles.memberCounter}>{memberCountText}</span>
+            {isCaptain && onDeleteSquad && (
+              <button
+                type="button"
+                onClick={() => onDeleteSquad(squad.id)}
+                aria-label={t("clubs.deleteSquad")}
+                title={t("clubs.deleteSquad")}
+                className="p-1.5 rounded-full text-mute hover:text-negative hover:bg-negative/10 transition cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4 stroke-[2.2]" />
+              </button>
+            )}
+          </div>
         </div>
 
         <div className={styles.avatarBox}>{squad.abbr}</div>
@@ -142,30 +160,41 @@ export const SquadCard: React.FC<SquadCardProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <button
           type="button"
           onClick={() => onSelectSquad?.(squad)}
-          className="px-4 py-3 font-semibold rounded-[24px] text-xs transition cursor-pointer bg-canvas text-ink border border-border hover:bg-canvas-soft shrink-0"
+          className="w-full py-3 font-semibold rounded-[24px] text-xs transition cursor-pointer bg-canvas text-ink border border-border hover:bg-canvas-soft flex items-center justify-center"
         >
           {t("common.details")}
         </button>
-        <button
-          type="button"
-          onClick={() => onRequestInvite(squad.id)}
-          className={`flex-1 py-3 font-semibold rounded-[24px] text-xs transition cursor-pointer shadow-sm flex items-center justify-center space-x-1.5 ${
-            isRequested ? styles.buttonActive : styles.buttonDefault
-          }`}
-        >
-          {isRequested ? (
-            <>
-              <Check className="w-3.5 h-3.5 stroke-[3]" />
-              <span>{t("clubs.inviteRequested")}</span>
-            </>
-          ) : (
-            <span>{t(styles.defaultLabelKey)}</span>
-          )}
-        </button>
+        {isCaptain && onEditSquad ? (
+          <button
+            type="button"
+            onClick={() => onEditSquad(squad)}
+            className="w-full py-3 font-semibold rounded-[24px] text-xs transition cursor-pointer btn-primary shadow-sm flex items-center justify-center space-x-1.5"
+          >
+            <Pencil className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>{t("clubs.editSquad")}</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => onRequestInvite(squad.id)}
+            className={`w-full py-3 font-semibold rounded-[24px] text-xs transition cursor-pointer shadow-sm flex items-center justify-center space-x-1.5 ${
+              isRequested ? styles.buttonActive : styles.buttonDefault
+            }`}
+          >
+            {isRequested ? (
+              <>
+                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                <span>{t("clubs.inviteRequested")}</span>
+              </>
+            ) : (
+              <span>{t(styles.defaultLabelKey)}</span>
+            )}
+          </button>
+        )}
       </div>
     </div>
   );
