@@ -445,6 +445,22 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: Phase 3 — Backend API, Authentication, Onboarding Wizard & Geospatial Database -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-01 13:47</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Phase 3 Complete</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Completed Phase 3: Next.js REST API, PostgreSQL/PostGIS Schema, Concurrency-Safe RSVP + Waitlist Promotion, and Auth + First-Time Onboarding Wizard (24/24 Tests Passing)</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>PostgreSQL + PostGIS Schema &amp; Embedded Geospatial Engine</strong>: Created production SQL DDL (<code>frontend/db/schema.sql</code>) with <code>GEOGRAPHY(Point, 4326)</code> GIST spatial indexes and <code>find_events_within_radius</code> PostGIS function, alongside the embedded server store (<code>frontend/db/store.ts</code>) supporting true spherical distance sorting and sequential async mutex locks.</li>
+                  <li><strong>REST API Endpoints (<code>app/api/*</code>)</strong>: Implemented <code>/api/auth</code>, <code>/api/events</code>, <code>/api/events/[id]/rsvp</code>, <code>/api/venues</code>, <code>/api/squads</code>, <code>/api/chats</code>, and <code>/api/passport</code> with concurrency-safe RSVP booking and automatic Waitlist promotion when a confirmed player leaves a full match.</li>
+                  <li><strong>Authentication &amp; 3-Step Onboarding Wizard</strong>: Created <code>AuthContext.tsx</code>, <code>AuthModal.tsx</code> (Sign In, Sign Up, and 1-click Demo Player Switcher between Alex Morgan, Marco Silva, and Elena Rostova), and <code>OnboardingWizardModal.tsx</code> (Home Location &amp; Bio, Primary Sports &amp; Skill Tiers, and Weekly Availability Schedule) with 100% EN/VI translation coverage.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/db/schema.sql, frontend/db/store.ts, frontend/app/api/auth/route.ts, frontend/app/api/events/route.ts, frontend/app/api/events/[id]/rsvp/route.ts, frontend/app/api/venues/route.ts, frontend/app/api/squads/route.ts, frontend/app/api/chats/route.ts, frontend/app/api/passport/route.ts, frontend/context/AuthContext.tsx, frontend/components/auth/AuthModal.tsx, frontend/components/auth/OnboardingWizardModal.tsx, frontend/components/providers/AppProviders.tsx, frontend/components/layout/AppShell.tsx, frontend/components/Navigation.tsx, frontend/services/events.ts, frontend/hooks/useEvents.ts, frontend/locales/en.ts, frontend/locales/vi.ts, frontend/types/i18n.ts, frontend/__tests__/frontend.test.ts, plan.md, progress.html
+              </td>
+            </tr>
             <!-- Entry: Phase 2 — URL Routing, State Management & Data Layer Abstraction -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-01 13:09</td>

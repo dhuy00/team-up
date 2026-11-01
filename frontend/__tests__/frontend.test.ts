@@ -55,6 +55,15 @@ import {
   removeSportFromProfile,
   fetchUserProfileAsync,
 } from "@/services/passport";
+import {
+  resetDbStateForTests,
+  queryEventsGeospatial,
+  queryVenuesGeospatial,
+  rsvpToEventConcurrencySafe,
+  authenticateUser,
+  registerUserAccount,
+  completeUserOnboarding,
+} from "@/db/store";
 import type { ChatChannel } from "@/types/models";
 
 describe("1. Geolocation & Radar Rebasing (lib/geo.ts)", () => {
@@ -482,5 +491,117 @@ describe("6. Service Layer & Data Abstraction (services/*.ts)", () => {
     assert.equal(sqs.length, initialSquads.length);
     assert.equal(chs.length, initialChatChannels.length);
     assert.equal(prof.username, mockUserProfile.username);
+  });
+});
+
+describe("7. Phase 3 Backend Store, Geospatial Engine, Concurrency-Safe RSVP & Auth (db/store.ts)", () => {
+  it("TC-DB-01: executes server-side geospatial queries returning events and venues sorted by true distance within radius", () => {
+    resetDbStateForTests();
+    const eventsWithin5Km = queryEventsGeospatial({
+      centerLat: 37.7749,
+      centerLng: -122.4194,
+      radiusKm: 5,
+      sport: "all",
+    });
+    assert.ok(eventsWithin5Km.length >= 1);
+    for (let i = 1; i < eventsWithin5Km.length; i++) {
+      assert.ok(
+        eventsWithin5Km[i].distanceKm >= eventsWithin5Km[i - 1].distanceKm,
+        "Events must be sorted by ascending distanceKm"
+      );
+      assert.ok(eventsWithin5Km[i].distanceKm <= 5);
+    }
+
+    const venues = queryVenuesGeospatial({
+      centerLat: 37.7749,
+      centerLng: -122.4194,
+      radiusKm: 10,
+      sport: "Soccer",
+    });
+    assert.ok(venues.length >= 1);
+    assert.ok(venues[0].sports.includes("Soccer"));
+  });
+
+  it("TC-DB-02: prevents overbooking under concurrent RSVP requests and promotes waitlisted players automatically", async () => {
+    const db = resetDbStateForTests();
+    // Event #3 has confirmedPlayers: 3, maxPlayers: 4 (only 1 confirmed spot remaining)
+    const targetEventId = 3;
+    const initialEv = db.events.find((e) => e.id === targetEventId)!;
+    assert.equal(initialEv.confirmedPlayers, 3);
+    assert.equal(initialEv.maxPlayers, 4);
+
+    // Fire two simultaneous RSVP requests for the single remaining confirmed spot
+    const [resA, resB] = await Promise.all([
+      rsvpToEventConcurrencySafe(targetEventId, {
+        playerName: "Player Alpha",
+        playerKarma: 95,
+      }),
+      rsvpToEventConcurrencySafe(targetEventId, {
+        playerName: "Player Beta",
+        playerKarma: 94,
+      }),
+    ]);
+
+    // Exactly one should get "joined" (Confirmed) and the second should get "waitlisted" (Waitlist)
+    const statuses = [resA.status, resB.status].sort();
+    assert.deepEqual(statuses, ["joined", "waitlisted"]);
+
+    const afterConcurrentEv = db.events.find((e) => e.id === targetEventId)!;
+    // Confirmed count must never exceed maxPlayers (4)
+    assert.equal(afterConcurrentEv.confirmedPlayers, 4);
+    assert.equal(
+      afterConcurrentEv.roster.filter((p) => p.role === "Waitlist").length,
+      1
+    );
+
+    // Now when Player Alpha (Confirmed) leaves, Player Beta (Waitlist) is automatically promoted to Confirmed!
+    const leaveRes = await rsvpToEventConcurrencySafe(targetEventId, {
+      playerName: "Player Alpha",
+    });
+    assert.equal(leaveRes.status, "promoted_from_waitlist");
+    assert.equal(leaveRes.promotedPlayerName, "Player Beta");
+
+    const afterPromoteEv = db.events.find((e) => e.id === targetEventId)!;
+    assert.equal(afterPromoteEv.confirmedPlayers, 4);
+    const betaEntry = afterPromoteEv.roster.find(
+      (p) => p.name === "Player Beta"
+    )!;
+    assert.equal(betaEntry.role, "Confirmed");
+  });
+
+  it("TC-DB-03: authenticates demo users, registers new accounts, and completes First-Time Onboarding", () => {
+    resetDbStateForTests();
+    const demoAuth = authenticateUser("alex@teamup.app", "demo123");
+    assert.ok(demoAuth);
+    assert.equal(demoAuth.profile.username, mockUserProfile.username);
+
+    const invalidAuth = authenticateUser("alex@teamup.app", "wrongpass");
+    assert.equal(invalidAuth, null);
+
+    const regResult = registerUserAccount({
+      name: "Jordan Lee",
+      email: "jordan@teamup.app",
+      password: "secret",
+      username: "@jordanlee",
+      location: "Mission District",
+    });
+    assert.ok(regResult.account);
+    assert.equal(regResult.account.onboardingCompleted, false);
+
+    // Duplicate email registration should be rejected
+    const dupResult = registerUserAccount({
+      name: "Jordan Dup",
+      email: "jordan@teamup.app",
+    });
+    assert.equal(dupResult.error, "EMAIL_EXISTS");
+
+    // Complete onboarding wizard
+    const onboarded = completeUserOnboarding(regResult.account.id, {
+      location: "Mission District • 5km radius",
+      bio: "Weekend pickleball and soccer player.",
+    });
+    assert.ok(onboarded);
+    assert.equal(onboarded.onboardingCompleted, true);
+    assert.equal(onboarded.profile.location, "Mission District • 5km radius");
   });
 });

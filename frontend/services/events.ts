@@ -7,7 +7,9 @@ export const EVENTS_STORAGE_KEY = "teamup_events";
 export interface JoinEventToggleResult {
   status:
     | "joined"
+    | "waitlisted"
     | "left"
+    | "promoted_from_waitlist"
     | "deleted_solo_host"
     | "blocked_host_has_teammates"
     | "conflict"
@@ -15,11 +17,12 @@ export interface JoinEventToggleResult {
   events: EventActivity[];
   targetEvent?: EventActivity;
   conflictingEvent?: EventActivity;
+  promotedPlayerName?: string;
   nextConfirmedCount?: number;
 }
 
 /**
- * Pure domain service for toggling event participation with Host & Schedule Conflict guards.
+ * Pure domain service for toggling event participation with Host, Waitlist & Schedule Conflict guards.
  */
 export function computeToggleJoinEvent(
   events: EventActivity[],
@@ -63,35 +66,83 @@ export function computeToggleJoinEvent(
         conflictingEvent,
       };
     }
+
+    const isFull = target.confirmedPlayers >= target.maxPlayers;
+    const assignedRole = isFull ? "Waitlist" : "Confirmed";
+    const nextConfirmedCount = isFull
+      ? target.confirmedPlayers
+      : target.confirmedPlayers + 1;
+
+    const nextEvents = events.map((ev) => {
+      if (ev.id !== eventId) return ev;
+      return {
+        ...ev,
+        userJoined: true,
+        isUserHost: false,
+        confirmedPlayers: nextConfirmedCount,
+        roster: [
+          ...ev.roster,
+          {
+            name: currentUserName,
+            role: assignedRole,
+            karma: currentUserKarma,
+          },
+        ],
+      };
+    });
+
+    return {
+      status: isFull ? "waitlisted" : "joined",
+      events: nextEvents,
+      targetEvent: target,
+      nextConfirmedCount,
+    };
   }
 
-  const nextConfirmedCount = willJoin
-    ? target.confirmedPlayers + 1
-    : Math.max(0, target.confirmedPlayers - 1);
+  // Leaving event: check if leaving user was on waitlist or confirmed, and promote first waitlisted player if applicable
+  const selfEntry = target.roster.find(
+    (p) => p.name === currentUserName || p.name.includes("(You)")
+  );
+  const wasWaitlisted = selfEntry?.role === "Waitlist";
+  let remainingRoster = target.roster.filter(
+    (p) => p !== selfEntry && !p.name.includes("(You)")
+  );
+  let promotedPlayerName: string | undefined;
+
+  if (!wasWaitlisted) {
+    const firstWaitlistedIdx = remainingRoster.findIndex(
+      (p) => p.role === "Waitlist"
+    );
+    if (firstWaitlistedIdx !== -1) {
+      promotedPlayerName = remainingRoster[firstWaitlistedIdx].name;
+      remainingRoster = remainingRoster.map((p, idx) =>
+        idx === firstWaitlistedIdx ? { ...p, role: "Confirmed" } : p
+      );
+    }
+  }
+
+  const nextConfirmedCount = wasWaitlisted
+    ? target.confirmedPlayers
+    : promotedPlayerName
+      ? target.confirmedPlayers
+      : Math.max(0, target.confirmedPlayers - 1);
 
   const nextEvents = events.map((ev) => {
     if (ev.id !== eventId) return ev;
-
-    const updatedRoster = willJoin
-      ? [
-          ...ev.roster,
-          { name: currentUserName, role: "Confirmed", karma: currentUserKarma },
-        ]
-      : ev.roster.filter((p) => !p.name.includes("(You)"));
-
     return {
       ...ev,
-      userJoined: willJoin,
+      userJoined: false,
       isUserHost: false,
       confirmedPlayers: nextConfirmedCount,
-      roster: updatedRoster,
+      roster: remainingRoster,
     };
   });
 
   return {
-    status: willJoin ? "joined" : "left",
+    status: promotedPlayerName ? "promoted_from_waitlist" : "left",
     events: nextEvents,
     targetEvent: target,
+    promotedPlayerName,
     nextConfirmedCount,
   };
 }

@@ -3,15 +3,15 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Play, Plus } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Play, Plus, LogIn, ChevronDown } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAuth } from "@/context/AuthContext";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LanguageSelector } from "@/components/ui/LanguageSelector";
 import {
   APP_ROUTES,
   NAV_TAB_IDS,
-  getRouteHrefById,
   getRouteIdFromPathname,
 } from "@/components/navigation/routes";
 
@@ -27,19 +27,9 @@ const Navigation = ({
   onHostGameClick,
 }: NavigationProps = {}) => {
   const { t } = useTranslation();
+  const { user, setIsAuthModalOpen } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
   const currentNav = activeTab ?? getRouteIdFromPathname(pathname);
-
-  const handleNavClick = (id: number, e?: React.MouseEvent) => {
-    if (onTabChange) {
-      e?.preventDefault();
-      onTabChange(id);
-      return;
-    }
-    const href = getRouteHrefById(id);
-    router.push(href);
-  };
 
   return (
     <header className="sticky top-0 z-50 bg-canvas border-b border-border transition-colors duration-200">
@@ -95,7 +85,7 @@ const Navigation = ({
           })}
         </nav>
 
-        {/* Right Header Controls: Host Game CTA, Theme & Language toggles, User Avatar */}
+        {/* Right Header Controls: Host Game CTA, Theme & Language toggles, User Account Pill */}
         <div className="flex items-center space-x-2 sm:space-x-3">
           {/* Primary CTA Button */}
           <button
@@ -113,27 +103,39 @@ const Navigation = ({
           {/* Theme Toggle */}
           <ThemeToggle />
 
-          {/* User Quick Profile Avatar */}
-          <Link
-            href="/passport"
-            onClick={(e) => handleNavClick(NAV_TAB_IDS.PASSPORT, e)}
-            className="flex items-center pl-1 cursor-pointer"
-            title="View Sports Passport"
-          >
-            <div className="relative w-9 h-9">
-              <Image
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces"
-                alt="User Avatar"
-                width={36}
-                height={36}
-                className="w-9 h-9 rounded-full object-cover border-2 border-ink"
-                unoptimized
-              />
-              <span className="absolute -bottom-1 -right-1 bg-primary text-ink text-[9px] font-black px-1 rounded-full border border-ink">
-                98%
-              </span>
-            </div>
-          </Link>
+          {/* User Account / Auth Trigger */}
+          {user ? (
+            <button
+              type="button"
+              onClick={() => setIsAuthModalOpen(true)}
+              className="flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-full bg-canvas-soft hover:bg-border/50 border border-border transition cursor-pointer"
+              title={t("auth.switchAccount")}
+            >
+              <div className="relative w-8 h-8">
+                <Image
+                  src={user.profile.avatar}
+                  alt={user.profile.name}
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 rounded-full object-cover border border-ink"
+                  unoptimized
+                />
+                <span className="absolute -bottom-1 -right-1 bg-primary text-ink text-[8px] font-black px-1 rounded-full border border-ink">
+                  {user.profile.karma}%
+                </span>
+              </div>
+              <ChevronDown className="w-3.5 h-3.5 text-mute hidden sm:block" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsAuthModalOpen(true)}
+              className="px-4 py-2 rounded-full bg-canvas-soft hover:bg-border/60 border border-border text-xs font-bold text-ink inline-flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>{t("auth.signIn")}</span>
+            </button>
+          )}
         </div>
       </div>
     </header>

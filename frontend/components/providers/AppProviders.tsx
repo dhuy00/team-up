@@ -4,6 +4,7 @@ import * as React from "react";
 import { ThemeProvider } from "./ThemeProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ToastProvider } from "@/context/ToastContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -14,7 +15,9 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange={false}
     >
       <LanguageProvider>
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ToastProvider>
       </LanguageProvider>
     </ThemeProvider>
   );

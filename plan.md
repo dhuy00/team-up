@@ -85,10 +85,10 @@
    - **Squads API:** Create squads, manage rosters, assign captains, request/approve invites, and schedule recurring squad events.
 
 ### What to Achieve (Deliverables & Exit Criteria)
-- [ ] Real user sign-up, login, session management, and protected actions (hosting, joining, chatting).
-- [ ] Server-side geospatial queries returning events and venues sorted by true distance within `X` km.
-- [ ] Concurrency-safe roster management (preventing overbooking when two players claim the last spot simultaneously, plus automatic waitlist promotion).
-- [ ] Persistent player profiles and customizable Sports Passports stored in PostgreSQL.
+- [x] Real user sign-up, login, session management, and protected actions (hosting, joining, chatting).
+- [x] Server-side geospatial queries returning events and venues sorted by true distance within `X` km.
+- [x] Concurrency-safe roster management (preventing overbooking when two players claim the last spot simultaneously, plus automatic waitlist promotion).
+- [x] Persistent player profiles and customizable Sports Passports stored in PostgreSQL.
 
 ---
 

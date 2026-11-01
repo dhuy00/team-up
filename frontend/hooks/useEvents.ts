@@ -61,6 +61,12 @@ export function useEvents() {
         setActiveChatChannelId(newChannel.id);
         return [newChannel, ...prev];
       });
+
+      fetch("/api/events", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newEvent),
+      }).catch(() => {});
     },
     [setActiveChatChannelId, setChatChannels, setEvents, setLeftEventChatIds, t]
   );
@@ -80,6 +86,9 @@ export function useEvents() {
         setEvents(result.events);
         setChatChannels((prev) => prev.filter((c) => c.eventId !== eventId));
         toast.info(t("toast.matchDeleted"));
+        fetch(`/api/events?id=${eventId}`, { method: "DELETE" }).catch(
+          () => {}
+        );
         return;
       }
 
@@ -95,9 +104,19 @@ export function useEvents() {
 
       setEvents(result.events);
 
-      if (result.status === "joined" && result.targetEvent) {
+      fetch(`/api/events/${eventId}/rsvp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      }).catch(() => {});
+
+      if (
+        (result.status === "joined" || result.status === "waitlisted") &&
+        result.targetEvent
+      ) {
         const target = result.targetEvent;
-        const nextCount = result.nextConfirmedCount ?? target.confirmedPlayers + 1;
+        const nextCount =
+          result.nextConfirmedCount ?? target.confirmedPlayers + 1;
         setLeftEventChatIds((prev) => prev.filter((id) => id !== eventId));
         setChatChannels((prev) => {
           const existing = prev.find(
@@ -115,10 +134,23 @@ export function useEvents() {
           setActiveChatChannelId(newChannel.id);
           return [newChannel, ...prev];
         });
-        toast.success(t("toast.spotBooked"));
-      } else if (result.status === "left") {
+        if (result.status === "waitlisted") {
+          toast.info(t("toast.waitlistJoined"));
+        } else {
+          toast.success(t("toast.spotBooked"));
+        }
+      } else if (
+        result.status === "left" ||
+        result.status === "promoted_from_waitlist"
+      ) {
         setChatChannels((prev) => prev.filter((c) => c.eventId !== eventId));
-        toast.info(t("toast.spotLeft"));
+        if (result.promotedPlayerName) {
+          toast.info(
+            t("toast.waitlistPromoted", { name: result.promotedPlayerName })
+          );
+        } else {
+          toast.info(t("toast.spotLeft"));
+        }
       }
     },
     [
@@ -136,6 +168,11 @@ export function useEvents() {
     (eventId: number, newHostName: string) => {
       setEvents((prev) => computeTransferEventHost(prev, eventId, newHostName));
       toast.success(t("toast.hostTransferred", { name: newHostName }));
+      fetch(`/api/events/${eventId}/rsvp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "transfer_host", newHostName }),
+      }).catch(() => {});
     },
     [setEvents, t, toast]
   );
@@ -145,6 +182,7 @@ export function useEvents() {
       setEvents((prev) => prev.filter((ev) => ev.id !== eventId));
       setChatChannels((prev) => prev.filter((c) => c.eventId !== eventId));
       toast.info(t("toast.matchDeleted"));
+      fetch(`/api/events?id=${eventId}`, { method: "DELETE" }).catch(() => {});
     },
     [setChatChannels, setEvents, t, toast]
   );

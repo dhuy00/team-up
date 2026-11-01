@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { CreateEventModal } from "@/components/explore/CreateEventModal";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { OnboardingWizardModal } from "@/components/auth/OnboardingWizardModal";
 import { EventActivity } from "@/types/models";
 import { useEvents } from "@/hooks/useEvents";
 
@@ -43,6 +45,9 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
         onClose={() => setIsCreateModalOpen(false)}
         onEventCreated={handleEventCreated}
       />
+
+      <AuthModal />
+      <OnboardingWizardModal />
 
       <Footer />
     </div>
