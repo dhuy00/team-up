@@ -76,12 +76,12 @@ export const PassportSection: React.FC = () => {
   };
 
   return (
-    <section className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <section>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         <KarmaIdentityCard profile={profile} onUpdateBio={handleUpdateBio} />
 
-        <div className="lg:col-span-8 space-y-6">
-          <div className="bg-canvas p-6 sm:p-7 rounded-[24px] border border-border space-y-6 shadow-sm transition-colors duration-200">
+        <div className="lg:col-span-8 relative flex flex-col">
+          <div className="bg-canvas p-5 sm:p-6 rounded-[24px] border border-border lg:absolute lg:inset-0 flex-1 flex flex-col gap-4 shadow-sm transition-colors duration-200 overflow-hidden">
             <SportSkillMatrix
               sports={profile.sports}
               onAddSport={handleAddSport}

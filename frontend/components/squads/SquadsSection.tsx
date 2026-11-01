@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Plus, Search } from "lucide-react";
-import { TeamSquad } from "@/types/models";
-import { initialSquads } from "@/lib/mockData";
+import { ChatChannel, TeamSquad } from "@/types/models";
+import { initialChatChannels, initialSquads } from "@/lib/mockData";
 import { useTranslation } from "@/hooks/useTranslation";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { useToast } from "@/context/ToastContext";
@@ -11,6 +11,7 @@ import { CustomSelect } from "@/components/ui/CustomSelect";
 import {
   DEFAULT_SPORT_FILTER,
   buildSportSelectOptions,
+  getSportIcon,
 } from "@/constants/explore";
 import { SquadCard } from "./SquadCard";
 import { CreateSquadModal } from "./CreateSquadModal";
@@ -29,6 +30,14 @@ export const SquadsSection: React.FC = () => {
     "teamup_requested_squads",
     []
   );
+  const [, setChatChannels] = usePersistentState<ChatChannel[]>(
+    "teamup_chat_channels",
+    initialChatChannels
+  );
+  const [, setActiveChatChannelId] = usePersistentState<number>(
+    "teamup_active_chat_channel",
+    1
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSport, setSelectedSport] = useState(DEFAULT_SPORT_FILTER);
   const [isCreateSquadOpen, setIsCreateSquadOpen] = useState(false);
@@ -45,6 +54,28 @@ export const SquadsSection: React.FC = () => {
   );
 
   const sportOptions = useMemo(() => buildSportSelectOptions(t), [t]);
+
+  // Migrate any legacy non-standard sport labels persisted in localStorage
+  useEffect(() => {
+    const needsMigration = squads.some(
+      (sq) =>
+        sq.sport === "Badminton Club" ||
+        sq.sport === "Tabletop Collective" ||
+        Boolean(sq.featuredBadge)
+    );
+    if (!needsMigration) return;
+
+    setSquads((prev) =>
+      prev.map((sq) => {
+        let normalizedSport = sq.sport;
+        if (sq.sport === "Badminton Club") normalizedSport = "Badminton";
+        if (sq.sport === "Tabletop Collective") normalizedSport = "Board Games";
+        const next = { ...sq, sport: normalizedSport };
+        delete next.featuredBadge;
+        return next;
+      })
+    );
+  }, [squads, setSquads]);
 
   const filteredSquads = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -64,6 +95,37 @@ export const SquadsSection: React.FC = () => {
     });
   }, [squads, searchQuery, selectedSport]);
 
+  const createChannelForSquad = (squad: TeamSquad, isCaptain: boolean): ChatChannel => {
+    const icon = getSportIcon(squad.sport);
+    const welcomeText =
+      squad.description || `Welcome to ${squad.name} at ${squad.venue}!`;
+    return {
+      id: Date.now(),
+      squadId: squad.id,
+      title: squad.name,
+      subtitle: `${squad.sport} • ${t("clubs.membersCount", {
+        current: squad.memberCount,
+        max: squad.maxMembers,
+      })} • ${squad.venue}`,
+      sportIcon: icon,
+      lastMessage: `${squad.captain}: ${welcomeText}`,
+      lastTime: t("chat.justNow"),
+      pinnedAnnouncement: squad.description || undefined,
+      messages: [
+        {
+          id: Date.now() + 1,
+          sender: `${squad.captain} (${t("chat.hostBadge")})`,
+          avatar:
+            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=faces",
+          time: t("chat.justNow"),
+          text: welcomeText,
+          isHost: true,
+          isSelf: isCaptain,
+        },
+      ],
+    };
+  };
+
   const handleRequestInvite = (squadId: number) => {
     const alreadyRequested = requestedSquads.includes(squadId);
     setRequestedSquads((prev) =>
@@ -74,6 +136,22 @@ export const SquadsSection: React.FC = () => {
     if (alreadyRequested) {
       toast.info(t("toast.inviteCancelled"));
     } else {
+      const targetSquad = squads.find((sq) => sq.id === squadId);
+      if (targetSquad) {
+        const isCaptain = targetSquad.captain.includes("(You)");
+        setChatChannels((prev) => {
+          if (
+            prev.some(
+              (c) => c.squadId === targetSquad.id || c.title === targetSquad.name
+            )
+          ) {
+            return prev;
+          }
+          const newChannel = createChannelForSquad(targetSquad, isCaptain);
+          setActiveChatChannelId(newChannel.id);
+          return [newChannel, ...prev];
+        });
+      }
       toast.success(t("toast.inviteRequested"));
     }
   };
@@ -81,12 +159,31 @@ export const SquadsSection: React.FC = () => {
   const handleSquadCreated = (newSquad: TeamSquad) => {
     setSquads((prev) => [newSquad, ...prev]);
     setRequestedSquads((prev) => [...prev, newSquad.id]);
+    const newChannel = createChannelForSquad(newSquad, true);
+    setChatChannels((prev) => [newChannel, ...prev]);
+    setActiveChatChannelId(newChannel.id);
     toast.success(t("toast.squadCreated"));
   };
 
   const handleSquadUpdated = (updatedSquad: TeamSquad) => {
     setSquads((prev) =>
       prev.map((sq) => (sq.id === updatedSquad.id ? updatedSquad : sq))
+    );
+    setChatChannels((prev) =>
+      prev.map((c) => {
+        if (c.squadId === updatedSquad.id) {
+          return {
+            ...c,
+            title: updatedSquad.name,
+            sportIcon: getSportIcon(updatedSquad.sport),
+            subtitle: `${updatedSquad.sport} • ${t("clubs.membersCount", {
+              current: updatedSquad.memberCount,
+              max: updatedSquad.maxMembers,
+            })} • ${updatedSquad.venue}`,
+          };
+        }
+        return c;
+      })
     );
     toast.success(t("toast.squadUpdated"));
   };
@@ -96,6 +193,9 @@ export const SquadsSection: React.FC = () => {
       setSquads((prev) => prev.filter((sq) => sq.id !== squadIdPendingDelete));
       setRequestedSquads((prev) =>
         prev.filter((id) => id !== squadIdPendingDelete)
+      );
+      setChatChannels((prev) =>
+        prev.filter((c) => c.squadId !== squadIdPendingDelete)
       );
       if (selectedSquadForDetail?.id === squadIdPendingDelete) {
         setSelectedSquadForDetail(null);

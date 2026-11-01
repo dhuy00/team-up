@@ -131,42 +131,51 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
   const [costError, setCostError] = useState(false);
   const [notes, setNotes] = useState("");
 
-  useEffect(() => {
-    if (!isOpen) return;
-    if (editingEvent) {
-      const initialStart =
-        editingEvent.startTimeIso || getDefaultTomorrowDateTime();
-      const initialEnd =
-        editingEvent.endTimeIso || getDefaultEndFromStart(initialStart);
-      setTitle(editingEvent.title);
-      setSport(editingEvent.sport);
-      setSkill(editingEvent.skill);
-      setDateTime(initialStart);
-      setEndDateTime(initialEnd);
-      setCapacity(String(editingEvent.maxPlayers));
-      setCapacityError(false);
-      setVenue(editingEvent.venue);
-      const parsedCost = parseCostState(editingEvent.cost);
-      setIsFree(parsedCost.isFree);
-      setFeeAmount(parsedCost.feeAmount);
-      setCostError(false);
-      setNotes(editingEvent.notes || "");
-    } else {
-      const defaultStart = getDefaultTomorrowDateTime();
-      setTitle("");
-      setSport("Soccer");
-      setSkill("All Levels");
-      setDateTime(defaultStart);
-      setEndDateTime(getDefaultEndFromStart(defaultStart));
-      setCapacity(String(EVENT_CAPACITY_CONFIG.DEFAULT));
-      setCapacityError(false);
-      setVenue("");
-      setIsFree(true);
-      setFeeAmount("");
-      setCostError(false);
-      setNotes("");
+  const openKey = isOpen
+    ? editingEvent
+      ? `edit-${editingEvent.id}`
+      : "create"
+    : "closed";
+  const [prevOpenKey, setPrevOpenKey] = useState(openKey);
+
+  if (openKey !== prevOpenKey) {
+    setPrevOpenKey(openKey);
+    if (isOpen) {
+      if (editingEvent) {
+        const initialStart =
+          editingEvent.startTimeIso || getDefaultTomorrowDateTime();
+        const initialEnd =
+          editingEvent.endTimeIso || getDefaultEndFromStart(initialStart);
+        setTitle(editingEvent.title);
+        setSport(editingEvent.sport);
+        setSkill(editingEvent.skill);
+        setDateTime(initialStart);
+        setEndDateTime(initialEnd);
+        setCapacity(String(editingEvent.maxPlayers));
+        setCapacityError(false);
+        setVenue(editingEvent.venue);
+        const parsedCost = parseCostState(editingEvent.cost);
+        setIsFree(parsedCost.isFree);
+        setFeeAmount(parsedCost.feeAmount);
+        setCostError(false);
+        setNotes(editingEvent.notes || "");
+      } else {
+        const defaultStart = getDefaultTomorrowDateTime();
+        setTitle("");
+        setSport("Soccer");
+        setSkill("All Levels");
+        setDateTime(defaultStart);
+        setEndDateTime(getDefaultEndFromStart(defaultStart));
+        setCapacity(String(EVENT_CAPACITY_CONFIG.DEFAULT));
+        setCapacityError(false);
+        setVenue("");
+        setIsFree(true);
+        setFeeAmount("");
+        setCostError(false);
+        setNotes("");
+      }
     }
-  }, [isOpen, editingEvent]);
+  }
 
   const sportOptions = useMemo(
     () => buildSportSelectOptions(t, { includeAll: false }),
@@ -431,7 +440,7 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
       aria-modal="true"
       aria-labelledby="create-event-title"
     >
-      <div className="bg-canvas rounded-[24px] max-w-2xl w-full p-6 sm:p-8 border border-border shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto no-scrollbar transition-colors duration-200">
+      <div className="bg-canvas rounded-[24px] max-w-2xl w-full p-6 sm:p-8 border border-border shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto custom-scrollbar transition-colors duration-200">
         <div className="flex items-center justify-between border-b border-border pb-4">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-mute">

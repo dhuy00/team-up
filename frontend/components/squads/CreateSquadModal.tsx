@@ -39,22 +39,31 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
   const [venue, setVenue] = useState("");
   const [description, setDescription] = useState("");
 
-  useEffect(() => {
-    if (!isOpen) return;
-    if (editingSquad) {
-      setName(editingSquad.name);
-      setSport(editingSquad.sport);
-      setMaxMembers(String(editingSquad.maxMembers));
-      setVenue(editingSquad.venue);
-      setDescription(editingSquad.description);
-    } else {
-      setName("");
-      setSport("Soccer");
-      setMaxMembers("16");
-      setVenue("");
-      setDescription("");
+  const openKey = isOpen
+    ? editingSquad
+      ? `edit-${editingSquad.id}`
+      : "create"
+    : "closed";
+  const [prevOpenKey, setPrevOpenKey] = useState(openKey);
+
+  if (openKey !== prevOpenKey) {
+    setPrevOpenKey(openKey);
+    if (isOpen) {
+      if (editingSquad) {
+        setName(editingSquad.name);
+        setSport(editingSquad.sport);
+        setMaxMembers(String(editingSquad.maxMembers));
+        setVenue(editingSquad.venue);
+        setDescription(editingSquad.description);
+      } else {
+        setName("");
+        setSport("Soccer");
+        setMaxMembers("16");
+        setVenue("");
+        setDescription("");
+      }
     }
-  }, [isOpen, editingSquad]);
+  }
 
   const sportOptions = useMemo(
     () => buildSportSelectOptions(t, { includeAll: false }),
@@ -162,7 +171,7 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
       aria-modal="true"
       aria-labelledby="create-squad-title"
     >
-      <div className="bg-canvas rounded-[24px] max-w-lg w-full p-6 sm:p-7 border border-border shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto transition-colors duration-200">
+      <div className="bg-canvas rounded-[24px] max-w-lg w-full p-6 sm:p-7 border border-border shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto custom-scrollbar transition-colors duration-200">
         <div className="flex items-center justify-between border-b border-border pb-4">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-mute">

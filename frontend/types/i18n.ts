@@ -171,8 +171,21 @@ export interface TranslationDictionary {
     squadMessages: string;
     activeCount: string;
     pinnedLabel: string;
+    pinChat: string;
+    unpinChat: string;
     pinMessage: string;
     unpinMessage: string;
+    leaveSquad: string;
+    leaveSquadConfirmTitle: string;
+    leaveSquadConfirmMessage: string;
+    leaveMatch: string;
+    leaveMatchConfirmTitle: string;
+    leaveMatchConfirmMessage: string;
+    leaveChat: string;
+    leaveChatConfirmTitle: string;
+    leaveChatConfirmMessage: string;
+    noActiveChats: string;
+    noActiveChatsDesc: string;
     inputPlaceholder: string;
     youPrefix: string;
     justNow: string;
@@ -237,5 +250,6 @@ export interface TranslationDictionary {
     bioSaved: string;
     sportAdded: string;
     sportRemoved: string;
+    leftSquadChat: string;
   };
 }

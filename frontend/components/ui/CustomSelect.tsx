@@ -118,7 +118,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
       {isOpen && (
         <div
           role="listbox"
-          className="dropdown-popover absolute z-50 left-0 right-0 mt-1.5 p-1.5 bg-canvas border border-border rounded-[16px] shadow-xl max-h-64 overflow-y-auto"
+          className="dropdown-popover absolute z-50 left-0 right-0 mt-1.5 p-1.5 bg-canvas border border-border rounded-[16px] shadow-xl max-h-64 overflow-y-auto custom-scrollbar"
         >
           {options.map((option) => {
             const isSelected = option.value === value;

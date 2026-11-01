@@ -1,10 +1,10 @@
-import {
+import type {
   EventActivity,
   TeamSquad,
   ChatChannel,
   UserProfile,
   NearbyPlayer,
-} from "@/types/models";
+} from "../types/models";
 
 export const NEARBY_PLAYERS_SEED: NearbyPlayer[] = [
   {
@@ -236,8 +236,7 @@ export const initialSquads: TeamSquad[] = [
     name: "North District Thunder",
     sport: "Soccer",
     abbr: "NT",
-    variant: "dark",
-    featuredBadge: "Featured Club",
+    variant: "white",
     memberCount: 14,
     maxMembers: 18,
     description: "Amateur 7v7 Sunday League. Looking for reliable midfielders and an extra goalkeeper.",
@@ -249,7 +248,7 @@ export const initialSquads: TeamSquad[] = [
   {
     id: 2,
     name: "Shuttlecock Slayers",
-    sport: "Badminton Club",
+    sport: "Badminton",
     abbr: "SS",
     variant: "white",
     memberCount: 8,
@@ -263,9 +262,9 @@ export const initialSquads: TeamSquad[] = [
   {
     id: 3,
     name: "Roll & Strategy Club",
-    sport: "Tabletop Collective",
+    sport: "Board Games",
     abbr: "D20",
-    variant: "green",
+    variant: "white",
     memberCount: 24,
     maxMembers: 30,
     description: "Casual board games, Eurogames, Catan tournaments, and D&D one-shots.",
@@ -308,6 +307,14 @@ export const initialChatChannels: ChatChannel[] = [
         avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
         time: "6:20 PM",
         text: "I have white and black shirts ready. Will be arriving 15 minutes early to warm up.",
+      },
+      {
+        id: 4,
+        sender: "Alex Morgan (You)",
+        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=faces",
+        time: "6:22 PM",
+        text: "I have an extra pair of shin guards if anyone forgets theirs!",
+        isSelf: true,
       },
     ],
   },

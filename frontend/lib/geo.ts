@@ -1,5 +1,5 @@
-import { EventActivity } from "@/types/models";
-import { EVENT_OFFSETS, RADAR_REBASE_DISTANCE_KM } from "@/constants/radar";
+import type { EventActivity } from "../types/models";
+import { EVENT_OFFSETS, RADAR_REBASE_DISTANCE_KM } from "../constants/radar";
 
 /**
  * Calculates the great-circle distance in kilometers between two coordinates

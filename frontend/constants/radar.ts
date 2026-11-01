@@ -1,4 +1,4 @@
-import { GeoCoordinates, LocationPreset } from "@/types/models";
+import type { GeoCoordinates, LocationPreset } from "@/types/models";
 
 export const DEFAULT_RADAR_CENTER: GeoCoordinates = {
   lat: 37.7749,

@@ -82,19 +82,29 @@ export interface ChatMessage {
   time: string;
   text: string;
   isHost?: boolean;
+  isSelf?: boolean;
+}
+
+export interface PinnedChatMessage {
+  id: number | string;
+  text: string;
 }
 
 export interface ChatChannel {
   id: number;
   eventId?: number;
+  squadId?: number;
   title: string;
   subtitle: string;
   sportIcon: string;
   lastMessage: string;
   lastTime: string;
   avatar?: string;
+  isPinned?: boolean;
+  pinnedAt?: number;
   pinnedAnnouncement?: string;
   pinnedMessages?: string[];
+  pinnedItems?: PinnedChatMessage[];
   messages: ChatMessage[];
 }
 

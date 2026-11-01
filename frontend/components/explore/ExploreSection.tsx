@@ -35,7 +35,6 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
   onTransferHost,
   onDeleteEvent,
   onUpdateEvents,
-  onOpenMatchChat,
   selectedSport,
   selectedRadius,
   onSportChange,

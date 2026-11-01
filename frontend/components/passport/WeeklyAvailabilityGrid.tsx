@@ -16,7 +16,7 @@ export const WeeklyAvailabilityGrid: React.FC<WeeklyAvailabilityGridProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className="pt-4 border-t border-border">
+    <div className="pt-4 border-t border-border shrink-0">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3">
         <h4 className="text-xs font-[900] text-ink uppercase tracking-wider">
           {t("passport.availabilityTitle")}

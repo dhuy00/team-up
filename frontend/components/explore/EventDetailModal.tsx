@@ -59,7 +59,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
       aria-modal="true"
       aria-labelledby="event-detail-title"
     >
-      <div className="bg-canvas rounded-[24px] max-w-2xl w-full px-6 sm:px-7 border border-border shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto no-scrollbar transition-colors duration-200">
+      <div className="bg-canvas rounded-[24px] max-w-2xl w-full px-6 sm:px-7 border border-border shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto custom-scrollbar transition-colors duration-200">
         {/* Sticky Header with Close Button */}
         <div className="sticky top-0 z-10 bg-canvas pt-5 sm:pt-6 pb-4 border-b border-border flex items-start justify-between gap-4">
           <div>
@@ -206,7 +206,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
             </div>
           )}
 
-          <div className="space-y-2 max-h-52 overflow-y-auto no-scrollbar">
+          <div className="space-y-2 max-h-52 overflow-y-auto custom-scrollbar">
             {event.roster.map((player, index) => {
               const isSelf = player.name.includes("(You)");
               return (

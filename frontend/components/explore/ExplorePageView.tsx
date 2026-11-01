@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { EventActivity } from "@/types/models";
-import { initialEvents } from "@/lib/mockData";
+import React, { useState, useEffect, useCallback } from "react";
+import { ChatChannel, EventActivity } from "@/types/models";
+import { initialChatChannels, initialEvents } from "@/lib/mockData";
 import {
   DEFAULT_QUICK_FILTER,
   QuickFilterState,
@@ -34,8 +34,51 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
     "teamup_events",
     initialEvents
   );
+  const [, setChatChannels] = usePersistentState<ChatChannel[]>(
+    "teamup_chat_channels",
+    initialChatChannels
+  );
+  const [, setActiveChatChannelId] = usePersistentState<number>(
+    "teamup_active_chat_channel",
+    1
+  );
+  const [, setLeftEventChatIds] = usePersistentState<number[]>(
+    "teamup_left_event_chats",
+    []
+  );
   const [quickFilter, setQuickFilter] =
     useState<QuickFilterState>(DEFAULT_QUICK_FILTER);
+
+  const buildChannelForEvent = useCallback(
+    (ev: EventActivity, playerCount: number): ChatChannel => {
+      const welcomeText =
+        ev.notes || `Welcome to ${ev.title} at ${ev.venue}!`;
+      return {
+        id: Date.now(),
+        eventId: ev.id,
+        title: ev.title,
+        subtitle: `${playerCount} Players • ${ev.dateTimeStr} • ${ev.venue}`,
+        sportIcon: ev.icon,
+        lastMessage: `${ev.host.name}: ${welcomeText}`,
+        lastTime: t("chat.justNow"),
+        pinnedAnnouncement: ev.notes || undefined,
+        messages: [
+          {
+            id: Date.now() + 1,
+            sender: `${ev.host.name} (${t("chat.hostBadge")})`,
+            avatar: ev.host.avatar,
+            time: t("chat.justNow"),
+            text: welcomeText,
+            isHost: true,
+            isSelf: Boolean(
+              ev.isUserHost || ev.host.name.includes("Alex Morgan")
+            ),
+          },
+        ],
+      };
+    },
+    [t]
+  );
 
   // Sync when a new activity is published from the Host Game wizard
   useEffect(() => {
@@ -44,7 +87,28 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
       if (prev.some((ev) => ev.id === createdEvent.id)) return prev;
       return [createdEvent, ...prev];
     });
-  }, [createdEvent, setEvents]);
+    setChatChannels((prev) => {
+      const existing = prev.find(
+        (c) => c.eventId === createdEvent.id || c.title === createdEvent.title
+      );
+      if (existing) {
+        setActiveChatChannelId(existing.id);
+        return prev;
+      }
+      const newChannel = buildChannelForEvent(
+        createdEvent,
+        createdEvent.confirmedPlayers
+      );
+      setActiveChatChannelId(newChannel.id);
+      return [newChannel, ...prev];
+    });
+  }, [
+    buildChannelForEvent,
+    createdEvent,
+    setActiveChatChannelId,
+    setChatChannels,
+    setEvents,
+  ]);
 
   // Encapsulated reservation / spot booking toggle handler with Host protection
   const handleToggleJoin = (eventId: number) => {
@@ -62,6 +126,7 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
       }
       // If solo host with no other players registered, allow deleting the match
       setEvents((prev) => prev.filter((ev) => ev.id !== eventId));
+      setChatChannels((prev) => prev.filter((c) => c.eventId !== eventId));
       toast.info(t("toast.matchDeleted"));
       return;
     }
@@ -81,13 +146,13 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
       }
     }
 
+    const nextConfirmedCount = willJoin
+      ? target.confirmedPlayers + 1
+      : Math.max(0, target.confirmedPlayers - 1);
+
     setEvents((prev) =>
       prev.map((ev) => {
         if (ev.id === eventId) {
-          const nextConfirmed = willJoin
-            ? ev.confirmedPlayers + 1
-            : ev.confirmedPlayers - 1;
-
           const updatedRoster = willJoin
             ? [
                 ...ev.roster,
@@ -99,7 +164,7 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
             ...ev,
             userJoined: willJoin,
             isUserHost: false,
-            confirmedPlayers: nextConfirmed,
+            confirmedPlayers: nextConfirmedCount,
             roster: updatedRoster,
           };
         }
@@ -108,8 +173,22 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
     );
 
     if (willJoin) {
+      setLeftEventChatIds((prev) => prev.filter((id) => id !== eventId));
+      setChatChannels((prev) => {
+        const existing = prev.find(
+          (c) => c.eventId === target.id || c.title.includes(target.title)
+        );
+        if (existing) {
+          setActiveChatChannelId(existing.id);
+          return prev;
+        }
+        const newChannel = buildChannelForEvent(target, nextConfirmedCount);
+        setActiveChatChannelId(newChannel.id);
+        return [newChannel, ...prev];
+      });
       toast.success(t("toast.spotBooked"));
     } else {
+      setChatChannels((prev) => prev.filter((c) => c.eventId !== eventId));
       toast.info(t("toast.spotLeft"));
     }
   };
@@ -151,6 +230,7 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
   // Delete match when host is the only one registered
   const handleDeleteEvent = (eventId: number) => {
     setEvents((prev) => prev.filter((ev) => ev.id !== eventId));
+    setChatChannels((prev) => prev.filter((c) => c.eventId !== eventId));
     toast.info(t("toast.matchDeleted"));
   };
 

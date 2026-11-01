@@ -127,7 +127,7 @@ export const RadarControls: React.FC<RadarControlsProps> = ({
 
       {/* Quick Location Hub Pills + Nearby Players Toggle */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto custom-scrollbar py-0.5">
           {LOCATION_PRESETS.map((preset) => {
             const isCurrent = locationLabel === preset.label;
             return (

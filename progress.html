@@ -83,7 +83,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Last Updated</span>
-          <span class="font-bold text-ink" id="last-updated">2026-10-31 18:05 (ICT)</span>
+          <span class="font-bold text-ink" id="last-updated">2026-11-01 12:56 (ICT)</span>
         </div>
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Git Branch</span>
@@ -396,6 +396,31 @@
             <li>Inside <code>EventDetailModal</code>, click <strong>Pass Host</strong> next to a teammate in the roster &rarr; Verify toast confirms Host transfer, your badge switches from <strong>Host</strong> to <strong>Joined</strong>, and you can now leave the match.</li>
           </ol>
         </div>
+
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-ink">TC-1.7: Messenger-Style Chat Alignment, ID-Based Pinning, Channel Pinning &amp; Dynamic Leave</span>
+            <span class="badge badge-done">Chat UX</span>
+          </div>
+          <ol class="list-decimal pl-4 space-y-1 text-body">
+            <li>Open the <strong>Chat</strong> tab &rarr; Verify your own messages appear on the <strong>right</strong> (dark bubble, avatar on right) and other participants' messages appear on the <strong>left</strong>.</li>
+            <li>Send two messages with identical text (e.g. <code>"ok"</code>) and click the pin button on one &rarr; Verify only that specific message ID is pinned (not all messages with identical text).</li>
+            <li>Click the always-visible pin button next to the timestamp in <code>ChannelSidebar</code> &rarr; Verify pinned chats move to the top without shifting card height on hover.</li>
+            <li>Create or join a Squad or Match &rarr; Verify a chat channel automatically appears in the sidebar, the header button dynamically shows <strong>Leave Squad</strong> vs. <strong>Leave Match</strong>, and leaving cancels your spot (or deletes the match/squad if solo host/captain).</li>
+          </ol>
+        </div>
+
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-sm text-ink">TC-1.8: Unified Squad Cards, Aligned 3-Block Sports Passport &amp; Automated Test Suite</span>
+            <span class="badge badge-done">UI &amp; Automated QA</span>
+          </div>
+          <ol class="list-decimal pl-4 space-y-1 text-body">
+            <li>Navigate to <strong>Clubs &amp; Squads</strong> &rarr; Verify all squad cards share the unified white <code>bg-canvas</code> surface and display standard sport badges (<code>Soccer</code>, <code>Badminton</code>, <code>Board Games</code>).</li>
+            <li>Navigate to <strong>Sports Passport</strong> &rarr; Verify all 3 blocks (Identity, Fair Play Badges, and Sports &amp; Activity Passport) align top-to-bottom above the fold, and adding new sports scrolls cleanly inside the locked-height container using the custom scrollbar.</li>
+            <li>Run <code>npm test</code>, <code>npm run lint</code>, and <code>npx tsc --noEmit</code> in <code>frontend/</code> &rarr; Verify all <strong>17 automated unit &amp; integration tests</strong> pass with 0 ESLint warnings and 0 TypeScript errors.</li>
+          </ol>
+        </div>
       </div>
     </section>
 
@@ -420,6 +445,25 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: Chat UX, Unified Squad Cards, Passport Alignment, Custom Scrollbars & Automated Test Suite -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-01 12:56</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Chat, Passport &amp; Tests</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Completed Chat UX enhancements, auto-created Squad/Match chat channels, unified Squad cards, aligned 3-block Sports Passport, global custom scrollbars, and 17-test automated suite</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Messenger-Style Right/Left Chat &amp; Unique ID Pinning</strong>: Updated <code>ChatMessageList.tsx</code> and <code>lib/chatUtils.ts</code> so the current user's messages render on the right and others on the left; tracked pinned messages by unique message <code>id</code> (<code>PinnedChatMessage</code>) so duplicate message texts do not collide.</li>
+                  <li><strong>Channel Pinning &amp; Auto-Synced Squad/Match Rooms</strong>: Added always-visible channel pin buttons after the timestamp in <code>ChannelSidebar.tsx</code> (locked at <code>h-5</code> with zero hover height shift); automatically created/synced chat channels when creating or joining a Squad (<code>SquadsSection.tsx</code>) or Match (<code>page.tsx</code>, <code>ExplorePageView.tsx</code>, <code>ChatSection.tsx</code>).</li>
+                  <li><strong>Context-Aware Leave Squad / Leave Match &amp; Cancellation Sync</strong>: Dynamically labeled the chat header button and <code>ConfirmDialog</code> as <strong>Leave Squad</strong>, <strong>Leave Match</strong>, or <strong>Leave Chat</strong> based on channel type; leaving a room cancels the user's spot or deletes the match/squad when the user is the solo Host/Captain.</li>
+                  <li><strong>Unified Squad Cards &amp; Standard Sport Names</strong>: Standardized all cards in <code>SquadCard.tsx</code> and <code>mockData.ts</code> to the clean <code>bg-canvas</code> card design and replaced legacy labels (<em>Featured Club</em>, <em>Badminton Club</em>, <em>Tabletop Collective</em>) with standard sport names (<code>Soccer</code>, <code>Badminton</code>, <code>Board Games</code>).</li>
+                  <li><strong>3-Block Sports Passport Alignment &amp; Scrollable Sport Matrix</strong>: Aligned the Identity Card, Fair Play Badges, and Sports &amp; Activity Passport into an equal-height above-the-fold grid (<code>PassportSection.tsx</code>, <code>KarmaIdentityCard.tsx</code>, <code>SportSkillMatrix.tsx</code>) where adding new sports scrolls inside the locked-height container; applied <code>.custom-scrollbar</code> globally across the app (<code>globals.css</code>).</li>
+                  <li><strong>Automated Test Suite (17/17 Passing) &amp; Zero Lint/TS Errors</strong>: Created <code>frontend/__tests__/frontend.test.ts</code> and <code>loader.mjs</code> covering Geolocation, Schedule Conflict Guard, Chat Pinning/Sorting/Alignment, Config &amp; Seed Data, and 100% EN/VI i18n parity.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/__tests__/frontend.test.ts, frontend/__tests__/loader.mjs, frontend/lib/chatUtils.ts, frontend/components/chat/ChatSection.tsx, frontend/components/chat/ChatMessageList.tsx, frontend/components/chat/ChannelSidebar.tsx, frontend/components/squads/SquadCard.tsx, frontend/components/squads/SquadsSection.tsx, frontend/components/squads/CreateSquadModal.tsx, frontend/components/explore/ExplorePageView.tsx, frontend/components/explore/CreateEventModal.tsx, frontend/components/explore/ExploreSection.tsx, frontend/components/passport/PassportSection.tsx, frontend/components/passport/KarmaIdentityCard.tsx, frontend/components/passport/SportSkillMatrix.tsx, frontend/components/passport/WeeklyAvailabilityGrid.tsx, frontend/app/page.tsx, frontend/app/globals.css, frontend/locales/en.ts, frontend/locales/vi.ts, frontend/types/i18n.ts, frontend/types/models.ts, frontend/package.json, progress.html
+              </td>
+            </tr>
             <!-- Entry: Squad Edit & Delete + Auto Abbr -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-10-31 18:04</td>

@@ -1,4 +1,4 @@
-import { EventActivity } from "@/types/models";
+import type { EventActivity } from "../types/models";
 
 const DEFAULT_DURATION_MINUTES = 90;
 
