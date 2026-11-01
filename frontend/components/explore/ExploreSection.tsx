@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MapPin } from "lucide-react";
 import { EventActivity } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
+import { filterEventsList } from "@/services/events";
 import { EventDetailModal } from "./EventDetailModal";
 import { CreateEventModal } from "./CreateEventModal";
 import { RadarVisualFeed } from "./RadarVisualFeed";
@@ -35,45 +37,115 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
   onTransferHost,
   onDeleteEvent,
   onUpdateEvents,
+  onOpenMatchChat,
   selectedSport,
   selectedRadius,
   onSportChange,
   onRadiusChange,
 }) => {
   const { t } = useTranslation();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterSkill, setFilterSkill] = useState(DEFAULT_SKILL_FILTER);
+  const urlQuery = searchParams?.get("q") || "";
+  const urlSkill = searchParams?.get("skill") || DEFAULT_SKILL_FILTER;
+  const urlEventId = searchParams?.get("eventId")
+    ? Number(searchParams.get("eventId"))
+    : null;
+
+  const [searchTerm, setSearchTerm] = useState(urlQuery);
+  const [filterSkill, setFilterSkill] = useState(urlSkill);
   const [selectedEventIdForModal, setSelectedEventIdForModal] = useState<
     number | null
-  >(null);
+  >(urlEventId);
   const [eventIdPendingDelete, setEventIdPendingDelete] = useState<
     number | null
   >(null);
   const [editingEvent, setEditingEvent] = useState<EventActivity | null>(null);
 
-  const filteredEvents = useMemo(() => {
-    const query = searchTerm.trim().toLowerCase();
-    return events.filter((ev) => {
-      const matchesSearch =
-        query === "" ||
-        ev.title.toLowerCase().includes(query) ||
-        ev.venue.toLowerCase().includes(query) ||
-        ev.sport.toLowerCase().includes(query);
+  const syncSectionUrl = useCallback(
+    (updates: {
+      q?: string;
+      skill?: string;
+      eventId?: number | null;
+      resetAll?: boolean;
+    }) => {
+      if (pathname && pathname !== "/" && !pathname.startsWith("/explore")) {
+        return;
+      }
+      const params = new URLSearchParams(searchParams?.toString() || "");
+      if (updates.resetAll) {
+        params.delete("q");
+        params.delete("sport");
+        params.delete("skill");
+        params.delete("radius");
+        params.delete("eventId");
+      } else {
+        const nextQ = updates.q !== undefined ? updates.q : searchTerm;
+        if (nextQ.trim()) {
+          params.set("q", nextQ.trim());
+        } else {
+          params.delete("q");
+        }
 
-      const matchesSport =
-        selectedSport === DEFAULT_SPORT_FILTER ||
-        ev.sport.toLowerCase() === selectedSport.toLowerCase();
+        const nextSkill = updates.skill ?? filterSkill;
+        if (nextSkill && nextSkill !== DEFAULT_SKILL_FILTER) {
+          params.set("skill", nextSkill);
+        } else {
+          params.delete("skill");
+        }
 
-      const matchesSkill =
-        filterSkill === DEFAULT_SKILL_FILTER ||
-        ev.skill.toLowerCase() === filterSkill.toLowerCase();
+        const nextEventId =
+          updates.eventId !== undefined
+            ? updates.eventId
+            : selectedEventIdForModal;
+        if (nextEventId) {
+          params.set("eventId", String(nextEventId));
+        } else {
+          params.delete("eventId");
+        }
+      }
 
-      const matchesDistance = ev.distanceKm <= selectedRadius;
+      const base = pathname || "/";
+      const qs = params.toString();
+      router.replace(qs ? `${base}?${qs}` : base, { scroll: false });
+    },
+    [
+      filterSkill,
+      pathname,
+      router,
+      searchParams,
+      searchTerm,
+      selectedEventIdForModal,
+    ]
+  );
 
-      return matchesSearch && matchesSport && matchesSkill && matchesDistance;
-    });
-  }, [events, searchTerm, selectedSport, filterSkill, selectedRadius]);
+  const handleSearchTermChange = (value: string) => {
+    setSearchTerm(value);
+    syncSectionUrl({ q: value });
+  };
+
+  const handleSkillChange = (skill: string) => {
+    setFilterSkill(skill);
+    syncSectionUrl({ skill });
+  };
+
+  const handleSelectEventModal = (eventId: number | null) => {
+    setSelectedEventIdForModal(eventId);
+    syncSectionUrl({ eventId });
+  };
+
+  const filteredEvents = useMemo(
+    () =>
+      filterEventsList(events, {
+        searchQuery: searchTerm,
+        sport: selectedSport,
+        skill: filterSkill,
+        maxRadiusKm: selectedRadius,
+      }),
+    [events, searchTerm, selectedSport, filterSkill, selectedRadius]
+  );
 
   // Derive the active modal event directly from `events` so join/leave/host updates stay automatically in sync
   const selectedEventForModal = useMemo(
@@ -90,7 +162,7 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
     if (eventIdPendingDelete !== null) {
       onDeleteEvent?.(eventIdPendingDelete);
       if (selectedEventIdForModal === eventIdPendingDelete) {
-        setSelectedEventIdForModal(null);
+        handleSelectEventModal(null);
       }
       setEventIdPendingDelete(null);
     }
@@ -101,17 +173,18 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
     onSportChange(DEFAULT_SPORT_FILTER);
     setFilterSkill(DEFAULT_SKILL_FILTER);
     onRadiusChange(DISTANCE_FILTER_CONFIG.DEFAULT);
+    syncSectionUrl({ resetAll: true });
   };
 
   return (
     <section id="explore-section" className="space-y-6 scroll-mt-24">
       <ExploreFilterBar
         searchTerm={searchTerm}
-        onSearchTermChange={setSearchTerm}
+        onSearchTermChange={handleSearchTermChange}
         selectedSport={selectedSport}
         onSportChange={onSportChange}
         filterSkill={filterSkill}
-        onSkillChange={setFilterSkill}
+        onSkillChange={handleSkillChange}
         selectedRadius={selectedRadius}
         onRadiusChange={onRadiusChange}
         matchesCount={filteredEvents.length}
@@ -145,7 +218,7 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
                   key={ev.id}
                   event={ev}
                   onSelectDetails={(selected) =>
-                    setSelectedEventIdForModal(selected.id)
+                    handleSelectEventModal(selected.id)
                   }
                   onToggleJoin={onToggleJoin}
                   onDeleteEvent={(id) => setEventIdPendingDelete(id)}
@@ -172,9 +245,7 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
               events={filteredEvents}
               allEvents={events}
               selectedRadius={selectedRadius}
-              onSelectEvent={(selected) =>
-                setSelectedEventIdForModal(selected.id)
-              }
+              onSelectEvent={(selected) => handleSelectEventModal(selected.id)}
               onUpdateEvents={onUpdateEvents}
             />
 
@@ -189,10 +260,18 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
       {selectedEventForModal && (
         <EventDetailModal
           event={selectedEventForModal}
-          onClose={() => setSelectedEventIdForModal(null)}
+          onClose={() => handleSelectEventModal(null)}
           onTransferHost={onTransferHost}
+          onOpenMatchChat={
+            onOpenMatchChat
+              ? (ev) => {
+                  handleSelectEventModal(null);
+                  onOpenMatchChat(ev);
+                }
+              : undefined
+          }
           onEditEvent={(ev) => {
-            setSelectedEventIdForModal(null);
+            handleSelectEventModal(null);
             setEditingEvent(ev);
           }}
         />

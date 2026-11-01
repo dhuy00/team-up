@@ -61,10 +61,10 @@
    - Adopt TanStack Query (React Query) or SWR for caching, optimistic updates (joining/leaving matches, sending messages), and loading/error skeleton states.
 
 ### What to Achieve (Deliverables & Exit Criteria)
-- [ ] Direct deep-linking to any match, squad, chat room, or player profile via URL.
-- [ ] Browser Back/Forward buttons work naturally across all sections and modals.
-- [ ] UI components consume data exclusively through custom hooks (`useEvents`, `useSquads`, `useChats`, `usePassport`) backed by a unified API client interface.
-- [ ] Loading skeletons and empty/error states implemented for every feed and modal.
+- [x] Direct deep-linking to any match, squad, chat room, or player profile via URL.
+- [x] Browser Back/Forward buttons work naturally across all sections and modals.
+- [x] UI components consume data exclusively through custom hooks (`useEvents`, `useSquads`, `useChats`, `usePassport`) backed by a unified API client interface.
+- [x] Loading skeletons and empty/error states implemented for every feed and modal.
 
 ---
 

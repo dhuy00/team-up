@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Play } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { APP_ROUTES, NAV_TAB_IDS } from "@/components/navigation/routes";
@@ -16,10 +17,15 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange }) => {
     <footer className="bg-ink text-canvas-soft py-10 mt-16 border-t border-border transition-colors duration-200">
       <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          
           {/* Logo & Brand Identity */}
-          <div
-            onClick={() => onTabChange?.(NAV_TAB_IDS.EXPLORE)}
+          <Link
+            href="/"
+            onClick={(e) => {
+              if (onTabChange) {
+                e.preventDefault();
+                onTabChange(NAV_TAB_IDS.EXPLORE);
+              }
+            }}
             className="flex items-center space-x-3 cursor-pointer select-none"
           >
             <div className="w-8 h-8 rounded-[10px] bg-canvas text-ink flex items-center justify-center font-black text-sm">
@@ -33,26 +39,36 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange }) => {
                 {t("common.appTagline")}
               </span>
             </div>
-          </div>
+          </Link>
 
           {/* Dynamic Navigation Links using unified APP_ROUTES and i18n */}
           <div className="flex flex-wrap items-center gap-6 text-xs text-mute font-medium">
             {APP_ROUTES.map((route) => (
-              <button
+              <Link
                 key={route.id}
-                onClick={() => onTabChange?.(route.id)}
+                href={route.href}
+                onClick={(e) => {
+                  if (onTabChange) {
+                    e.preventDefault();
+                    onTabChange(route.id);
+                  }
+                }}
                 className="hover:text-canvas transition-colors cursor-pointer"
               >
                 {t(route.nameKey)}
-              </button>
+              </Link>
             ))}
           </div>
         </div>
 
         {/* Localized Copyright & Tagline */}
         <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-mute gap-3">
-          <span>{t("footer.rights")} {t("footer.builtWith")}</span>
-          <span className="font-medium text-canvas-soft/80">{t("footer.tagline")}</span>
+          <span>
+            {t("footer.rights")} {t("footer.builtWith")}
+          </span>
+          <span className="font-medium text-canvas-soft/80">
+            {t("footer.tagline")}
+          </span>
         </div>
       </div>
     </footer>

@@ -33,6 +33,28 @@ import {
 } from "@/lib/mockData";
 import { en } from "@/locales/en";
 import { vi } from "@/locales/vi";
+import {
+  computeToggleJoinEvent,
+  computeTransferEventHost,
+  filterEventsList,
+  fetchEventsAsync,
+} from "@/services/events";
+import {
+  filterSquadsList,
+  normalizeLegacySquads,
+  fetchSquadsAsync,
+} from "@/services/squads";
+import {
+  buildChannelFromEvent,
+  buildChannelFromSquad,
+  fetchChatChannelsAsync,
+} from "@/services/chats";
+import {
+  computeNextAvailability,
+  appendSportToProfile,
+  removeSportFromProfile,
+  fetchUserProfileAsync,
+} from "@/services/passport";
 import type { ChatChannel } from "@/types/models";
 
 describe("1. Geolocation & Radar Rebasing (lib/geo.ts)", () => {
@@ -341,5 +363,124 @@ describe("5. Internationalization Parity (locales/en.ts & locales/vi.ts)", () =>
 
     assert.deepEqual(enPaths, viPaths);
     assert.ok(enPaths.length >= 130, `Verified ${enPaths.length} i18n keys`);
+  });
+});
+
+describe("6. Service Layer & Data Abstraction (services/*.ts)", () => {
+  it("TC-SVC-01: filters events by search term, sport, skill, and distance radius", () => {
+    const filtered = filterEventsList(initialEvents, {
+      searchQuery: "Soccer",
+      sport: "Soccer",
+      skill: "All Levels",
+      maxRadiusKm: 10,
+    });
+    assert.ok(filtered.length >= 1);
+    for (const ev of filtered) {
+      assert.equal(ev.sport, "Soccer");
+      assert.ok(ev.distanceKm <= 10);
+    }
+  });
+
+  it("TC-SVC-02: computes join/leave transitions, host transfer, and solo-host cancellation", () => {
+    // Joining unjoined non-overlapping event (Event #3: Tomorrow, 7:30 PM - 9:30 PM)
+    const joinRes = computeToggleJoinEvent(initialEvents, 3);
+    assert.equal(joinRes.status, "joined");
+    const joinedEv = joinRes.events.find((e) => e.id === 3)!;
+    assert.equal(joinedEv.userJoined, true);
+
+    // Leaving joined event
+    const leaveRes = computeToggleJoinEvent(joinRes.events, 3);
+    assert.equal(leaveRes.status, "left");
+    assert.equal(leaveRes.events.find((e) => e.id === 3)!.userJoined, false);
+
+    // Host transfer updates host name and roster roles
+    const hostEvents = initialEvents.map((ev) =>
+      ev.id === 1 ? { ...ev, isUserHost: true, userJoined: true } : ev
+    );
+    const transferred = computeTransferEventHost(hostEvents, 1, "Marco Silva");
+    const updatedEv1 = transferred.find((e) => e.id === 1)!;
+    assert.equal(updatedEv1.isUserHost, false);
+    assert.equal(updatedEv1.host.name, "Marco Silva");
+  });
+
+  it("TC-SVC-03: filters squads and normalizes legacy squad sport labels", () => {
+    const legacy = [
+      {
+        ...initialSquads[0],
+        sport: "Badminton Club",
+        featuredBadge: "TOP RATED",
+      },
+    ];
+    const normalized = normalizeLegacySquads(legacy);
+    assert.equal(normalized.changed, true);
+    assert.equal(normalized.squads[0].sport, "Badminton");
+    assert.equal(normalized.squads[0].featuredBadge, undefined);
+
+    const soccerSquads = filterSquadsList(initialSquads, {
+      searchQuery: "Thunder",
+      sport: "Soccer",
+    });
+    assert.equal(soccerSquads.length, 1);
+    assert.equal(soccerSquads[0].name, "North District Thunder");
+  });
+
+  it("TC-SVC-04: builds chat channels from events/squads and cycles passport availability", async () => {
+    const evChan = buildChannelFromEvent(initialEvents[0], {
+      justNowLabel: "Just now",
+      hostBadgeLabel: "Host",
+      idSeed: 500,
+    });
+    assert.equal(evChan.id, 500);
+    assert.equal(evChan.eventId, initialEvents[0].id);
+
+    const sqChan = buildChannelFromSquad(initialSquads[0], {
+      isCaptain: true,
+      membersLabel: "18/24 Members",
+      justNowLabel: "Just now",
+      hostBadgeLabel: "Host",
+      idSeed: 600,
+    });
+    assert.equal(sqChan.id, 600);
+    assert.equal(sqChan.squadId, initialSquads[0].id);
+
+    // Cycle availability: busy -> preferred -> primary -> busy
+    const labels = {
+      busy: "Busy",
+      preferred: "Preferred",
+      primary: "Available",
+    };
+    const nextAvail = computeNextAvailability(
+      mockUserProfile.availability,
+      0,
+      labels
+    );
+    assert.notEqual(
+      nextAvail[0].statusType,
+      mockUserProfile.availability[0].statusType
+    );
+
+    const withSport = appendSportToProfile(mockUserProfile, {
+      id: 999,
+      name: "Tennis",
+      icon: "🎾",
+      role: "Singles Player",
+      skillTier: "Intermediate",
+      verifications: "5 Peer Endorsements",
+    });
+    assert.equal(withSport.sports.length, mockUserProfile.sports.length + 1);
+    const removed = removeSportFromProfile(withSport, 999);
+    assert.equal(removed.sports.length, mockUserProfile.sports.length);
+
+    // Verify async service fetchers resolve cleanly
+    const [evs, sqs, chs, prof] = await Promise.all([
+      fetchEventsAsync(),
+      fetchSquadsAsync(),
+      fetchChatChannelsAsync(),
+      fetchUserProfileAsync(),
+    ]);
+    assert.equal(evs.length, initialEvents.length);
+    assert.equal(sqs.length, initialSquads.length);
+    assert.equal(chs.length, initialChatChannels.length);
+    assert.equal(prof.username, mockUserProfile.username);
   });
 });

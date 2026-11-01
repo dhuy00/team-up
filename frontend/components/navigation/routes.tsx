@@ -34,10 +34,12 @@ export interface AppPageProps {
 /**
  * Route 2: Clubs & Squads Page Wrapper
  */
-export const SquadsPageView: React.FC<AppPageProps> = () => {
+export const SquadsPageView: React.FC<
+  AppPageProps & { initialSquadId?: number | null }
+> = ({ initialSquadId }) => {
   return (
     <main className="flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <SquadsSection />
+      <SquadsSection initialSquadId={initialSquadId} />
     </main>
   );
 };
@@ -45,10 +47,19 @@ export const SquadsPageView: React.FC<AppPageProps> = () => {
 /**
  * Route 3: Match & Squad Chat Page Wrapper
  */
-export const ChatPageView: React.FC<AppPageProps> = ({ focusedChatEvent }) => {
+export const ChatPageView: React.FC<
+  AppPageProps & {
+    focusedChannelId?: number | null;
+    focusedEventId?: number | null;
+  }
+> = ({ focusedChatEvent, focusedChannelId, focusedEventId }) => {
   return (
     <main className="flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-      <ChatSection focusedEvent={focusedChatEvent} />
+      <ChatSection
+        focusedEvent={focusedChatEvent}
+        focusedChannelId={focusedChannelId}
+        focusedEventId={focusedEventId}
+      />
     </main>
   );
 };
@@ -56,10 +67,12 @@ export const ChatPageView: React.FC<AppPageProps> = ({ focusedChatEvent }) => {
 /**
  * Route 4: Sports Passport & Reliability Karma Page Wrapper
  */
-export const PassportPageView: React.FC<AppPageProps> = () => {
+export const PassportPageView: React.FC<
+  AppPageProps & { username?: string }
+> = ({ username }) => {
   return (
     <main className="flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-      <PassportSection />
+      <PassportSection username={username} />
     </main>
   );
 };
@@ -70,45 +83,71 @@ export const PassportPageView: React.FC<AppPageProps> = () => {
 export interface NavRoute {
   id: number;
   key: string;
+  href: string;
   nameKey: string;
   icon: (props?: { className?: string }) => React.ReactNode;
-  component: React.ComponentType<AppPageProps>;
 }
 
 export const APP_ROUTES: NavRoute[] = [
   {
     id: NAV_TAB_IDS.EXPLORE,
     key: "explore",
+    href: "/",
     nameKey: "nav.exploreGames",
     icon: (props) => <Compass className={props?.className || "w-4 h-4"} />,
-    component: ExplorePageView,
   },
   {
     id: NAV_TAB_IDS.SQUADS,
     key: "squads",
+    href: "/squads",
     nameKey: "nav.clubsAndSquads",
     icon: (props) => <Shield className={props?.className || "w-4 h-4"} />,
-    component: SquadsPageView,
   },
   {
     id: NAV_TAB_IDS.CHATS,
     key: "chats",
+    href: "/chats",
     nameKey: "nav.chats",
     icon: (props) => <MessageSquare className={props?.className || "w-4 h-4"} />,
-    component: ChatPageView,
   },
   {
     id: NAV_TAB_IDS.PASSPORT,
     key: "passport",
+    href: "/passport",
     nameKey: "nav.sportsPassport",
     icon: (props) => <User className={props?.className || "w-4 h-4"} />,
-    component: PassportPageView,
   },
 ];
 
 /**
+ * Resolve NAV_TAB_IDS from a Next.js pathname
+ */
+export function getRouteIdFromPathname(pathname: string | null): number {
+  if (!pathname || pathname === "/" || pathname.startsWith("/explore")) {
+    return NAV_TAB_IDS.EXPLORE;
+  }
+  if (pathname.startsWith("/squads")) {
+    return NAV_TAB_IDS.SQUADS;
+  }
+  if (pathname.startsWith("/chats")) {
+    return NAV_TAB_IDS.CHATS;
+  }
+  if (pathname.startsWith("/passport")) {
+    return NAV_TAB_IDS.PASSPORT;
+  }
+  return NAV_TAB_IDS.EXPLORE;
+}
+
+/**
+ * Resolve href from a tab ID
+ */
+export function getRouteHrefById(tabId: number): string {
+  const found = APP_ROUTES.find((r) => r.id === tabId);
+  return found ? found.href : "/";
+}
+
+/**
  * Current Page Renderer
- * Renders the active route's component dynamically without condition chaining in page.tsx
  */
 export interface CurrentPageRendererProps extends AppPageProps {
   activeTab: number;
@@ -118,11 +157,17 @@ export const CurrentPageRenderer: React.FC<CurrentPageRendererProps> = ({
   activeTab,
   ...pageProps
 }) => {
-  const currentRoute =
-    APP_ROUTES.find((route) => route.id === activeTab) || APP_ROUTES[0];
-  const Component = currentRoute.component;
-
-  return <Component {...pageProps} />;
+  switch (activeTab) {
+    case NAV_TAB_IDS.SQUADS:
+      return <SquadsPageView {...pageProps} />;
+    case NAV_TAB_IDS.CHATS:
+      return <ChatPageView {...pageProps} />;
+    case NAV_TAB_IDS.PASSPORT:
+      return <PassportPageView {...pageProps} />;
+    case NAV_TAB_IDS.EXPLORE:
+    default:
+      return <ExplorePageView {...pageProps} />;
+  }
 };
 
 export default APP_ROUTES;

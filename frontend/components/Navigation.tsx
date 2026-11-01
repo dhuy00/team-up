@@ -1,12 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { Play, Plus } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LanguageSelector } from "@/components/ui/LanguageSelector";
-import { APP_ROUTES, NAV_TAB_IDS } from "@/components/navigation/routes";
+import {
+  APP_ROUTES,
+  NAV_TAB_IDS,
+  getRouteHrefById,
+  getRouteIdFromPathname,
+} from "@/components/navigation/routes";
 
 interface NavigationProps {
   activeTab?: number;
@@ -14,25 +21,38 @@ interface NavigationProps {
   onHostGameClick?: () => void;
 }
 
-const Navigation = ({ activeTab, onTabChange, onHostGameClick }: NavigationProps = {}) => {
+const Navigation = ({
+  activeTab,
+  onTabChange,
+  onHostGameClick,
+}: NavigationProps = {}) => {
   const { t } = useTranslation();
-  const [internalActiveNav, setInternalActiveNav] = useState<number>(NAV_TAB_IDS.EXPLORE);
-  const currentNav = activeTab ?? internalActiveNav;
+  const pathname = usePathname();
+  const router = useRouter();
+  const currentNav = activeTab ?? getRouteIdFromPathname(pathname);
 
-  const handleNavClick = (id: number) => {
+  const handleNavClick = (id: number, e?: React.MouseEvent) => {
     if (onTabChange) {
+      e?.preventDefault();
       onTabChange(id);
-    } else {
-      setInternalActiveNav(id);
+      return;
     }
+    const href = getRouteHrefById(id);
+    router.push(href);
   };
 
   return (
     <header className="sticky top-0 z-50 bg-canvas border-b border-border transition-colors duration-200">
       <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Logo */}
-        <div 
-          onClick={() => handleNavClick(NAV_TAB_IDS.EXPLORE)}
+        <Link
+          href="/"
+          onClick={(e) => {
+            if (onTabChange) {
+              e.preventDefault();
+              onTabChange(NAV_TAB_IDS.EXPLORE);
+            }
+          }}
           className="flex items-center space-x-3 cursor-pointer select-none"
         >
           <div className="w-10 h-10 rounded-[12px] bg-ink flex items-center justify-center text-primary shadow-sm">
@@ -46,16 +66,22 @@ const Navigation = ({ activeTab, onTabChange, onHostGameClick }: NavigationProps
               {t("common.appTagline")}
             </span>
           </div>
-        </div>
+        </Link>
 
         {/* Center Nav Pills rendered from unified APP_ROUTES */}
         <nav className="hidden md:flex items-center space-x-1 bg-canvas-soft p-1.5 rounded-[24px] border border-border">
           {APP_ROUTES.map((route) => {
             const isActive = currentNav === route.id;
             return (
-              <button
+              <Link
                 key={route.id}
-                onClick={() => handleNavClick(route.id)}
+                href={route.href}
+                onClick={(e) => {
+                  if (onTabChange) {
+                    e.preventDefault();
+                    onTabChange(route.id);
+                  }
+                }}
                 className={`flex items-center space-x-2 px-5 py-2.5 text-sm font-semibold rounded-[24px] transition-all cursor-pointer ${
                   isActive
                     ? "bg-canvas text-ink shadow-sm"
@@ -64,21 +90,16 @@ const Navigation = ({ activeTab, onTabChange, onHostGameClick }: NavigationProps
               >
                 {route.icon({ className: "w-4 h-4" })}
                 <span>{t(route.nameKey)}</span>
-              </button>
+              </Link>
             );
           })}
         </nav>
 
-        {/* Right Header Controls: Emergency Sub, Host Game CTA, Theme & Language toggles, User Avatar */}
+        {/* Right Header Controls: Host Game CTA, Theme & Language toggles, User Avatar */}
         <div className="flex items-center space-x-2 sm:space-x-3">
-          {/* Emergency Alert Pill */}
-          {/* <button className="hidden lg:flex items-center space-x-2 px-3.5 py-2 bg-negative-bg text-white hover:bg-negative rounded-full text-xs font-semibold transition cursor-pointer">
-            <span className="w-2 h-2 rounded-full bg-warning animate-pulse" />
-            <span>{t("nav.subNeededCount", { count: 1 })}</span>
-          </button> */}
-
           {/* Primary CTA Button */}
-          <button 
+          <button
+            type="button"
             onClick={() => onHostGameClick?.()}
             className="btn-primary px-5 py-2.5 text-sm font-semibold rounded-[24px] flex items-center space-x-1.5 shadow-sm"
           >
@@ -93,8 +114,9 @@ const Navigation = ({ activeTab, onTabChange, onHostGameClick }: NavigationProps
           <ThemeToggle />
 
           {/* User Quick Profile Avatar */}
-          <div 
-            onClick={() => handleNavClick(NAV_TAB_IDS.PASSPORT)}
+          <Link
+            href="/passport"
+            onClick={(e) => handleNavClick(NAV_TAB_IDS.PASSPORT, e)}
             className="flex items-center pl-1 cursor-pointer"
             title="View Sports Passport"
           >
@@ -111,7 +133,7 @@ const Navigation = ({ activeTab, onTabChange, onHostGameClick }: NavigationProps
                 98%
               </span>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </header>

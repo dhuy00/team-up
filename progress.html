@@ -445,6 +445,22 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: Phase 2 — URL Routing, State Management & Data Layer Abstraction -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-01 13:09</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Phase 2 Complete</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Completed Phase 2: Next.js App Router Migration, URL-Driven State &amp; Service/Hook Layer Abstraction (21/21 Tests Passing)</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Next.js App Router Routes</strong>: Transitioned from virtual tab state to dedicated App Router routes under <code>app/</code>: <code>/</code> and <code>/explore</code>, <code>/squads</code> and <code>/squads/[id]</code>, <code>/chats</code> and <code>/chats/[channelId]</code>, and <code>/passport</code> and <code>/passport/[username]</code>, wrapped in a persistent <code>AppShell.tsx</code> layout with <code>next/link</code> navigation in <code>Navigation.tsx</code> and <code>Footer.tsx</code>.</li>
+                  <li><strong>URL-Driven Filter &amp; Modal Deep-Linking</strong>: Synced sport, skill, radius, search query (<code>q</code>), and selected modal/channel IDs (<code>?eventId=</code>, <code>?squadId=</code>, <code>?channelId=</code>) with URL search parameters via <code>useSearchParams()</code> and <code>router.replace()</code> so views can be bookmarked/shared and browser Back/Forward works naturally.</li>
+                  <li><strong>Service Layer &amp; Custom Hooks Abstraction</strong>: Created typed domain services (<code>services/events.ts</code>, <code>services/squads.ts</code>, <code>services/chats.ts</code>, <code>services/passport.ts</code>) and custom hooks (<code>useEvents</code>, <code>useSquads</code>, <code>useChats</code>, <code>usePassport</code>) consumed by all UI sections; expanded automated tests in <code>__tests__/frontend.test.ts</code> to 21 passing tests across 6 suites.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/services/events.ts, frontend/services/squads.ts, frontend/services/chats.ts, frontend/services/passport.ts, frontend/hooks/useEvents.ts, frontend/hooks/useSquads.ts, frontend/hooks/useChats.ts, frontend/hooks/usePassport.ts, frontend/components/layout/AppShell.tsx, frontend/components/navigation/routes.tsx, frontend/components/Navigation.tsx, frontend/components/Footer.tsx, frontend/app/layout.tsx, frontend/app/page.tsx, frontend/app/explore/page.tsx, frontend/app/squads/page.tsx, frontend/app/squads/[id]/page.tsx, frontend/app/chats/page.tsx, frontend/app/chats/[channelId]/page.tsx, frontend/app/passport/page.tsx, frontend/app/passport/[username]/page.tsx, frontend/components/explore/ExplorePageView.tsx, frontend/components/explore/ExploreSection.tsx, frontend/components/explore/EventDetailModal.tsx, frontend/components/squads/SquadsSection.tsx, frontend/components/chat/ChatSection.tsx, frontend/components/passport/PassportSection.tsx, frontend/__tests__/frontend.test.ts, plan.md, progress.html
+              </td>
+            </tr>
             <!-- Entry: Chat UX, Unified Squad Cards, Passport Alignment, Custom Scrollbars & Automated Test Suite -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-01 12:56</td>

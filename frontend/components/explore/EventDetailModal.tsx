@@ -11,6 +11,7 @@ import {
   Check,
   Crown,
   Pencil,
+  MessageSquare,
 } from "lucide-react";
 import { EventActivity } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -21,6 +22,7 @@ interface EventDetailModalProps {
   onClose: () => void;
   onTransferHost?: (eventId: number, newHostName: string) => void;
   onEditEvent?: (event: EventActivity) => void;
+  onOpenMatchChat?: (event: EventActivity) => void;
 }
 
 export const EventDetailModal: React.FC<EventDetailModalProps> = ({
@@ -28,6 +30,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
   onClose,
   onTransferHost,
   onEditEvent,
+  onOpenMatchChat,
 }) => {
   const { t } = useTranslation();
 
@@ -256,6 +259,17 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
           >
             {t("common.close")}
           </button>
+
+          {event.userJoined && onOpenMatchChat && (
+            <button
+              type="button"
+              onClick={() => onOpenMatchChat(event)}
+              className="px-5 py-2.5 bg-ink hover:bg-ink/80 text-canvas font-semibold rounded-[24px] transition cursor-pointer text-sm flex items-center space-x-2 shadow-sm"
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span>{t("eventDetail.openMatchChat")}</span>
+            </button>
+          )}
 
           {isUserHost && onEditEvent && (
             <button

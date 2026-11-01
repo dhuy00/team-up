@@ -1,52 +1,119 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useCallback } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Plus, Search } from "lucide-react";
-import { ChatChannel, TeamSquad } from "@/types/models";
-import { initialChatChannels, initialSquads } from "@/lib/mockData";
+import { TeamSquad } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
-import { usePersistentState } from "@/hooks/usePersistentState";
-import { useToast } from "@/context/ToastContext";
+import { useSquads } from "@/hooks/useSquads";
+import { filterSquadsList } from "@/services/squads";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import {
   DEFAULT_SPORT_FILTER,
   buildSportSelectOptions,
-  getSportIcon,
 } from "@/constants/explore";
 import { SquadCard } from "./SquadCard";
 import { CreateSquadModal } from "./CreateSquadModal";
 import { SquadDetailModal } from "./SquadDetailModal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
-export const SquadsSection: React.FC = () => {
-  const { t } = useTranslation();
-  const toast = useToast();
+interface SquadsSectionProps {
+  initialSquadId?: number | null;
+}
 
-  const [squads, setSquads] = usePersistentState<TeamSquad[]>(
-    "teamup_squads",
-    initialSquads
-  );
-  const [requestedSquads, setRequestedSquads] = usePersistentState<number[]>(
-    "teamup_requested_squads",
-    []
-  );
-  const [, setChatChannels] = usePersistentState<ChatChannel[]>(
-    "teamup_chat_channels",
-    initialChatChannels
-  );
-  const [, setActiveChatChannelId] = usePersistentState<number>(
-    "teamup_active_chat_channel",
-    1
-  );
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSport, setSelectedSport] = useState(DEFAULT_SPORT_FILTER);
+export const SquadsSection: React.FC<SquadsSectionProps> = ({
+  initialSquadId,
+}) => {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const {
+    squads,
+    requestedSquads,
+    requestInvite,
+    createSquad,
+    updateSquad,
+    deleteSquad,
+  } = useSquads();
+
+  const urlSport = searchParams?.get("sport") || DEFAULT_SPORT_FILTER;
+  const urlQuery = searchParams?.get("q") || "";
+  const urlSquadId = searchParams?.get("squadId")
+    ? Number(searchParams.get("squadId"))
+    : initialSquadId ?? null;
+
+  const [searchQuery, setSearchQuery] = useState(urlQuery);
+  const [selectedSport, setSelectedSport] = useState(urlSport);
   const [isCreateSquadOpen, setIsCreateSquadOpen] = useState(false);
-  const [selectedSquadForDetail, setSelectedSquadForDetail] =
-    useState<TeamSquad | null>(null);
+  const [selectedSquadId, setSelectedSquadId] = useState<number | null>(
+    urlSquadId
+  );
   const [editingSquad, setEditingSquad] = useState<TeamSquad | null>(null);
   const [squadIdPendingDelete, setSquadIdPendingDelete] = useState<
     number | null
   >(null);
+
+  const syncUrlParams = useCallback(
+    (updates: {
+      sport?: string;
+      q?: string;
+      squadId?: number | null;
+    }) => {
+      if (!pathname?.startsWith("/squads")) return;
+      const params = new URLSearchParams(searchParams?.toString() || "");
+
+      const nextSport = updates.sport ?? selectedSport;
+      if (nextSport && nextSport !== DEFAULT_SPORT_FILTER) {
+        params.set("sport", nextSport);
+      } else {
+        params.delete("sport");
+      }
+
+      const nextQ = updates.q !== undefined ? updates.q : searchQuery;
+      if (nextQ.trim()) {
+        params.set("q", nextQ.trim());
+      } else {
+        params.delete("q");
+      }
+
+      const nextSquadId =
+        updates.squadId !== undefined ? updates.squadId : selectedSquadId;
+      if (nextSquadId) {
+        params.set("squadId", String(nextSquadId));
+      } else {
+        params.delete("squadId");
+      }
+
+      const queryString = params.toString();
+      router.replace(queryString ? `/squads?${queryString}` : "/squads", {
+        scroll: false,
+      });
+    },
+    [pathname, router, searchParams, searchQuery, selectedSport, selectedSquadId]
+  );
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    syncUrlParams({ q: value });
+  };
+
+  const handleSportChange = (sport: string) => {
+    setSelectedSport(sport);
+    syncUrlParams({ sport });
+  };
+
+  const handleSelectSquad = (squad: TeamSquad | null) => {
+    const id = squad?.id ?? null;
+    setSelectedSquadId(id);
+    syncUrlParams({ squadId: id });
+  };
+
+  const selectedSquadForDetail = useMemo(
+    () => squads.find((sq) => sq.id === selectedSquadId) ?? null,
+    [squads, selectedSquadId]
+  );
 
   const squadPendingDelete = useMemo(
     () => squads.find((sq) => sq.id === squadIdPendingDelete) ?? null,
@@ -55,153 +122,22 @@ export const SquadsSection: React.FC = () => {
 
   const sportOptions = useMemo(() => buildSportSelectOptions(t), [t]);
 
-  // Migrate any legacy non-standard sport labels persisted in localStorage
-  useEffect(() => {
-    const needsMigration = squads.some(
-      (sq) =>
-        sq.sport === "Badminton Club" ||
-        sq.sport === "Tabletop Collective" ||
-        Boolean(sq.featuredBadge)
-    );
-    if (!needsMigration) return;
-
-    setSquads((prev) =>
-      prev.map((sq) => {
-        let normalizedSport = sq.sport;
-        if (sq.sport === "Badminton Club") normalizedSport = "Badminton";
-        if (sq.sport === "Tabletop Collective") normalizedSport = "Board Games";
-        const next = { ...sq, sport: normalizedSport };
-        delete next.featuredBadge;
-        return next;
-      })
-    );
-  }, [squads, setSquads]);
-
-  const filteredSquads = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    return squads.filter((sq) => {
-      const matchesSearch =
-        q === "" ||
-        sq.name.toLowerCase().includes(q) ||
-        sq.sport.toLowerCase().includes(q) ||
-        sq.venue.toLowerCase().includes(q) ||
-        sq.description.toLowerCase().includes(q);
-
-      const matchesSport =
-        selectedSport === DEFAULT_SPORT_FILTER ||
-        sq.sport.toLowerCase().includes(selectedSport.toLowerCase());
-
-      return matchesSearch && matchesSport;
-    });
-  }, [squads, searchQuery, selectedSport]);
-
-  const createChannelForSquad = (squad: TeamSquad, isCaptain: boolean): ChatChannel => {
-    const icon = getSportIcon(squad.sport);
-    const welcomeText =
-      squad.description || `Welcome to ${squad.name} at ${squad.venue}!`;
-    return {
-      id: Date.now(),
-      squadId: squad.id,
-      title: squad.name,
-      subtitle: `${squad.sport} • ${t("clubs.membersCount", {
-        current: squad.memberCount,
-        max: squad.maxMembers,
-      })} • ${squad.venue}`,
-      sportIcon: icon,
-      lastMessage: `${squad.captain}: ${welcomeText}`,
-      lastTime: t("chat.justNow"),
-      pinnedAnnouncement: squad.description || undefined,
-      messages: [
-        {
-          id: Date.now() + 1,
-          sender: `${squad.captain} (${t("chat.hostBadge")})`,
-          avatar:
-            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=faces",
-          time: t("chat.justNow"),
-          text: welcomeText,
-          isHost: true,
-          isSelf: isCaptain,
-        },
-      ],
-    };
-  };
-
-  const handleRequestInvite = (squadId: number) => {
-    const alreadyRequested = requestedSquads.includes(squadId);
-    setRequestedSquads((prev) =>
-      alreadyRequested
-        ? prev.filter((id) => id !== squadId)
-        : [...prev, squadId]
-    );
-    if (alreadyRequested) {
-      toast.info(t("toast.inviteCancelled"));
-    } else {
-      const targetSquad = squads.find((sq) => sq.id === squadId);
-      if (targetSquad) {
-        const isCaptain = targetSquad.captain.includes("(You)");
-        setChatChannels((prev) => {
-          if (
-            prev.some(
-              (c) => c.squadId === targetSquad.id || c.title === targetSquad.name
-            )
-          ) {
-            return prev;
-          }
-          const newChannel = createChannelForSquad(targetSquad, isCaptain);
-          setActiveChatChannelId(newChannel.id);
-          return [newChannel, ...prev];
-        });
-      }
-      toast.success(t("toast.inviteRequested"));
-    }
-  };
-
-  const handleSquadCreated = (newSquad: TeamSquad) => {
-    setSquads((prev) => [newSquad, ...prev]);
-    setRequestedSquads((prev) => [...prev, newSquad.id]);
-    const newChannel = createChannelForSquad(newSquad, true);
-    setChatChannels((prev) => [newChannel, ...prev]);
-    setActiveChatChannelId(newChannel.id);
-    toast.success(t("toast.squadCreated"));
-  };
-
-  const handleSquadUpdated = (updatedSquad: TeamSquad) => {
-    setSquads((prev) =>
-      prev.map((sq) => (sq.id === updatedSquad.id ? updatedSquad : sq))
-    );
-    setChatChannels((prev) =>
-      prev.map((c) => {
-        if (c.squadId === updatedSquad.id) {
-          return {
-            ...c,
-            title: updatedSquad.name,
-            sportIcon: getSportIcon(updatedSquad.sport),
-            subtitle: `${updatedSquad.sport} • ${t("clubs.membersCount", {
-              current: updatedSquad.memberCount,
-              max: updatedSquad.maxMembers,
-            })} • ${updatedSquad.venue}`,
-          };
-        }
-        return c;
-      })
-    );
-    toast.success(t("toast.squadUpdated"));
-  };
+  const filteredSquads = useMemo(
+    () =>
+      filterSquadsList(squads, {
+        searchQuery,
+        sport: selectedSport,
+      }),
+    [squads, searchQuery, selectedSport]
+  );
 
   const handleConfirmDeleteSquad = () => {
     if (squadIdPendingDelete !== null) {
-      setSquads((prev) => prev.filter((sq) => sq.id !== squadIdPendingDelete));
-      setRequestedSquads((prev) =>
-        prev.filter((id) => id !== squadIdPendingDelete)
-      );
-      setChatChannels((prev) =>
-        prev.filter((c) => c.squadId !== squadIdPendingDelete)
-      );
-      if (selectedSquadForDetail?.id === squadIdPendingDelete) {
-        setSelectedSquadForDetail(null);
+      deleteSquad(squadIdPendingDelete);
+      if (selectedSquadId === squadIdPendingDelete) {
+        handleSelectSquad(null);
       }
       setSquadIdPendingDelete(null);
-      toast.info(t("toast.squadDeleted"));
     }
   };
 
@@ -232,7 +168,7 @@ export const SquadsSection: React.FC = () => {
             type="text"
             placeholder={t("clubs.searchPlaceholder")}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full h-11 pl-10 pr-4 bg-canvas-soft border border-border rounded-[14px] text-xs sm:text-sm text-ink placeholder:text-mute focus:border-ink focus:outline-none"
           />
         </div>
@@ -240,7 +176,7 @@ export const SquadsSection: React.FC = () => {
           <CustomSelect
             options={sportOptions}
             value={selectedSport}
-            onChange={setSelectedSport}
+            onChange={handleSportChange}
             triggerClassName="h-11 py-0 px-3.5 text-xs bg-canvas-soft rounded-[14px]"
           />
         </div>
@@ -256,6 +192,7 @@ export const SquadsSection: React.FC = () => {
             onClick={() => {
               setSearchQuery("");
               setSelectedSport(DEFAULT_SPORT_FILTER);
+              syncUrlParams({ q: "", sport: DEFAULT_SPORT_FILTER });
             }}
             className="mt-4 px-6 py-2.5 btn-primary font-semibold rounded-[24px] text-xs shadow-xs cursor-pointer"
           >
@@ -269,8 +206,8 @@ export const SquadsSection: React.FC = () => {
               key={squad.id}
               squad={squad}
               isRequested={requestedSquads.includes(squad.id)}
-              onRequestInvite={handleRequestInvite}
-              onSelectSquad={setSelectedSquadForDetail}
+              onRequestInvite={requestInvite}
+              onSelectSquad={handleSelectSquad}
               onEditSquad={(sq) => setEditingSquad(sq)}
               onDeleteSquad={(id) => setSquadIdPendingDelete(id)}
             />
@@ -282,7 +219,7 @@ export const SquadsSection: React.FC = () => {
       <CreateSquadModal
         isOpen={isCreateSquadOpen}
         onClose={() => setIsCreateSquadOpen(false)}
-        onSquadCreated={handleSquadCreated}
+        onSquadCreated={createSquad}
       />
 
       {/* Edit Squad Modal */}
@@ -290,7 +227,7 @@ export const SquadsSection: React.FC = () => {
         isOpen={Boolean(editingSquad)}
         onClose={() => setEditingSquad(null)}
         editingSquad={editingSquad}
-        onSquadUpdated={handleSquadUpdated}
+        onSquadUpdated={updateSquad}
       />
 
       {/* Dedicated Squad Detail Modal */}
@@ -301,10 +238,10 @@ export const SquadsSection: React.FC = () => {
             ? requestedSquads.includes(selectedSquadForDetail.id)
             : false
         }
-        onClose={() => setSelectedSquadForDetail(null)}
-        onRequestInvite={handleRequestInvite}
+        onClose={() => handleSelectSquad(null)}
+        onRequestInvite={requestInvite}
         onEditSquad={(sq) => {
-          setSelectedSquadForDetail(null);
+          handleSelectSquad(null);
           setEditingSquad(sq);
         }}
       />
