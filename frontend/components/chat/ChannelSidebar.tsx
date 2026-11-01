@@ -18,7 +18,7 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className="md:col-span-4 border-r border-border p-5 space-y-4 flex flex-col bg-canvas-soft/30">
+    <div className="md:col-span-4 border-b md:border-b-0 md:border-r border-border p-4 md:p-5 space-y-3 md:space-y-4 flex flex-col max-h-[220px] md:max-h-none md:h-full overflow-hidden bg-canvas-soft/30">
       <div className="flex items-center justify-between">
         <h2 className="font-[900] text-base text-ink tracking-tight">
           {t("chat.squadMessages")}

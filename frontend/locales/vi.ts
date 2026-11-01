@@ -171,6 +171,8 @@ export const vi: TranslationDictionary = {
     squadMessages: "Tin nhắn Đội & Trận đấu",
     activeCount: "{count} Phòng mở",
     pinnedLabel: "Đã ghim:",
+    pinMessage: "Ghim tin nhắn",
+    unpinMessage: "Bỏ ghim tin nhắn",
     inputPlaceholder: "Nhập tin nhắn gửi tới các thành viên trong trận...",
     youPrefix: "Bạn",
     justNow: "Vừa xong",

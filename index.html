@@ -462,10 +462,10 @@
 
     <!-- ================= VIEW 3: EVENT CHAT & DIRECT MESSAGING ================= -->
     <section id="view-chat" class="space-y-6 hidden">
-      <div class="bg-canvas rounded-[24px] border border-[#d8dcd5] overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[600px]">
+      <div class="bg-canvas rounded-[24px] border border-[#d8dcd5] overflow-hidden grid grid-cols-1 md:grid-cols-12 md:h-[calc(100vh-140px)] md:min-h-[480px] md:max-h-[680px]">
         
         <!-- Channels Sidebar -->
-        <div class="md:col-span-4 border-r border-[#d8dcd5] p-5 space-y-4 flex flex-col bg-canvas-soft/30">
+        <div class="md:col-span-4 border-b md:border-b-0 md:border-r border-[#d8dcd5] p-4 md:p-5 space-y-3 md:space-y-4 flex flex-col max-h-[220px] md:max-h-none md:h-full overflow-hidden bg-canvas-soft/30">
           <div class="flex items-center justify-between">
             <h2 class="font-[900] text-base text-ink tracking-tight">Squad Messages</h2>
             <span class="text-xs bg-canvas text-ink border border-ink px-2.5 py-0.5 rounded-full font-bold">3 Active</span>
@@ -512,7 +512,7 @@
         </div>
 
         <!-- Chat Conversation Area -->
-        <div class="md:col-span-8 flex flex-col h-[600px] bg-canvas">
+        <div class="md:col-span-8 flex flex-col h-[calc(100vh-260px)] min-h-[420px] md:h-full md:min-h-0 bg-canvas overflow-hidden">
           
           <!-- Conversation Header -->
           <div class="p-5 border-b border-[#d8dcd5] flex items-center justify-between">

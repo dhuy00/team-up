@@ -171,6 +171,8 @@ export const en: TranslationDictionary = {
     squadMessages: "Squad & Match Messages",
     activeCount: "{count} Active",
     pinnedLabel: "Pinned:",
+    pinMessage: "Pin message",
+    unpinMessage: "Unpin message",
     inputPlaceholder: "Type a message to the match roster...",
     youPrefix: "You",
     justNow: "Just now",

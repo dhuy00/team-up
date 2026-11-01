@@ -25,7 +25,7 @@ export const ChatComposer: React.FC<ChatComposerProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-4 border-t border-border flex items-center gap-2 bg-canvas"
+      className="px-4 py-3 border-t border-border flex items-center gap-2 bg-canvas shrink-0"
     >
       <input
         type="text"

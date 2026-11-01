@@ -94,6 +94,7 @@ export interface ChatChannel {
   lastTime: string;
   avatar?: string;
   pinnedAnnouncement?: string;
+  pinnedMessages?: string[];
   messages: ChatMessage[];
 }
 

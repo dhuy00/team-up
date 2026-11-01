@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { ChatChannel, EventActivity } from "@/types/models";
 import { initialChatChannels } from "@/lib/mockData";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -19,7 +19,10 @@ export const ChatSection: React.FC<ChatSectionProps> = ({ focusedEvent }) => {
     "teamup_chat_channels",
     initialChatChannels
   );
-  const [activeChannelId, setActiveChannelId] = useState<number>(1);
+  const [activeChannelId, setActiveChannelId] = usePersistentState<number>(
+    "teamup_active_chat_channel",
+    1
+  );
 
   // Sync or auto-create a match channel when a user navigates from an Event's "Open Match Chat"
   useEffect(() => {
@@ -90,16 +93,41 @@ export const ChatSection: React.FC<ChatSectionProps> = ({ focusedEvent }) => {
     );
   };
 
+  const handleTogglePinMessage = (text: string) => {
+    setChannels((prev) =>
+      prev.map((c) => {
+        if (c.id === activeChannel.id) {
+          const currentPins =
+            c.pinnedMessages ??
+            (c.pinnedAnnouncement ? [c.pinnedAnnouncement] : []);
+          const exists = currentPins.includes(text);
+          const nextPins = exists
+            ? currentPins.filter((item) => item !== text)
+            : [...currentPins, text];
+          return {
+            ...c,
+            pinnedMessages: nextPins,
+            pinnedAnnouncement: nextPins[0],
+          };
+        }
+        return c;
+      })
+    );
+  };
+
   return (
-    <section className="bg-canvas rounded-[24px] border border-border overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[620px] shadow-sm transition-colors duration-200">
+    <section className="bg-canvas rounded-[24px] border border-border overflow-hidden grid grid-cols-1 md:grid-cols-12 md:h-[calc(100vh-140px)] md:min-h-[480px] md:max-h-[680px] shadow-sm transition-colors duration-200">
       <ChannelSidebar
         channels={channels}
         activeChannelId={activeChannel.id}
         onSelectChannel={setActiveChannelId}
       />
 
-      <div className="md:col-span-8 flex flex-col h-[620px] bg-canvas">
-        <ChatMessageList channel={activeChannel} />
+      <div className="md:col-span-8 flex flex-col h-[calc(100vh-260px)] min-h-[420px] md:h-full md:min-h-0 bg-canvas overflow-hidden">
+        <ChatMessageList
+          channel={activeChannel}
+          onTogglePinMessage={handleTogglePinMessage}
+        />
         <ChatComposer onSendMessage={handleSendMessage} />
       </div>
     </section>

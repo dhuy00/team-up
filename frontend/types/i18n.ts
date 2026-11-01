@@ -171,6 +171,8 @@ export interface TranslationDictionary {
     squadMessages: string;
     activeCount: string;
     pinnedLabel: string;
+    pinMessage: string;
+    unpinMessage: string;
     inputPlaceholder: string;
     youPrefix: string;
     justNow: string;

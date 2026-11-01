@@ -47,7 +47,7 @@ export const SquadsPageView: React.FC<AppPageProps> = () => {
  */
 export const ChatPageView: React.FC<AppPageProps> = ({ focusedChatEvent }) => {
   return (
-    <main className="flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main className="flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       <ChatSection focusedEvent={focusedChatEvent} />
     </main>
   );
