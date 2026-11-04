@@ -9,6 +9,7 @@ import {
   getChannelPinnedItems,
   isOwnChatMessage,
 } from "@/lib/chatUtils";
+import { TruncatedPopover } from "@/components/ui/TruncatedPopover";
 
 export { getChannelPinnedItems };
 
@@ -47,12 +48,16 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
     <>
       {/* Conversation Header */}
       <div className="px-5 py-3.5 border-b border-border flex items-center justify-between gap-3 shrink-0">
-        <div className="min-w-0">
+        <div className="min-w-0 max-w-full">
           <h3 className="font-[900] text-ink text-base tracking-tight flex items-center gap-1.5 truncate">
             <span className="shrink-0">{channel.sportIcon}</span>
-            <span className="truncate">{channel.title}</span>
+            <TruncatedPopover as="span" className="truncate">
+              {channel.title}
+            </TruncatedPopover>
           </h3>
-          <p className="text-xs text-mute mt-0.5 truncate">{channel.subtitle}</p>
+          <TruncatedPopover as="p" className="text-xs text-mute mt-0.5 truncate block">
+            {channel.subtitle}
+          </TruncatedPopover>
         </div>
         {onLeaveChannel && (
           <button
@@ -78,11 +83,11 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
               key={`${pinnedItem.id}-${idx}`}
               className="px-5 py-2 flex items-center justify-between gap-2 text-xs text-warning-content dark:text-[#fef08a]"
             >
-              <div className="flex items-center space-x-2 min-w-0">
+              <div className="flex items-center space-x-2 min-w-0 flex-1">
                 <Pin className="w-3.5 h-3.5 text-warning-deep shrink-0" />
-                <span className="truncate">
+                <TruncatedPopover as="span" className="truncate flex-1">
                   <strong>{t("chat.pinnedLabel")}</strong> {pinnedItem.text}
-                </span>
+                </TruncatedPopover>
               </div>
               <div className="flex items-center gap-1 shrink-0">
                 {onTogglePinMessage && (
@@ -169,7 +174,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                   <div className="flex items-center justify-end gap-1.5">
                     {pinButton}
                     <div
-                      className={`bg-ink text-canvas p-3.5 rounded-[16px] rounded-tr-none border text-xs text-left max-w-md leading-relaxed shadow-xs transition ${
+                      className={`bg-ink text-canvas p-3.5 rounded-[16px] rounded-tr-none border text-xs text-left max-w-xs sm:max-w-sm md:max-w-md leading-relaxed shadow-xs transition break-words whitespace-pre-wrap ${
                         isPinned
                           ? "border-warning-deep ring-2 ring-warning/60"
                           : "border-ink"
@@ -220,7 +225,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div
-                    className={`bg-canvas p-3.5 rounded-[16px] rounded-tl-none border text-xs text-body max-w-md leading-relaxed shadow-xs transition ${
+                    className={`bg-canvas p-3.5 rounded-[16px] rounded-tl-none border text-xs text-body max-w-xs sm:max-w-sm md:max-w-md leading-relaxed shadow-xs transition break-words whitespace-pre-wrap ${
                       isPinned
                         ? "border-warning-deep ring-1 ring-warning/40"
                         : "border-border"

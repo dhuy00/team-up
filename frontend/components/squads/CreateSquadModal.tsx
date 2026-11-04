@@ -179,7 +179,7 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
             </span>
             <h3
               id="create-squad-title"
-              className="text-2xl font-[900] text-ink tracking-tight"
+              className="text-2xl font-[900] text-ink tracking-tight break-words"
             >
               {isEditMode ? t("clubs.editModalTitle") : t("clubs.modalTitle")}
             </h3>

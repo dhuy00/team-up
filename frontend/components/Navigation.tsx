@@ -91,7 +91,7 @@ const Navigation = ({
           <button
             type="button"
             onClick={() => onHostGameClick?.()}
-            className="btn-primary px-5 py-2.5 text-sm font-semibold rounded-[24px] flex items-center space-x-1.5 shadow-sm"
+            className="btn-primary px-5 py-2.5 text-sm font-semibold rounded-[24px] flex items-center space-x-1.5 shadow-sm shrink-0 whitespace-nowrap"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
             <span className="hidden sm:inline">{t("nav.hostGame")}</span>

@@ -16,6 +16,7 @@ import {
 import { EventActivity } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
+import { TruncatedPopover } from "@/components/ui/TruncatedPopover";
 
 interface EventDetailModalProps {
   event: EventActivity | null;
@@ -89,7 +90,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
             </div>
             <h3
               id="event-detail-title"
-              className="text-xl sm:text-2xl font-[900] text-ink tracking-tight"
+              className="text-xl sm:text-2xl font-[900] text-ink tracking-tight break-words"
             >
               {event.title}
             </h3>
@@ -136,25 +137,27 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
 
         {/* Match Logistics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
-          <div className="p-3 bg-canvas-soft rounded-[12px] flex items-center space-x-2.5">
+          <div className="p-3 bg-canvas-soft rounded-[12px] flex items-center space-x-2.5 min-w-0">
             <MapPin className="w-4 h-4 text-mute shrink-0" />
-            <div>
+            <div className="min-w-0 flex-1">
               <span className="block text-[11px] text-mute uppercase font-semibold">
                 {t("eventDetail.location")}
               </span>
-              <span className="font-semibold text-ink">{event.venue}</span>
+              <TruncatedPopover as="span" className="font-semibold text-ink block truncate">
+                {event.venue}
+              </TruncatedPopover>
             </div>
           </div>
 
-          <div className="p-3 bg-canvas-soft rounded-[12px] flex items-center space-x-2.5">
+          <div className="p-3 bg-canvas-soft rounded-[12px] flex items-center space-x-2.5 min-w-0">
             <Clock className="w-4 h-4 text-mute shrink-0" />
-            <div>
+            <div className="min-w-0 flex-1">
               <span className="block text-[11px] text-mute uppercase font-semibold">
                 {t("eventDetail.schedule")}
               </span>
-              <span className="font-semibold text-ink">
+              <TruncatedPopover as="span" className="font-semibold text-ink block truncate">
                 {event.dateTimeStr}
-              </span>
+              </TruncatedPopover>
             </div>
           </div>
 
@@ -186,7 +189,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
 
         {/* Host Notes */}
         {event.notes && (
-          <div className="p-3.5 rounded-[12px] bg-canvas-soft/60 border border-border text-xs text-body">
+          <div className="p-3.5 rounded-[12px] bg-canvas-soft/60 border border-border text-xs text-body break-words whitespace-pre-wrap">
             <span className="font-bold text-ink block mb-0.5">
               {t("eventDetail.hostNotes")}
             </span>

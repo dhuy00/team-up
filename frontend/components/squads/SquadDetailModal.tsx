@@ -5,6 +5,7 @@ import { X, Shield, MapPin, Users, Award, Check, Pencil } from "lucide-react";
 import { TeamSquad } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
+import { TruncatedPopover } from "@/components/ui/TruncatedPopover";
 
 interface SquadDetailModalProps {
   squad: TeamSquad | null;
@@ -46,55 +47,55 @@ export const SquadDetailModal: React.FC<SquadDetailModalProps> = ({
       aria-labelledby="squad-detail-title"
     >
       <div className="bg-canvas rounded-[24px] max-w-lg w-full p-6 sm:p-7 border border-border shadow-2xl space-y-5 transition-colors duration-200">
-        <div className="flex items-start justify-between gap-4 border-b border-border pb-4">
-          <div className="flex items-center gap-3.5">
-            <div className="w-14 h-14 rounded-[16px] bg-ink text-primary font-[900] text-xl flex items-center justify-center shrink-0">
-              {squad.abbr}
-            </div>
-            <div>
-              <span className="px-2.5 py-0.5 bg-canvas-soft border border-border rounded-full text-[11px] font-bold text-ink">
-                {squad.sport}
-              </span>
-              <h3
-                id="squad-detail-title"
-                className="text-2xl font-[900] text-ink tracking-tight mt-1"
-              >
-                {squad.name}
-              </h3>
-            </div>
+        <div className="flex items-start justify-between gap-4 border-b border-border pb-4 min-w-0">
+          <div className="min-w-0 flex-1">
+            <span className="px-2.5 py-0.5 bg-canvas-soft border border-border rounded-full text-[11px] font-bold text-ink inline-flex items-center gap-1.5">
+              <span>{squad.sport}</span>
+            </span>
+            <TruncatedPopover
+              as="h3"
+              id="squad-detail-title"
+              className="text-2xl font-[900] text-ink tracking-tight mt-1.5 truncate block"
+            >
+              {squad.name}
+            </TruncatedPopover>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label={t("common.close")}
-            className="p-2 bg-canvas-soft hover:bg-border/60 text-mute hover:text-ink rounded-full transition cursor-pointer"
+            className="p-2 bg-canvas-soft hover:bg-border/60 text-mute hover:text-ink rounded-full transition cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <p className="text-xs sm:text-sm text-body leading-relaxed">
+        <p className="text-xs sm:text-sm text-body leading-relaxed break-words whitespace-pre-wrap">
           {squad.description}
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <div className="p-3.5 bg-canvas-soft rounded-[14px] border border-border flex items-center gap-2.5">
+          <div className="p-3.5 bg-canvas-soft rounded-[14px] border border-border flex items-center gap-2.5 min-w-0">
             <Shield className="w-4 h-4 text-mute shrink-0" />
-            <div>
+            <div className="min-w-0 flex-1">
               <span className="block text-[10px] text-mute uppercase font-semibold">
                 {t("clubs.captainLabel")}
               </span>
-              <span className="font-bold text-ink">{squad.captain}</span>
+              <TruncatedPopover as="span" className="font-bold text-ink block truncate">
+                {squad.captain}
+              </TruncatedPopover>
             </div>
           </div>
 
-          <div className="p-3.5 bg-canvas-soft rounded-[14px] border border-border flex items-center gap-2.5">
+          <div className="p-3.5 bg-canvas-soft rounded-[14px] border border-border flex items-center gap-2.5 min-w-0">
             <MapPin className="w-4 h-4 text-mute shrink-0" />
-            <div>
+            <div className="min-w-0 flex-1">
               <span className="block text-[10px] text-mute uppercase font-semibold">
                 {t("clubs.homeVenueLabel")}
               </span>
-              <span className="font-bold text-ink">{squad.venue}</span>
+              <TruncatedPopover as="span" className="font-bold text-ink block truncate">
+                {squad.venue}
+              </TruncatedPopover>
             </div>
           </div>
 

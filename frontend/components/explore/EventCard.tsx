@@ -4,6 +4,7 @@ import React from "react";
 import { MapPin, Clock, Tag, Check, X, Crown, Trash2 } from "lucide-react";
 import { EventActivity } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
+import { TruncatedPopover } from "@/components/ui/TruncatedPopover";
 
 interface EventCardProps {
   event: EventActivity;
@@ -67,19 +68,25 @@ export const EventCard: React.FC<EventCardProps> = ({
         </div>
 
         {/* Title */}
-        <h3 className="text-lg font-[900] text-ink mb-2 leading-snug">
+        <TruncatedPopover
+          as="h3"
+          className="text-lg font-[900] text-ink mb-2 leading-snug truncate block w-full hover:underline cursor-pointer text-left"
+          onClick={() => onSelectDetails(event)}
+        >
           {event.title}
-        </h3>
+        </TruncatedPopover>
 
         {/* Venue & Details */}
         <div className="space-y-1.5 text-xs text-body mb-5">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 min-w-0">
             <MapPin className="w-3.5 h-3.5 text-mute shrink-0" />
-            <span>{event.venue}</span>
+            <TruncatedPopover as="span" className="truncate flex-1">
+              {event.venue}
+            </TruncatedPopover>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 min-w-0">
             <Clock className="w-3.5 h-3.5 text-mute shrink-0" />
-            <span className="font-medium text-ink">{event.dateTimeStr}</span>
+            <span className="font-medium text-ink truncate">{event.dateTimeStr}</span>
           </div>
           <div className="flex items-center space-x-2">
             <Tag className="w-3.5 h-3.5 text-mute shrink-0" />

@@ -5,6 +5,7 @@ import { Check, Trash2, Pencil } from "lucide-react";
 import { TeamSquad } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getSportIcon } from "@/constants/explore";
+import { TruncatedPopover } from "@/components/ui/TruncatedPopover";
 
 interface SquadCardProps {
   squad: TeamSquad;
@@ -58,34 +59,46 @@ export const SquadCard: React.FC<SquadCardProps> = ({
           </div>
         </div>
 
-        <div className="w-12 h-12 rounded-[12px] bg-canvas-soft text-ink font-[900] text-xl flex items-center justify-center mb-3 border border-border">
-          {squad.abbr}
-        </div>
-
-        <button
-          type="button"
+        <TruncatedPopover
+          text={squad.name}
+          as="button"
           onClick={() => onSelectSquad?.(squad)}
-          className="text-xl font-[900] text-ink tracking-tight hover:underline cursor-pointer text-left"
-        >
-          {squad.name}
-        </button>
-        <p className="text-xs text-body mt-2 leading-relaxed">
-          {squad.description}
-        </p>
+          className="text-xl font-[900] text-ink tracking-tight hover:underline cursor-pointer text-left block w-full truncate"
+        />
+        <TruncatedPopover
+          text={squad.description}
+          as="p"
+          className="text-xs text-body mt-2 leading-relaxed break-words line-clamp-3 block w-full"
+        />
       </div>
 
       <div className="space-y-2 text-xs bg-canvas-soft p-3.5 rounded-[12px] border border-border/60">
-        <div className="flex justify-between">
-          <span className="text-mute">{t("clubs.captainLabel")}:</span>
-          <strong className="text-ink">{squad.captain}</strong>
+        <div className="flex justify-between items-center gap-2 min-w-0">
+          <span className="text-mute shrink-0">{t("clubs.captainLabel")}:</span>
+          <TruncatedPopover
+            text={squad.captain}
+            as="strong"
+            align="right"
+            className="text-ink truncate text-right flex-1 min-w-0"
+          />
         </div>
-        <div className="flex justify-between">
-          <span className="text-mute">{t("clubs.homeVenueLabel")}:</span>
-          <span className="text-ink">{squad.venue}</span>
+        <div className="flex justify-between items-center gap-2 min-w-0">
+          <span className="text-mute shrink-0">{t("clubs.homeVenueLabel")}:</span>
+          <TruncatedPopover
+            text={squad.venue}
+            as="span"
+            align="right"
+            className="text-ink truncate text-right font-medium flex-1 min-w-0"
+          />
         </div>
-        <div className="flex justify-between">
-          <span className="text-mute">{squad.statLabel}:</span>
-          <span className="font-bold text-ink">{squad.statValue}</span>
+        <div className="flex justify-between items-center gap-2 min-w-0">
+          <span className="text-mute shrink-0">{squad.statLabel}:</span>
+          <TruncatedPopover
+            text={squad.statValue}
+            as="span"
+            align="right"
+            className="font-bold text-ink truncate text-right flex-1 min-w-0"
+          />
         </div>
       </div>
 

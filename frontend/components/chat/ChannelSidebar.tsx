@@ -5,6 +5,7 @@ import { Pin, PinOff } from "lucide-react";
 import { ChatChannel } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 import { sortChatChannels } from "@/lib/chatUtils";
+import { TruncatedPopover } from "@/components/ui/TruncatedPopover";
 
 interface ChannelSidebarProps {
   channels: ChatChannel[];
@@ -64,9 +65,11 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
               }`}
             >
               <div className="flex items-center justify-between gap-2 mb-1 h-5">
-                <span className="font-bold text-xs text-ink flex items-center gap-1.5 min-w-0 truncate">
+                <span className="font-bold text-xs text-ink flex items-center gap-1.5 min-w-0 flex-1 truncate">
                   <span className="shrink-0">{ch.sportIcon}</span>
-                  <span className="truncate">{ch.title}</span>
+                  <TruncatedPopover as="span" className="truncate flex-1">
+                    {ch.title}
+                  </TruncatedPopover>
                 </span>
                 <div className="flex items-center gap-1.5 shrink-0 h-5">
                   <span className="text-[10px] text-mute font-mono leading-none">
@@ -98,7 +101,9 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
                   )}
                 </div>
               </div>
-              <p className="text-xs text-body truncate">{ch.lastMessage}</p>
+              <TruncatedPopover as="p" className="text-xs text-body truncate block w-full">
+                {ch.lastMessage}
+              </TruncatedPopover>
             </div>
           );
         })}

@@ -4,6 +4,7 @@ import React from "react";
 import { MapPin, Eye } from "lucide-react";
 import { EventActivity } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
+import { TruncatedPopover } from "@/components/ui/TruncatedPopover";
 
 interface RadarVenuesListProps {
   events: EventActivity[];
@@ -61,13 +62,15 @@ export const RadarVenuesList: React.FC<RadarVenuesListProps> = ({
                   <div className="w-8 h-8 rounded-full bg-primary text-ink border border-ink flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
                     {ev.icon}
                   </div>
-                  <div className="min-w-0">
-                    <div className="font-bold text-xs text-ink truncate">
+                  <div className="min-w-0 flex-1">
+                    <TruncatedPopover as="div" className="font-bold text-xs text-ink truncate">
                       {ev.title}
-                    </div>
+                    </TruncatedPopover>
                     <div className="text-[11px] text-mute flex items-center gap-1 truncate">
                       <MapPin className="w-3 h-3 shrink-0" />
-                      <span className="truncate">{ev.venue}</span>
+                      <TruncatedPopover as="span" className="truncate flex-1">
+                        {ev.venue}
+                      </TruncatedPopover>
                     </div>
                   </div>
                 </div>

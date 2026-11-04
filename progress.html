@@ -61,6 +61,20 @@
     .badge-wip { background: #fff8d6; color: #735100; border: 1px solid #ffd11a; }
     .badge-pending { background: #f0f2ee; color: #666a63; border: 1px solid #d8dcd5; }
     .badge-planned { background: #e8f4fc; color: #0b4e80; border: 1px solid #bce1f8; }
+    #changelog-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+    #changelog-table td:nth-child(3) {
+      word-break: break-word;
+      overflow-wrap: break-word;
+      white-space: normal;
+    }
+    #changelog-table td:nth-child(4) {
+      word-break: break-all;
+      overflow-wrap: anywhere;
+      white-space: normal;
+    }
   </style>
 </head>
 <body class="min-h-screen py-10 px-4 sm:px-6 lg:px-12">
@@ -83,7 +97,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Last Updated</span>
-          <span class="font-bold text-ink" id="last-updated">2026-11-01 12:56 (ICT)</span>
+          <span class="font-bold text-ink" id="last-updated">2026-11-04 20:25 (ICT)</span>
         </div>
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Git Branch</span>
@@ -327,9 +341,9 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
         <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-ink">TC-1.1: Squad Creation, Edit, Delete &amp; Detail Modal</span>
-            <span class="badge badge-done">Squads</span>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-bold text-sm text-ink max-w-[80%]">TC-1.1: Squad Creation, Edit, Delete &amp; Detail Modal</span>
+            <span class="badge badge-done shrink-0">Squads</span>
           </div>
           <ol class="list-decimal pl-4 space-y-1 text-body">
             <li>Navigate to <strong>Clubs &amp; Squads</strong> tab and type <code>"Badminton"</code> or <code>"Riverside"</code> in the search bar, or select a sport filter &rarr; Verify cards filter live.</li>
@@ -339,9 +353,9 @@
         </div>
 
         <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-ink">TC-1.2: Explore Event &rarr; Match Chat Integration</span>
-            <span class="badge badge-done">Explore &amp; Chat</span>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-bold text-sm text-ink max-w-[80%]">TC-1.2: Explore Event &rarr; Match Chat Integration</span>
+            <span class="badge badge-done shrink-0">Explore &amp; Chat</span>
           </div>
           <ol class="list-decimal pl-4 space-y-1 text-body">
             <li>On <strong>Explore Games</strong>, click <strong>Details</strong> on any event card (e.g., <em>Casual Pickup Basketball Run</em>).</li>
@@ -351,9 +365,9 @@
         </div>
 
         <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-ink">TC-1.3: Interactive Sports Passport Editing</span>
-            <span class="badge badge-done">Passport</span>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-bold text-sm text-ink max-w-[80%]">TC-1.3: Interactive Sports Passport Editing</span>
+            <span class="badge badge-done shrink-0">Passport</span>
           </div>
           <ol class="list-decimal pl-4 space-y-1 text-body">
             <li>Navigate to <strong>Sports Passport</strong> and click <strong>Edit Bio</strong> under the player bio &rarr; Modify text and click <strong>Save Bio</strong> &rarr; Verify bio updates inline.</li>
@@ -363,9 +377,9 @@
         </div>
 
         <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-ink">TC-1.4: Client Persistence &amp; Full EN/VI Localization</span>
-            <span class="badge badge-done">i18n &amp; Storage</span>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-bold text-sm text-ink max-w-[80%]">TC-1.4: Client Persistence &amp; Full EN/VI Localization</span>
+            <span class="badge badge-done shrink-0">i18n &amp; Storage</span>
           </div>
           <ol class="list-decimal pl-4 space-y-1 text-body">
             <li>Switch language between <strong>English</strong> and <strong>Tiếng Việt</strong> in the top bar &rarr; Verify <code>CreateEventModal</code>, <code>SquadsSection</code>, <code>ChatSection</code>, and <code>PassportSection</code> translate 100% of labels.</li>
@@ -374,9 +388,9 @@
         </div>
 
         <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-ink">TC-1.5: Host a Game Currency ($ / VND), Free Checkbox, Capacity (2–100) &amp; Leading-Zero Fix</span>
-            <span class="badge badge-done">review.md</span>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-bold text-sm text-ink max-w-[80%]">TC-1.5: Host a Game Currency ($ / VND), Free Checkbox, Capacity (2–100) &amp; Leading-Zero Fix</span>
+            <span class="badge badge-done shrink-0">review.md</span>
           </div>
           <ol class="list-decimal pl-4 space-y-1 text-body">
             <li>Click <strong>Host Game</strong> &rarr; Verify modal is widened (<code>max-w-2xl</code>) and <strong>Player Capacity (2–100)</strong> defaults to <code>10</code>.</li>
@@ -386,9 +400,9 @@
         </div>
 
         <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-ink">TC-1.6: Host Status Badge, Pass Host Role &amp; Confirm Dialog on Delete + Toasts</span>
-            <span class="badge badge-done">review.md</span>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-bold text-sm text-ink max-w-[80%]">TC-1.6: Host Status Badge, Pass Host Role &amp; Confirm Dialog on Delete + Toasts</span>
+            <span class="badge badge-done shrink-0">review.md</span>
           </div>
           <ol class="list-decimal pl-4 space-y-1 text-body">
             <li>Create a new match via <strong>Host Game</strong> &rarr; Verify toast appears, the card shows a dark <strong>👑 Host</strong> badge, and the button shows <strong>Delete Match</strong>. Click <strong>Delete Match</strong> &rarr; Verify <code>ConfirmDialog</code> opens asking for confirmation. Click <strong>Cancel</strong> (or press <code>Escape</code>) &rarr; Verify match is kept. Click <strong>Delete Match</strong> and confirm &rarr; Verify match is deleted with a toast.</li>
@@ -398,9 +412,9 @@
         </div>
 
         <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-ink">TC-1.7: Messenger-Style Chat Alignment, ID-Based Pinning, Channel Pinning &amp; Dynamic Leave</span>
-            <span class="badge badge-done">Chat UX</span>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-bold text-sm text-ink max-w-[80%]">TC-1.7: Messenger-Style Chat Alignment, ID-Based Pinning, Channel Pinning &amp; Dynamic Leave</span>
+            <span class="badge badge-done shrink-0">Chat UX</span>
           </div>
           <ol class="list-decimal pl-4 space-y-1 text-body">
             <li>Open the <strong>Chat</strong> tab &rarr; Verify your own messages appear on the <strong>right</strong> (dark bubble, avatar on right) and other participants' messages appear on the <strong>left</strong>.</li>
@@ -411,9 +425,9 @@
         </div>
 
         <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-sm text-ink">TC-1.8: Unified Squad Cards, Aligned 3-Block Sports Passport &amp; Automated Test Suite</span>
-            <span class="badge badge-done">UI &amp; Automated QA</span>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-bold text-sm text-ink max-w-[80%]">TC-1.8: Unified Squad Cards, Aligned 3-Block Sports Passport &amp; Automated Test Suite</span>
+            <span class="badge badge-done shrink-0">UI &amp; Automated QA</span>
           </div>
           <ol class="list-decimal pl-4 space-y-1 text-body">
             <li>Navigate to <strong>Clubs &amp; Squads</strong> &rarr; Verify all squad cards share the unified white <code>bg-canvas</code> surface and display standard sport badges (<code>Soccer</code>, <code>Badminton</code>, <code>Board Games</code>).</li>
@@ -438,13 +452,48 @@
         <table class="w-full text-left text-sm border-collapse" id="changelog-table">
           <thead>
             <tr class="border-b border-border-base text-mute text-xs uppercase tracking-wider">
-              <th class="py-3 px-4 font-bold">Timestamp</th>
-              <th class="py-3 px-4 font-bold">Category</th>
+              <th class="py-3 px-4 font-bold w-36">Timestamp</th>
+              <th class="py-3 px-4 font-bold w-44">Category</th>
               <th class="py-3 px-4 font-bold">Change Summary</th>
-              <th class="py-3 px-4 font-bold">Affected Files</th>
+              <th class="py-3 px-4 font-bold w-72">Affected Files</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: Squad Title, Home Venue Truncation & Hover Popover -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-04 20:25</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Popover &amp; Truncation</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Added TruncatedPopover with ~2s hover delay for overflowing squad titles, descriptions, Home Venues, event titles &amp; chat items</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>~2-Second Hover Delay (<code>delayMs = 2000</code>)</strong>: Configured <code>TruncatedPopover.tsx</code> with a 2-second hover delay timer; clears the timer immediately if the cursor leaves before 2s, or on scroll/resize/unmount, preventing accidental popover flashing.</li>
+                  <li><strong>Squad Description Popover (<code>SquadCard.tsx</code>)</strong>: Wrapped clamped multi-line squad description (<code>line-clamp-3</code>) with <code>TruncatedPopover</code> (checks <code>scrollHeight &gt; clientHeight + 1</code>) to reveal full text in a comfortable popover after 2 seconds.</li>
+                  <li><strong>Squad Title, Captain &amp; Home Venue (<code>SquadCard.tsx</code>, <code>SquadDetailModal.tsx</code>)</strong>: Wrapped squad names, captain labels, and Home Venue rows in <code>TruncatedPopover</code> with responsive flex containers (<code>flex-1 min-w-0 truncate text-right</code>). Any text truncated with ellipsis (<code>...</code>) displays the full text in a styled popover on hover.</li>
+                  <li><strong>Event Cards, Details &amp; Radar List (<code>EventCard.tsx</code>, <code>EventDetailModal.tsx</code>, <code>RadarVenuesList.tsx</code>)</strong>: Added popover tooltips to match titles and location/venue fields across explore cards, match detail dialogs, and the live radar venues sidebar.</li>
+                  <li><strong>Chat Channels &amp; Messages (<code>ChannelSidebar.tsx</code>, <code>ChatMessageList.tsx</code>)</strong>: Integrated <code>TruncatedPopover</code> for channel titles, last message previews, and pinned message banners.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/components/ui/TruncatedPopover.tsx, frontend/components/squads/SquadCard.tsx, frontend/components/squads/SquadDetailModal.tsx, frontend/components/explore/EventCard.tsx, frontend/components/explore/EventDetailModal.tsx, frontend/components/explore/radar/RadarVenuesList.tsx, frontend/components/chat/ChannelSidebar.tsx, frontend/components/chat/ChatMessageList.tsx, progress.html
+              </td>
+            </tr>
+            <!-- Entry: Text Width Limits & Line Wrap Bugfix -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-04 19:42</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">UX &amp; Layout Bugfix</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Fixed text width overflow and missing line wraps across Host Game, Create Squad, Chat Messages, and Progress Dashboard</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Host Game &amp; Match Details (`CreateEventModal`, `EventCard`, `EventDetailModal`)</strong>: Added <code>break-words</code>, <code>line-clamp</code>, and <code>truncate</code> to match titles, venue labels, host equipment notes, and action button labels so long text breaks onto the next line gracefully instead of stretching horizontally to the screen edge.</li>
+                  <li><strong>Clubs &amp; Squads (`SquadsSection`, `SquadCard`, `SquadDetailModal`, `CreateSquadModal`)</strong>: Added <code>max-w-xl</code> and <code>break-words</code> to squad section subtitles, squad card names/descriptions, and modal titles; added <code>shrink-0 whitespace-nowrap</code> to the <strong>Create a Squad</strong> button to prevent flex squishing.</li>
+                  <li><strong>Chat Messages (`ChatMessageList`, `ChannelSidebar`)</strong>: Constrained message bubbles to <code>max-w-xs sm:max-w-sm md:max-w-md</code> with <code>break-words whitespace-pre-wrap</code> so user messages wrap naturally onto multiple lines instead of expanding all the way across to the left screen boundary; added <code>min-w-0 max-w-full</code> to chat header and pinned announcements.</li>
+                  <li><strong>Progress Dashboard (`progress.html`)</strong>: Added <code>table-layout: fixed</code>, explicit column widths (<code>w-36</code>, <code>w-44</code>, <code>w-72</code>), <code>word-break: break-word</code>, and <code>word-break: break-all</code> to prevent wide table blowouts; added <code>flex-wrap gap-2</code> across all verification scenario cards.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/components/chat/ChatMessageList.tsx, frontend/components/squads/SquadsSection.tsx, frontend/components/squads/SquadCard.tsx, frontend/components/squads/SquadDetailModal.tsx, frontend/components/squads/CreateSquadModal.tsx, frontend/components/explore/EventCard.tsx, frontend/components/explore/EventDetailModal.tsx, frontend/components/explore/CreateEventModal.tsx, frontend/components/Navigation.tsx, progress.html
+              </td>
+            </tr>
             <!-- Entry: Phase 3 — Backend API, Authentication, Onboarding Wizard & Geospatial Database -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-01 13:47</td>

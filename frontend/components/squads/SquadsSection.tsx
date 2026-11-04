@@ -144,16 +144,16 @@ export const SquadsSection: React.FC<SquadsSectionProps> = ({
   return (
     <section className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+        <div className="min-w-0">
           <h2 className="text-3xl font-[900] text-ink tracking-tight">
             {t("clubs.title")}
           </h2>
-          <p className="text-sm text-body mt-1">{t("clubs.subtitle")}</p>
+          <p className="text-sm text-body mt-1 max-w-xl break-words">{t("clubs.subtitle")}</p>
         </div>
         <button
           type="button"
           onClick={() => setIsCreateSquadOpen(true)}
-          className="px-6 py-2.5 bg-ink hover:bg-ink/80 text-canvas font-semibold rounded-[24px] text-sm transition flex items-center space-x-2 cursor-pointer self-start sm:self-auto shadow-sm"
+          className="px-6 py-2.5 bg-ink hover:bg-ink/80 text-canvas font-semibold rounded-[24px] text-sm transition flex items-center space-x-2 cursor-pointer self-start sm:self-auto shadow-sm shrink-0 whitespace-nowrap"
         >
           <Plus className="w-4 h-4" />
           <span>{t("clubs.createSquad")}</span>

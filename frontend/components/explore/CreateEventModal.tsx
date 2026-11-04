@@ -450,7 +450,7 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
             </span>
             <h3
               id="create-event-title"
-              className="text-2xl font-[900] text-ink tracking-tight"
+              className="text-2xl font-[900] text-ink tracking-tight break-words"
             >
               {isEditMode
                 ? t("createEvent.editTitle")
