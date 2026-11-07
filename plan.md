@@ -135,9 +135,9 @@
    - Enable hosts to set minimum Reliability Karma thresholds (e.g., `90%+ Karma required for Instant Join`; lower Karma defaults to `Request to Join`).
 
 ### What to Achieve (Deliverables & Exit Criteria)
-- [ ] Automated post-match check-in and review flow triggered after each game.
-- [ ] Auditable Karma score calculation that dynamically updates player tiers (`Tier 1`, `Verified`, `Probation`) and restricts chronic no-shows.
-- [ ] Peer-verified skill badges and captain endorsements reflected live on each user's `PassportSection`.
+- [x] Automated post-match check-in and review flow triggered after each game.
+- [x] Auditable Karma score calculation that dynamically updates player tiers (`Tier 1`, `Verified`, `Probation`) and restricts chronic no-shows.
+- [x] Peer-verified skill badges and captain endorsements reflected live on each user's `PassportSection`.
 
 ---
 

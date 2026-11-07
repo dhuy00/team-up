@@ -1,6 +1,7 @@
 import type { EventActivity } from "../types/models";
 import { initialEvents } from "../lib/mockData";
 import { findConflictingJoinedEvent } from "../lib/scheduleConflict";
+import { canPlayerInstantJoin } from "../lib/karma";
 
 export const EVENTS_STORAGE_KEY = "teamup_events";
 
@@ -12,6 +13,7 @@ export interface JoinEventToggleResult {
     | "promoted_from_waitlist"
     | "deleted_solo_host"
     | "blocked_host_has_teammates"
+    | "karma_blocked"
     | "conflict"
     | "not_found";
   events: EventActivity[];
@@ -57,6 +59,14 @@ export function computeToggleJoinEvent(
   const willJoin = !target.userJoined;
 
   if (willJoin) {
+    if (!canPlayerInstantJoin(currentUserKarma, target.minKarmaRequired)) {
+      return {
+        status: "karma_blocked",
+        events,
+        targetEvent: target,
+      };
+    }
+
     const conflictingEvent = findConflictingJoinedEvent(target, events);
     if (conflictingEvent) {
       return {

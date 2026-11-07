@@ -3,11 +3,12 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MapPin } from "lucide-react";
-import { EventActivity } from "@/types/models";
+import { AttendanceStatus, EventActivity } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 import { filterEventsList } from "@/services/events";
 import { EventDetailModal } from "./EventDetailModal";
 import { CreateEventModal } from "./CreateEventModal";
+import { PostMatchCheckInModal } from "./PostMatchCheckInModal";
 import { RadarVisualFeed } from "./RadarVisualFeed";
 import { ExploreFilterBar } from "./ExploreFilterBar";
 import { EventCard } from "./EventCard";
@@ -21,6 +22,12 @@ import {
 interface ExploreSectionProps {
   events: EventActivity[];
   onToggleJoin: (eventId: number) => void;
+  onSubmitCheckIn?: (
+    eventId: number,
+    attendanceMap: Record<string, AttendanceStatus>,
+    badgesAwarded: string[],
+    endorseSport: boolean
+  ) => void;
   onTransferHost?: (eventId: number, newHostName: string) => void;
   onDeleteEvent?: (eventId: number) => void;
   onUpdateEvents?: (events: EventActivity[]) => void;
@@ -34,6 +41,7 @@ interface ExploreSectionProps {
 export const ExploreSection: React.FC<ExploreSectionProps> = ({
   events,
   onToggleJoin,
+  onSubmitCheckIn,
   onTransferHost,
   onDeleteEvent,
   onUpdateEvents,
@@ -63,6 +71,7 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
     number | null
   >(null);
   const [editingEvent, setEditingEvent] = useState<EventActivity | null>(null);
+  const [checkInEvent, setCheckInEvent] = useState<EventActivity | null>(null);
 
   const syncSectionUrl = useCallback(
     (updates: {
@@ -274,6 +283,23 @@ export const ExploreSection: React.FC<ExploreSectionProps> = ({
             handleSelectEventModal(null);
             setEditingEvent(ev);
           }}
+          onOpenCheckIn={
+            onSubmitCheckIn
+              ? (ev) => {
+                  handleSelectEventModal(null);
+                  setCheckInEvent(ev);
+                }
+              : undefined
+          }
+        />
+      )}
+
+      {/* Post-Match Check-In Modal */}
+      {onSubmitCheckIn && (
+        <PostMatchCheckInModal
+          event={checkInEvent}
+          onClose={() => setCheckInEvent(null)}
+          onSubmitCheckIn={onSubmitCheckIn}
         />
       )}
 

@@ -1,8 +1,21 @@
 "use client";
 
 import { useCallback } from "react";
-import type { ChatChannel, EventActivity } from "@/types/models";
-import { initialChatChannels, initialEvents } from "@/lib/mockData";
+import type {
+  AttendanceStatus,
+  ChatChannel,
+  EventActivity,
+  UserProfile,
+} from "@/types/models";
+import {
+  initialChatChannels,
+  initialEvents,
+  mockUserProfile,
+} from "@/lib/mockData";
+import {
+  applyPostMatchCheckInToEvent,
+  applyPostMatchCheckInToProfile,
+} from "@/lib/karma";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useToast } from "@/context/ToastContext";
@@ -12,6 +25,7 @@ import {
   computeToggleJoinEvent,
   computeTransferEventHost,
 } from "@/services/events";
+import { PASSPORT_STORAGE_KEY } from "@/services/passport";
 import {
   ACTIVE_CHAT_CHANNEL_STORAGE_KEY,
   CHAT_CHANNELS_STORAGE_KEY,
@@ -27,6 +41,10 @@ export function useEvents() {
   const [events, setEvents] = usePersistentState<EventActivity[]>(
     EVENTS_STORAGE_KEY,
     initialEvents
+  );
+  const [profile, setProfile] = usePersistentState<UserProfile>(
+    PASSPORT_STORAGE_KEY,
+    mockUserProfile
   );
   const [, setChatChannels] = usePersistentState<ChatChannel[]>(
     CHAT_CHANNELS_STORAGE_KEY,
@@ -75,9 +93,24 @@ export function useEvents() {
 
   const toggleJoinEvent = useCallback(
     (eventId: number) => {
-      const result = computeToggleJoinEvent(events, eventId);
+      const result = computeToggleJoinEvent(
+        events,
+        eventId,
+        "Alex Morgan (You)",
+        profile.karma
+      );
 
       if (result.status === "not_found") return;
+
+      if (result.status === "karma_blocked" && result.targetEvent) {
+        toast.error(
+          t("toast.karmaGateBlocked", {
+            min: result.targetEvent.minKarmaRequired ?? 90,
+            current: profile.karma,
+          })
+        );
+        return;
+      }
 
       if (result.status === "blocked_host_has_teammates") {
         toast.warning(t("toast.hostCannotLeave"));
@@ -165,6 +198,7 @@ export function useEvents() {
     },
     [
       events,
+      profile.karma,
       pushNotification,
       setActiveChatChannelId,
       setChatChannels,
@@ -173,6 +207,46 @@ export function useEvents() {
       t,
       toast,
     ]
+  );
+
+  const submitMatchCheckIn = useCallback(
+    (
+      eventId: number,
+      attendanceMap: Record<string, AttendanceStatus>,
+      badgesAwarded: string[],
+      endorseSport: boolean
+    ) => {
+      const targetEvent = events.find((ev) => ev.id === eventId);
+      setEvents((prev) =>
+        prev.map((ev) =>
+          ev.id === eventId
+            ? applyPostMatchCheckInToEvent(ev, attendanceMap)
+            : ev
+        )
+      );
+
+      const selfStatus =
+        attendanceMap["Alex Morgan (You)"] ||
+        attendanceMap[profile.name] ||
+        "showed_up";
+
+      setProfile((prev) =>
+        applyPostMatchCheckInToProfile(prev, {
+          selfAttendance: selfStatus,
+          badgesAwarded,
+          endorseSportName: endorseSport ? targetEvent?.sport : undefined,
+        })
+      );
+
+      toast.success(t("toast.checkInSubmitted"));
+      pushNotification({
+        kind: "karma_update",
+        title: t("eventDetail.checkInModalTitle"),
+        body: t("toast.checkInSubmitted"),
+        href: "/passport",
+      });
+    },
+    [events, profile.name, pushNotification, setEvents, setProfile, t, toast]
   );
 
   const transferHost = useCallback(
@@ -203,6 +277,7 @@ export function useEvents() {
     setEvents,
     createEvent,
     toggleJoinEvent,
+    submitMatchCheckIn,
     transferHost,
     deleteEvent,
   };

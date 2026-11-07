@@ -95,6 +95,17 @@ export interface TranslationDictionary {
     openMatchChat: string;
     makeHost: string;
     hostCannotLeaveHint: string;
+    minKarmaGateBadge: string;
+    checkInBtn: string;
+    checkInCompletedBadge: string;
+    checkInModalTitle: string;
+    checkInModalSubtitle: string;
+    attendanceShowedUp: string;
+    attendanceLate: string;
+    attendanceNoShow: string;
+    awardBadgesTitle: string;
+    verifySkillCheck: string;
+    submitCheckInBtn: string;
   };
   createEvent: {
     badge: string;
@@ -128,6 +139,9 @@ export interface TranslationDictionary {
     notesLabel: string;
     notesPlaceholder: string;
     publishActivity: string;
+    minKarmaLabel: string;
+    minKarmaNone: string;
+    minKarmaOption: string;
   };
   sports: {
     all: string;
@@ -226,6 +240,7 @@ export interface TranslationDictionary {
     statusBusy: string;
     statusPreferred: string;
     statusPrimary: string;
+    endorseSkillBtn: string;
   };
   theme: {
     light: string;
@@ -273,6 +288,9 @@ export interface TranslationDictionary {
     lfgBroadcastStopped: string;
     playerPinged: string;
     urgentBroadcastSent: string;
+    checkInSubmitted: string;
+    karmaGateBlocked: string;
+    skillEndorsed: string;
   };
   notifications: {
     title: string;
@@ -312,6 +330,11 @@ export interface TranslationDictionary {
     setupPassportWizard: string;
     invalidCredentials: string;
     emailAlreadyExists: string;
+    backToExplore: string;
+    pageSubtitleSignIn: string;
+    pageSubtitleSignUp: string;
+    signedInBannerTitle: string;
+    continueToApp: string;
   };
   onboarding: {
     badge: string;

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { X, Check } from "lucide-react";
 import { EventActivity } from "@/types/models";
 import { initialEvents } from "@/lib/mockData";
+import { KARMA_GATE_THRESHOLDS } from "@/lib/karma";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 import { usePersistentState } from "@/hooks/usePersistentState";
@@ -129,6 +130,7 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
   const [isFree, setIsFree] = useState(true);
   const [feeAmount, setFeeAmount] = useState<string>("");
   const [costError, setCostError] = useState(false);
+  const [minKarmaRequired, setMinKarmaRequired] = useState<string>("0");
   const [notes, setNotes] = useState("");
 
   const openKey = isOpen
@@ -158,6 +160,11 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
         setIsFree(parsedCost.isFree);
         setFeeAmount(parsedCost.feeAmount);
         setCostError(false);
+        setMinKarmaRequired(
+          editingEvent.minKarmaRequired
+            ? String(editingEvent.minKarmaRequired)
+            : "0"
+        );
         setNotes(editingEvent.notes || "");
       } else {
         const defaultStart = getDefaultTomorrowDateTime();
@@ -172,6 +179,7 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
         setIsFree(true);
         setFeeAmount("");
         setCostError(false);
+        setMinKarmaRequired("0");
         setNotes("");
       }
     }
@@ -182,6 +190,17 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
     [t]
   );
   const skillOptions = useMemo(() => buildSkillSelectOptions(t), [t]);
+  const karmaGateOptions = useMemo(
+    () =>
+      KARMA_GATE_THRESHOLDS.map((k) => ({
+        value: String(k),
+        label:
+          k === 0
+            ? t("createEvent.minKarmaNone")
+            : t("createEvent.minKarmaOption", { karma: k }),
+      })),
+    [t]
+  );
 
   const currencySymbol = locale === "vi" ? "VND" : "$";
 
@@ -348,6 +367,8 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
         endTimeIso: endDateTime || editingEvent.endTimeIso,
         cost: formattedCost,
         maxPlayers: numericCapacity,
+        minKarmaRequired:
+          Number(minKarmaRequired) > 0 ? Number(minKarmaRequired) : undefined,
         notes: notes.trim(),
       };
 
@@ -393,6 +414,8 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
       cost: formattedCost,
       confirmedPlayers: 1,
       maxPlayers: numericCapacity,
+      minKarmaRequired:
+        Number(minKarmaRequired) > 0 ? Number(minKarmaRequired) : undefined,
       host: {
         name: "Alex Morgan (You)",
         karma: 98,
@@ -644,6 +667,18 @@ export const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 </span>
               </div>
             )}
+          </div>
+
+          <div>
+            <label className="block font-semibold text-ink mb-1">
+              {t("createEvent.minKarmaLabel")}
+            </label>
+            <CustomSelect
+              options={karmaGateOptions}
+              value={minKarmaRequired}
+              onChange={(val) => setMinKarmaRequired(val)}
+              triggerClassName="py-2.5 px-3 text-xs"
+            />
           </div>
 
           <div>

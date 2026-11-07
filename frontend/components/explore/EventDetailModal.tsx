@@ -12,6 +12,7 @@ import {
   Crown,
   Pencil,
   MessageSquare,
+  ShieldCheck,
 } from "lucide-react";
 import { EventActivity } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -24,6 +25,7 @@ interface EventDetailModalProps {
   onTransferHost?: (eventId: number, newHostName: string) => void;
   onEditEvent?: (event: EventActivity) => void;
   onOpenMatchChat?: (event: EventActivity) => void;
+  onOpenCheckIn?: (event: EventActivity) => void;
 }
 
 export const EventDetailModal: React.FC<EventDetailModalProps> = ({
@@ -32,6 +34,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
   onTransferHost,
   onEditEvent,
   onOpenMatchChat,
+  onOpenCheckIn,
 }) => {
   const { t } = useTranslation();
 
@@ -74,6 +77,22 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
               <span className="px-2.5 py-0.5 bg-canvas-soft text-body text-xs font-medium rounded-full">
                 {event.skill}
               </span>
+              {event.minKarmaRequired && event.minKarmaRequired > 0 ? (
+                <span className="px-2.5 py-0.5 bg-canvas-soft text-ink border border-border text-xs font-bold rounded-full inline-flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-positive-deep" />
+                  <span>
+                    {t("eventDetail.minKarmaGateBadge", {
+                      karma: event.minKarmaRequired,
+                    })}
+                  </span>
+                </span>
+              ) : null}
+              {event.completedCheckIn ? (
+                <span className="px-2.5 py-0.5 bg-primary-pale text-positive-deep border border-primary-neutral text-xs font-bold rounded-full inline-flex items-center gap-1">
+                  <Check className="w-3 h-3 stroke-[2.5]" />
+                  <span>{t("eventDetail.checkInCompletedBadge")}</span>
+                </span>
+              ) : null}
               {isUserHost ? (
                 <span className="px-2.5 py-0.5 bg-ink text-primary border border-ink text-xs font-bold rounded-full inline-flex items-center gap-1 shadow-2xs">
                   <Crown className="w-3 h-3 stroke-[2.5]" />
@@ -273,6 +292,19 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
               <span>{t("eventDetail.openMatchChat")}</span>
             </button>
           )}
+
+          {(event.userJoined || isUserHost) &&
+            !event.completedCheckIn &&
+            onOpenCheckIn && (
+              <button
+                type="button"
+                onClick={() => onOpenCheckIn(event)}
+                className="px-5 py-2.5 bg-primary hover:bg-primary/90 text-ink border border-ink font-bold rounded-[24px] transition cursor-pointer text-sm flex items-center space-x-2 shadow-xs"
+              >
+                <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
+                <span>{t("eventDetail.checkInBtn")}</span>
+              </button>
+            )}
 
           {isUserHost && onEditEvent && (
             <button

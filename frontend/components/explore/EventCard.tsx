@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MapPin, Clock, Tag, Check, X, Crown, Trash2 } from "lucide-react";
+import { MapPin, Clock, Tag, Check, X, Crown, Trash2, ShieldCheck } from "lucide-react";
 import { EventActivity } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 import { TruncatedPopover } from "@/components/ui/TruncatedPopover";
@@ -46,6 +46,22 @@ export const EventCard: React.FC<EventCardProps> = ({
             <span className="px-2.5 py-0.5 bg-canvas-soft text-body text-[11px] font-medium rounded-full">
               {event.skill}
             </span>
+            {event.minKarmaRequired && event.minKarmaRequired > 0 ? (
+              <span className="px-2.5 py-0.5 bg-canvas-soft text-ink border border-border text-[11px] font-bold rounded-full inline-flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-positive-deep" />
+                <span>
+                  {t("eventDetail.minKarmaGateBadge", {
+                    karma: event.minKarmaRequired,
+                  })}
+                </span>
+              </span>
+            ) : null}
+            {event.completedCheckIn ? (
+              <span className="px-2.5 py-0.5 bg-primary-pale text-positive-deep border border-primary-neutral text-[11px] font-bold rounded-full inline-flex items-center gap-1">
+                <Check className="w-3 h-3 stroke-[2.5]" />
+                <span>{t("eventDetail.checkInCompletedBadge")}</span>
+              </span>
+            ) : null}
             {isUserHost ? (
               <span className="px-2.5 py-0.5 bg-ink text-primary border border-ink text-[11px] font-bold rounded-full inline-flex items-center gap-1 shadow-2xs">
                 <Crown className="w-3 h-3 stroke-[2.5]" />

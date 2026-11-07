@@ -73,6 +73,7 @@ export const initialEvents: EventActivity[] = [
     cost: "$5 / player",
     confirmedPlayers: 8,
     maxPlayers: 10,
+    minKarmaRequired: 90,
     host: {
       name: "David Ross",
       karma: 99,
@@ -195,6 +196,7 @@ export const initialEvents: EventActivity[] = [
     cost: "$3 / player",
     confirmedPlayers: 5,
     maxPlayers: 6,
+    minKarmaRequired: 95,
     host: {
       name: "Robert Miller",
       karma: 93,
@@ -219,6 +221,7 @@ export const initialEvents: EventActivity[] = [
     cost: "1 drink order",
     confirmedPlayers: 5,
     maxPlayers: 6,
+    minKarmaRequired: 95,
     host: {
       name: "Marcus Vance",
       karma: 100,

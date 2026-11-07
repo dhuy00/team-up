@@ -75,6 +75,15 @@ import {
   countUnreadNotifications,
   markAllNotificationsRead,
 } from "@/lib/realtime";
+import {
+  computeKarmaDelta,
+  computeNextKarmaScore,
+  computeKarmaTier,
+  canPlayerInstantJoin,
+  applyPostMatchCheckInToEvent,
+  applyPostMatchCheckInToProfile,
+  endorseSportOnProfile,
+} from "@/lib/karma";
 import { NEARBY_PLAYERS_SEED } from "@/lib/mockData";
 import type { ChatChannel } from "@/types/models";
 
@@ -708,5 +717,96 @@ describe("8. Phase 4 Real-Time LFG Radar, Privacy Fuzzing, Direct Ping & Notific
     const marked = markAllNotificationsRead(list);
     assert.equal(countUnreadNotifications(marked), 0);
     assert.equal(marked.every((item) => item.read), true);
+  });
+});
+
+describe("9. Phase 5 Reliability Karma Engine, Post-Match Check-In & Karma-Gated Policies (lib/karma.ts)", () => {
+  it("TC-KRM-01: calculates accurate Karma score deltas (+1, -3, -10), clamps within [0, 100], and assigns dynamic tiers", () => {
+    assert.equal(computeKarmaDelta("showed_up"), 1);
+    assert.equal(computeKarmaDelta("late"), -3);
+    assert.equal(computeKarmaDelta("no_show"), -10);
+
+    assert.equal(computeNextKarmaScore(98, "showed_up"), 99);
+    assert.equal(computeNextKarmaScore(100, "showed_up"), 100);
+    assert.equal(computeNextKarmaScore(98, "late"), 95);
+    assert.equal(computeNextKarmaScore(98, "no_show"), 88);
+    assert.equal(computeNextKarmaScore(5, "no_show"), 0);
+
+    assert.equal(computeKarmaTier(98), "Tier 1");
+    assert.equal(computeKarmaTier(95), "Tier 1");
+    assert.equal(computeKarmaTier(88), "Verified");
+    assert.equal(computeKarmaTier(75), "Probation");
+  });
+
+  it("TC-KRM-02: updates event roster attendance and user profile Karma, no-show counter, Fair-Play badges, and Captain sport verifications on Post-Match Check-In", () => {
+    const sampleEvent = structuredClone(initialEvents[0]);
+    const checkedInEvent = applyPostMatchCheckInToEvent(sampleEvent, {
+      "David Ross": "showed_up",
+      "Alex Morgan (You)": "showed_up",
+      "Zack Taylor": "no_show",
+    });
+
+    assert.equal(checkedInEvent.completedCheckIn, true);
+    const zack = checkedInEvent.roster.find((p) => p.name === "Zack Taylor")!;
+    assert.equal(zack.attendance, "no_show");
+    assert.equal(zack.karma, 79);
+
+    const updatedProfile = applyPostMatchCheckInToProfile(mockUserProfile, {
+      selfAttendance: "showed_up",
+      badgesAwarded: ["⏱️ Always Punctual", "🌟 Great Sport"],
+      endorseSportName: "Soccer",
+    });
+
+    assert.equal(updatedProfile.karma, 99);
+    assert.equal(updatedProfile.tier, "Tier 1");
+    assert.equal(
+      updatedProfile.matchesCount,
+      mockUserProfile.matchesCount + 1
+    );
+    assert.equal(
+      updatedProfile.endorsedCount,
+      mockUserProfile.endorsedCount + 2
+    );
+
+    const soccerSport = updatedProfile.sports.find((s) =>
+      s.name.includes("Soccer")
+    )!;
+    assert.equal(soccerSport.verifications, "7 Captain verifications");
+
+    // Direct 1-click skill endorsement on SportPassport
+    const afterDirectEndorse = endorseSportOnProfile(
+      updatedProfile,
+      soccerSport.id
+    );
+    const soccerAfterDirect = afterDirectEndorse.sports.find(
+      (s) => s.id === soccerSport.id
+    )!;
+    assert.equal(soccerAfterDirect.verifications, "8 Captain verifications");
+  });
+
+  it("TC-KRM-03: enforces Karma-gated Instant Join thresholds and blocks players below minKarmaRequired", () => {
+    assert.equal(canPlayerInstantJoin(92, undefined), true);
+    assert.equal(canPlayerInstantJoin(92, 0), true);
+    assert.equal(canPlayerInstantJoin(92, 90), true);
+    assert.equal(canPlayerInstantJoin(89, 90), false);
+
+    // Event #5 has minKarmaRequired: 95 and userJoined: false
+    const eventsClone = structuredClone(initialEvents);
+    const blockedRes = computeToggleJoinEvent(
+      eventsClone,
+      5,
+      "Alex Morgan (You)",
+      88
+    );
+    assert.equal(blockedRes.status, "karma_blocked");
+
+    // Player with 98 Karma meets the 95+ threshold on Event #5
+    const allowedRes = computeToggleJoinEvent(
+      eventsClone,
+      5,
+      "Alex Morgan (You)",
+      98
+    );
+    assert.equal(allowedRes.status, "joined");
   });
 });

@@ -89,7 +89,7 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-2xl font-[900] text-ink tracking-tight">TeamUp &amp; SocialFinding</h1>
-            <span class="badge badge-done">Phase 4 Completed</span>
+            <span class="badge badge-done">Phase 5 Completed</span>
           </div>
           <p class="text-sm font-medium text-mute mt-0.5">Project State, Development Progress &amp; Change Tracking</p>
         </div>
@@ -97,7 +97,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Last Updated</span>
-          <span class="font-bold text-ink" id="last-updated">2026-11-07 09:32 (ICT)</span>
+          <span class="font-bold text-ink" id="last-updated">2026-11-07 10:24 (ICT)</span>
         </div>
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Git Branch</span>
@@ -110,11 +110,11 @@
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
         <div class="text-xs font-bold text-mute uppercase tracking-wider">Overall Progress</div>
-        <div class="mt-2 text-3xl font-[900] text-ink">~85%</div>
+        <div class="mt-2 text-3xl font-[900] text-ink">~95%</div>
         <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
-          <div class="bg-primary h-full rounded-full" style="width: 85%"></div>
+          <div class="bg-primary h-full rounded-full" style="width: 95%"></div>
         </div>
-        <div class="mt-2 text-xs text-mute font-medium">Phases 1–4 &amp; Real-Time Radar complete</div>
+        <div class="mt-2 text-xs text-mute font-medium">Phases 1–5 &amp; Karma Engine complete</div>
       </div>
 
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
@@ -459,6 +459,23 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: Phase 5 Reliability Karma Engine, Post-Match Check-In & Standalone Auth Page -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-07 10:24</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Phase 5: Karma &amp; Auth</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Completed Phase 5: Reliability Karma Engine, Post-Match Verification &amp; Fair Play, plus Independent Sign In / Sign Up Page &amp; Compact Navigation</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Reliability Karma Engine &amp; Post-Match Check-In (<code>lib/karma.ts</code>, <code>PostMatchCheckInModal.tsx</code>, <code>EventDetailModal.tsx</code>, <code>useEvents.ts</code>)</strong>: Implemented a 30-second Post-Match Check-In modal allowing hosts/players to mark roster attendance (<code>Showed Up +1</code>, <code>Late -3</code>, <code>No-Show -10</code>), dynamically recalculate Karma scores and tiers (<code>Tier 1</code>, <code>Verified</code>, <code>Probation</code>), award Fair-Play Badges (<code>⏱️ Always Punctual</code>, <code>🤝 Team First</code>, <code>🌟 Great Sport</code>), and verify Captain sport skills.</li>
+                  <li><strong>Karma-Gated Match Policies &amp; Instant Join Enforcement (<code>CreateEventModal.tsx</code>, <code>EventCard.tsx</code>, <code>services/events.ts</code>)</strong>: Added minimum Reliability Karma threshold selector (<code>None</code>, <code>85%+</code>, <code>90%+</code>, <code>95%+</code>) when hosting/editing matches, displayed Karma Gate &amp; Check-In Completed pills on cards/modals, and enforced minimum Karma gates during RSVP.</li>
+                  <li><strong>1-Click Captain Skill Endorsements (<code>SportSkillMatrix.tsx</code>, <code>usePassport.ts</code>)</strong>: Added 1-click <code>+1 Endorse</code> verification buttons on Sports Passport rows with live counter persistence.</li>
+                  <li><strong>Independent Sign In / Sign Up Page &amp; Compact Navigation (<code>AuthPageView.tsx</code>, <code>app/auth/page.tsx</code>, <code>app/signin/page.tsx</code>, <code>app/signup/page.tsx</code>, <code>Navigation.tsx</code>)</strong>: Built a dedicated full-screen Sign In / Sign Up route with Demo Player Switcher and shortened top navigation labels (<code>Explore</code>, <code>Squads</code>, <code>Chat</code>, <code>Passport</code>, <code>Host Game</code>) so the header never wraps. Expanded unit test suite to <strong>30/30 passing tests</strong> across 9 suites.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/lib/karma.ts, frontend/components/explore/PostMatchCheckInModal.tsx, frontend/components/explore/EventDetailModal.tsx, frontend/components/explore/EventCard.tsx, frontend/components/explore/CreateEventModal.tsx, frontend/components/explore/ExploreSection.tsx, frontend/components/explore/ExplorePageView.tsx, frontend/components/passport/SportSkillMatrix.tsx, frontend/components/passport/PassportSection.tsx, frontend/components/auth/AuthPageView.tsx, frontend/app/auth/page.tsx, frontend/app/signin/page.tsx, frontend/app/signup/page.tsx, frontend/components/layout/AppShell.tsx, frontend/components/Navigation.tsx, frontend/hooks/useEvents.ts, frontend/hooks/usePassport.ts, frontend/services/events.ts, frontend/locales/en.ts, frontend/locales/vi.ts, frontend/types/i18n.ts, frontend/types/models.ts, frontend/__tests__/frontend.test.ts, plan.md, progress.html
+              </td>
+            </tr>
             <!-- Entry: Phase 4 Real-Time Match Rooms, Notifications & Live LFG Player Radar -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-07 09:32</td>

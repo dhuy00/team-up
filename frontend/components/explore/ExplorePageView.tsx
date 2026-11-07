@@ -34,6 +34,7 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
     setEvents,
     createEvent,
     toggleJoinEvent,
+    submitMatchCheckIn,
     transferHost,
     deleteEvent,
   } = useEvents();
@@ -138,6 +139,7 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
         <ExploreSection
           events={events}
           onToggleJoin={toggleJoinEvent}
+          onSubmitCheckIn={submitMatchCheckIn}
           onTransferHost={transferHost}
           onDeleteEvent={deleteEvent}
           onUpdateEvents={setEvents}

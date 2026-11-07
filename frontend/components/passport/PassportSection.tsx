@@ -13,8 +13,14 @@ interface PassportSectionProps {
 export const PassportSection: React.FC<PassportSectionProps> = ({
   username,
 }) => {
-  const { profile, updateBio, addSport, removeSport, toggleDayStatus } =
-    usePassport();
+  const {
+    profile,
+    updateBio,
+    addSport,
+    removeSport,
+    endorseSport,
+    toggleDayStatus,
+  } = usePassport();
 
   const resolvedProfile = useMemo(() => {
     if (!username) return profile;
@@ -52,6 +58,7 @@ export const PassportSection: React.FC<PassportSectionProps> = ({
               sports={resolvedProfile.sports}
               onAddSport={addSport}
               onRemoveSport={removeSport}
+              onEndorseSport={endorseSport}
             />
 
             <WeeklyAvailabilityGrid

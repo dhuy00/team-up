@@ -12,6 +12,7 @@ import {
   computeNextAvailability,
   removeSportFromProfile,
 } from "@/services/passport";
+import { endorseSportOnProfile } from "@/lib/karma";
 
 export function usePassport() {
   const { t } = useTranslation();
@@ -48,6 +49,14 @@ export function usePassport() {
     [setProfile, t, toast]
   );
 
+  const endorseSport = useCallback(
+    (sportId: number) => {
+      setProfile((prev) => endorseSportOnProfile(prev, sportId));
+      toast.success(t("toast.skillEndorsed"));
+    },
+    [setProfile, t, toast]
+  );
+
   const toggleDayStatus = useCallback(
     (dayIndex: number) => {
       setProfile((prev) => ({
@@ -67,6 +76,7 @@ export function usePassport() {
     updateBio,
     addSport,
     removeSport,
+    endorseSport,
     toggleDayStatus,
   };
 }

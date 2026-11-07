@@ -29,7 +29,8 @@ export type AppNotificationKind =
   | "match_reminder"
   | "host_announcement"
   | "squad_invite"
-  | "lfg_ping";
+  | "lfg_ping"
+  | "karma_update";
 
 export interface AppNotification {
   id: string;
@@ -48,10 +49,13 @@ export interface Host {
   avatar: string;
 }
 
+export type AttendanceStatus = "showed_up" | "late" | "no_show";
+
 export interface RosterPlayer {
   name: string;
   role: string;
   karma: number;
+  attendance?: AttendanceStatus;
 }
 
 export interface EventActivity {
@@ -77,6 +81,8 @@ export interface EventActivity {
   roster: RosterPlayer[];
   notes: string;
   joinPolicy?: "instant" | "request";
+  minKarmaRequired?: number;
+  completedCheckIn?: boolean;
 }
 
 export interface TeamSquad {

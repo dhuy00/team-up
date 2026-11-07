@@ -28,13 +28,13 @@ const Navigation = ({
   onHostGameClick,
 }: NavigationProps = {}) => {
   const { t } = useTranslation();
-  const { user, setIsAuthModalOpen } = useAuth();
+  const { user } = useAuth();
   const pathname = usePathname();
   const currentNav = activeTab ?? getRouteIdFromPathname(pathname);
 
   return (
     <header className="sticky top-0 z-50 bg-canvas border-b border-border transition-colors duration-200">
-      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
         {/* Logo */}
         <Link
           href="/"
@@ -44,12 +44,12 @@ const Navigation = ({
               onTabChange(NAV_TAB_IDS.EXPLORE);
             }
           }}
-          className="flex items-center space-x-3 cursor-pointer select-none"
+          className="flex items-center space-x-3 cursor-pointer select-none shrink-0"
         >
-          <div className="w-10 h-10 rounded-[12px] bg-ink flex items-center justify-center text-primary shadow-sm">
+          <div className="w-10 h-10 rounded-[12px] bg-ink flex items-center justify-center text-primary shadow-sm shrink-0">
             <Play className="w-5 h-5 fill-current" />
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0.5 whitespace-nowrap">
             <span className="text-xl font-[900] tracking-tight text-ink leading-tight">
               {t("common.appName")}
             </span>
@@ -60,7 +60,7 @@ const Navigation = ({
         </Link>
 
         {/* Center Nav Pills rendered from unified APP_ROUTES */}
-        <nav className="hidden md:flex items-center space-x-1 bg-canvas-soft p-1.5 rounded-[24px] border border-border">
+        <nav className="hidden md:flex items-center space-x-1 bg-canvas-soft p-1.5 rounded-[24px] border border-border shrink-0">
           {APP_ROUTES.map((route) => {
             const isActive = currentNav === route.id;
             return (
@@ -73,13 +73,13 @@ const Navigation = ({
                     onTabChange(route.id);
                   }
                 }}
-                className={`flex items-center space-x-2 px-5 py-2.5 text-sm font-semibold rounded-[24px] transition-all cursor-pointer ${
+                className={`flex items-center space-x-2 px-4 py-2 text-sm font-semibold rounded-[24px] transition-all cursor-pointer whitespace-nowrap ${
                   isActive
                     ? "bg-canvas text-ink shadow-sm"
                     : "text-body hover:text-ink"
                 }`}
               >
-                {route.icon({ className: "w-4 h-4" })}
+                {route.icon({ className: "w-4 h-4 shrink-0" })}
                 <span>{t(route.nameKey)}</span>
               </Link>
             );
@@ -87,15 +87,15 @@ const Navigation = ({
         </nav>
 
         {/* Right Header Controls: Host Game CTA, Theme & Language toggles, User Account Pill */}
-        <div className="flex items-center space-x-2 sm:space-x-3">
+        <div className="flex items-center space-x-2 shrink-0">
           {/* Primary CTA Button */}
           <button
             type="button"
             onClick={() => onHostGameClick?.()}
-            className="btn-primary px-5 py-2.5 text-sm font-semibold rounded-[24px] flex items-center space-x-1.5 shadow-sm shrink-0 whitespace-nowrap"
+            className="btn-primary px-4 py-2 text-sm font-semibold rounded-[24px] flex items-center space-x-1.5 shadow-sm shrink-0 whitespace-nowrap"
           >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span className="hidden sm:inline">{t("nav.hostGame")}</span>
+            <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
+            <span className="hidden lg:inline">{t("nav.hostGame")}</span>
           </button>
 
           {/* Language Selector */}
@@ -107,11 +107,10 @@ const Navigation = ({
           {/* In-App Notification Center */}
           <NotificationBell />
 
-          {/* User Account / Auth Trigger */}
+          {/* User Account / Auth Trigger -> Navigates to Independent Sign In / Sign Up Page */}
           {user ? (
-            <button
-              type="button"
-              onClick={() => setIsAuthModalOpen(true)}
+            <Link
+              href="/auth"
               className="flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-full bg-canvas-soft hover:bg-border/50 border border-border transition cursor-pointer"
               title={t("auth.switchAccount")}
             >
@@ -129,16 +128,15 @@ const Navigation = ({
                 </span>
               </div>
               <ChevronDown className="w-3.5 h-3.5 text-mute hidden sm:block" />
-            </button>
+            </Link>
           ) : (
-            <button
-              type="button"
-              onClick={() => setIsAuthModalOpen(true)}
-              className="px-4 py-2 rounded-full bg-canvas-soft hover:bg-border/60 border border-border text-xs font-bold text-ink inline-flex items-center gap-1.5 transition cursor-pointer"
+            <Link
+              href="/signin"
+              className="px-4 py-2 rounded-full bg-canvas-soft hover:bg-border/60 border border-border text-xs font-bold text-ink inline-flex items-center gap-1.5 transition cursor-pointer whitespace-nowrap"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>{t("auth.signIn")}</span>
-            </button>
+            </Link>
           )}
         </div>
       </div>

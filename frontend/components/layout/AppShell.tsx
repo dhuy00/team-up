@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useSyncExternalStore } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { CreateEventModal } from "@/components/explore/CreateEventModal";
@@ -16,6 +16,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const { createEvent } = useEvents();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
@@ -25,10 +26,26 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
     () => false
   );
 
+  const isStandaloneAuthPage =
+    pathname === "/auth" || pathname === "/signin" || pathname === "/signup";
+
   const handleEventCreated = (newEvent: EventActivity) => {
     createEvent(newEvent);
     router.push("/");
   };
+
+  if (isStandaloneAuthPage) {
+    return (
+      <>
+        {isHydrated ? (
+          children
+        ) : (
+          <div className="min-h-screen bg-canvas-soft" />
+        )}
+        <OnboardingWizardModal />
+      </>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas-soft text-ink transition-colors duration-200">

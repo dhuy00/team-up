@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, ShieldCheck } from "lucide-react";
 import { SportPassportItem } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 import { CustomSelect, CustomSelectOption } from "@/components/ui/CustomSelect";
@@ -12,12 +12,14 @@ interface SportSkillMatrixProps {
   sports: SportPassportItem[];
   onAddSport: (sport: SportPassportItem) => void;
   onRemoveSport: (sportId: number) => void;
+  onEndorseSport?: (sportId: number) => void;
 }
 
 export const SportSkillMatrix: React.FC<SportSkillMatrixProps> = ({
   sports,
   onAddSport,
   onRemoveSport,
+  onEndorseSport,
 }) => {
   const { t } = useTranslation();
   const [isAddingSport, setIsAddingSport] = useState(false);
@@ -142,7 +144,7 @@ export const SportSkillMatrix: React.FC<SportSkillMatrixProps> = ({
                   <p className="text-xs text-mute">{sport.role}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
                 <div className="text-right">
                   <span className="px-3 py-1 bg-ink text-canvas text-xs font-bold rounded-full">
                     {sport.skillTier}
@@ -151,6 +153,17 @@ export const SportSkillMatrix: React.FC<SportSkillMatrixProps> = ({
                     {sport.verifications}
                   </span>
                 </div>
+                {onEndorseSport && (
+                  <button
+                    type="button"
+                    onClick={() => onEndorseSport(sport.id)}
+                    title={t("passport.endorseSkillBtn")}
+                    className="px-2.5 py-1 bg-primary-pale hover:bg-primary text-positive-deep hover:text-ink border border-primary-neutral text-[11px] font-bold rounded-full inline-flex items-center gap-1 transition cursor-pointer"
+                  >
+                    <ShieldCheck className="w-3 h-3" />
+                    <span>{t("passport.endorseSkillBtn")}</span>
+                  </button>
+                )}
                 {sports.length > 1 && (
                   <button
                     type="button"
