@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { TeamSquad } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
+import { useToast } from "@/context/ToastContext";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import {
   EVENT_CAPACITY_CONFIG,
@@ -27,6 +28,7 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
   onSquadUpdated,
 }) => {
   const { t } = useTranslation();
+  const toast = useToast();
 
   const isEditMode = Boolean(editingSquad);
   const minMembers = editingSquad
@@ -36,6 +38,7 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
   const [name, setName] = useState("");
   const [sport, setSport] = useState("Soccer");
   const [maxMembers, setMaxMembers] = useState<string>("16");
+  const [maxMembersError, setMaxMembersError] = useState(false);
   const [venue, setVenue] = useState("");
   const [description, setDescription] = useState("");
 
@@ -53,12 +56,14 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
         setName(editingSquad.name);
         setSport(editingSquad.sport);
         setMaxMembers(String(editingSquad.maxMembers));
+        setMaxMembersError(false);
         setVenue(editingSquad.venue);
         setDescription(editingSquad.description);
       } else {
         setName("");
         setSport("Soccer");
         setMaxMembers("16");
+        setMaxMembersError(false);
         setVenue("");
         setDescription("");
       }
@@ -83,21 +88,47 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
 
   if (!isOpen) return null;
 
+  const handleMaxMembersKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (["-", "+", "e", "E", "."].includes(e.key)) {
+      e.preventDefault();
+      return;
+    }
+    const isAtStart =
+      e.currentTarget.selectionStart === 0 &&
+      e.currentTarget.selectionEnd === 0;
+    if (e.key === "0" && (maxMembers === "" || isAtStart)) {
+      e.preventDefault();
+    }
+  };
+
   const handleMaxMembersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
     if (raw === "") {
       setMaxMembers("");
+      setMaxMembersError(false);
       return;
     }
     const sanitized = raw.replace(/\D/g, "").replace(/^0+/, "");
     if (sanitized !== raw) {
       e.currentTarget.value = sanitized;
     }
-    if (Number(sanitized) > EVENT_CAPACITY_CONFIG.MAX) {
-      setMaxMembers(String(EVENT_CAPACITY_CONFIG.MAX));
+    if (sanitized === "") {
+      setMaxMembers("");
+      setMaxMembersError(true);
+      return;
+    }
+    const numericVal = Number(sanitized);
+    if (numericVal > EVENT_CAPACITY_CONFIG.MAX) {
+      const clamped = String(EVENT_CAPACITY_CONFIG.MAX);
+      e.currentTarget.value = clamped;
+      setMaxMembers(clamped);
+      setMaxMembersError(true);
       return;
     }
     setMaxMembers(sanitized);
+    setMaxMembersError(numericVal < minMembers);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -111,6 +142,13 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
       numericMax < minMembers ||
       numericMax > EVENT_CAPACITY_CONFIG.MAX
     ) {
+      setMaxMembersError(true);
+      toast.error(
+        t("toast.invalidCapacity", {
+          min: minMembers,
+          max: EVENT_CAPACITY_CONFIG.MAX,
+        })
+      );
       return;
     }
 
@@ -229,11 +267,24 @@ export const CreateSquadModal: React.FC<CreateSquadModalProps> = ({
                 required
                 type="text"
                 inputMode="numeric"
-                placeholder={`${EVENT_CAPACITY_CONFIG.MIN} - ${EVENT_CAPACITY_CONFIG.MAX}`}
+                placeholder={`${minMembers} - ${EVENT_CAPACITY_CONFIG.MAX}`}
                 value={maxMembers}
+                onKeyDown={handleMaxMembersKeyDown}
                 onChange={handleMaxMembersChange}
-                className="w-full px-3 py-2.5 bg-canvas-soft border border-border rounded-[12px] text-ink focus:border-ink focus:outline-none"
+                className={`w-full px-3 py-2.5 bg-canvas-soft border rounded-[12px] text-ink focus:outline-none ${
+                  maxMembersError
+                    ? "border-negative focus:border-negative"
+                    : "border-border focus:border-ink"
+                }`}
               />
+              {maxMembersError && (
+                <p className="text-[11px] text-negative font-semibold mt-1">
+                  {t("createEvent.capacityInvalidError", {
+                    min: minMembers,
+                    max: EVENT_CAPACITY_CONFIG.MAX,
+                  })}
+                </p>
+              )}
             </div>
           </div>
 

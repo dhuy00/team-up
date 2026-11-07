@@ -49,7 +49,7 @@ export const KarmaIdentityCard: React.FC<KarmaIdentityCardProps> = ({
             {profile.name}
           </h2>
           <p className="text-xs text-mute mb-2.5">
-            @{profile.username} &bull; {profile.location}
+            @{profile.username.replace(/^@/, "")} &bull; {profile.location}
           </p>
 
           <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-primary-pale text-positive-deep border border-primary-neutral rounded-full text-xs font-semibold mb-2.5">

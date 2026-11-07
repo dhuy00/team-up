@@ -145,7 +145,7 @@ export const AuthModal: React.FC = () => {
                       <div className="text-xs font-bold text-ink truncate">
                         {acc.profile.name}{" "}
                         <span className="text-mute font-normal">
-                          ({acc.profile.username})
+                          (@{acc.profile.username.replace(/^@/, "")})
                         </span>
                       </div>
                       <div className="text-[11px] text-mute truncate">

@@ -34,9 +34,9 @@ export const SquadCard: React.FC<SquadCardProps> = ({
   });
 
   return (
-    <div className="bg-canvas rounded-[24px] border border-border hover:border-ink p-6 flex flex-col justify-between space-y-4 shadow-sm transition">
+    <div className="bg-canvas rounded-[24px] border border-border hover:border-ink p-6 h-full flex flex-col justify-between space-y-4 shadow-sm transition">
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 min-h-[28px]">
           <span className="bg-canvas-soft text-ink text-xs font-semibold px-3 py-1 rounded-full border border-border inline-flex items-center gap-1.5">
             <span>{sportIcon}</span>
             <span>{squad.sport}</span>
@@ -51,7 +51,7 @@ export const SquadCard: React.FC<SquadCardProps> = ({
                 onClick={() => onDeleteSquad(squad.id)}
                 aria-label={t("clubs.deleteSquad")}
                 title={t("clubs.deleteSquad")}
-                className="p-1.5 rounded-full text-mute hover:text-negative hover:bg-negative/10 transition cursor-pointer"
+                className="p-1 rounded-full text-mute hover:text-negative hover:bg-negative/10 transition cursor-pointer"
               >
                 <Trash2 className="w-4 h-4 stroke-[2.2]" />
               </button>
@@ -65,11 +65,13 @@ export const SquadCard: React.FC<SquadCardProps> = ({
           onClick={() => onSelectSquad?.(squad)}
           className="text-xl font-[900] text-ink tracking-tight hover:underline cursor-pointer text-left block w-full truncate"
         />
-        <TruncatedPopover
-          text={squad.description}
-          as="p"
-          className="text-xs text-body mt-2 leading-relaxed break-words line-clamp-3 block w-full"
-        />
+        <div className="mt-2 min-h-[2.5rem]">
+          <TruncatedPopover
+            text={squad.description}
+            as="p"
+            className="text-xs text-body leading-5 break-words line-clamp-2 w-full"
+          />
+        </div>
       </div>
 
       <div className="space-y-2 text-xs bg-canvas-soft p-3.5 rounded-[12px] border border-border/60">

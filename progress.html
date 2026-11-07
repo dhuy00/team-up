@@ -89,7 +89,7 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-2xl font-[900] text-ink tracking-tight">TeamUp &amp; SocialFinding</h1>
-            <span class="badge badge-done">Phase 1 Completed</span>
+            <span class="badge badge-done">Phase 3 Completed</span>
           </div>
           <p class="text-sm font-medium text-mute mt-0.5">Project State, Development Progress &amp; Change Tracking</p>
         </div>
@@ -97,7 +97,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Last Updated</span>
-          <span class="font-bold text-ink" id="last-updated">2026-11-04 20:25 (ICT)</span>
+          <span class="font-bold text-ink" id="last-updated">2026-11-07 08:50 (ICT)</span>
         </div>
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Git Branch</span>
@@ -110,11 +110,11 @@
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
         <div class="text-xs font-bold text-mute uppercase tracking-wider">Overall Progress</div>
-        <div class="mt-2 text-3xl font-[900] text-ink">~60%</div>
+        <div class="mt-2 text-3xl font-[900] text-ink">~75%</div>
         <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
-          <div class="bg-primary h-full rounded-full" style="width: 60%"></div>
+          <div class="bg-primary h-full rounded-full" style="width: 75%"></div>
         </div>
-        <div class="mt-2 text-xs text-mute font-medium">Phase 1 Foundation &amp; UX Polish complete</div>
+        <div class="mt-2 text-xs text-mute font-medium">Phases 1–3 &amp; UI Polish complete</div>
       </div>
 
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
@@ -127,21 +127,21 @@
       </div>
 
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
-        <div class="text-xs font-bold text-mute uppercase tracking-wider">Frontend App (Phase 1)</div>
+        <div class="text-xs font-bold text-mute uppercase tracking-wider">Frontend App (Phases 1–2)</div>
         <div class="mt-2 text-3xl font-[900] text-ink">100%</div>
         <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
           <div class="bg-positive h-full rounded-full" style="width: 100%"></div>
         </div>
-        <div class="mt-2 text-xs text-positive font-medium">Modularized, 100% EN/VI i18n &amp; persistent</div>
+        <div class="mt-2 text-xs text-positive font-medium">App Router, URL sync, 100% EN/VI i18n</div>
       </div>
 
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
-        <div class="text-xs font-bold text-mute uppercase tracking-wider">Backend &amp; Database</div>
-        <div class="mt-2 text-3xl font-[900] text-ink">0%</div>
+        <div class="text-xs font-bold text-mute uppercase tracking-wider">Backend &amp; Database (Phase 3)</div>
+        <div class="mt-2 text-3xl font-[900] text-ink">100%</div>
         <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
-          <div class="bg-mute h-full rounded-full" style="width: 0%"></div>
+          <div class="bg-positive h-full rounded-full" style="width: 100%"></div>
         </div>
-        <div class="mt-2 text-xs text-mute font-medium">Architecture defined, pending build</div>
+        <div class="mt-2 text-xs text-positive font-medium">REST API, PostGIS schema &amp; Auth/RSVP</div>
       </div>
     </section>
 
@@ -245,23 +245,23 @@
             <!-- Backend API -->
             <tr>
               <td class="py-4 px-4 font-bold text-ink">
-                Backend REST &amp; Real-time API
-                <span class="block text-xs font-normal text-mute">backend/ (to be initialized)</span>
+                Backend REST &amp; Auth API
+                <span class="block text-xs font-normal text-mute">frontend/app/api/*</span>
               </td>
-              <td class="py-4 px-4 text-body">FastAPI or NestJS + WebSockets</td>
-              <td class="py-4 px-4"><span class="badge badge-planned">Planned</span></td>
-              <td class="py-4 px-4 text-body">Authentication, match discovery endpoints, RSVP &amp; waitlist management, WebSocket chat room.</td>
+              <td class="py-4 px-4 text-body">Next.js App Router API Routes + Auth/Onboarding</td>
+              <td class="py-4 px-4"><span class="badge badge-done">Completed</span></td>
+              <td class="py-4 px-4 text-body">Authentication &amp; 3-step onboarding, match discovery endpoints, concurrency-safe RSVP &amp; automatic waitlist promotion, squad &amp; chat endpoints.</td>
             </tr>
 
             <!-- Database -->
             <tr>
               <td class="py-4 px-4 font-bold text-ink">
                 Database &amp; Geo Layer
-                <span class="block text-xs font-normal text-mute">PostgreSQL + PostGIS, Redis</span>
+                <span class="block text-xs font-normal text-mute">frontend/db/schema.sql, store.ts</span>
               </td>
-              <td class="py-4 px-4 text-body">Spatial queries &amp; caching</td>
-              <td class="py-4 px-4"><span class="badge badge-planned">Planned</span></td>
-              <td class="py-4 px-4 text-body">PostGIS spatial indexing for radius search (ST_DWithin), Redis for chat pub/sub &amp; active game caching.</td>
+              <td class="py-4 px-4 text-body">PostgreSQL + PostGIS Schema &amp; Spatial Engine</td>
+              <td class="py-4 px-4"><span class="badge badge-done">Completed</span></td>
+              <td class="py-4 px-4 text-body">PostGIS spatial indexing for radius search (ST_DWithin), concurrency-safe server store with spherical distance sorting and 24/24 automated tests.</td>
             </tr>
           </tbody>
         </table>
@@ -459,6 +459,23 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: Squad Card Equal Heights, Chat Room Active Shadow & Invite Button Icon Fix -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-07 09:10</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Squads, Chat &amp; QA</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Standardized Clubs &amp; Squads card heights, replaced active chat room border with crisp box-shadow, removed duplicate check icon on Invite Requested, and hardened form/handle validation</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Equal-Height Squad Cards &amp; 2-Line Description Clamp (<code>SquadCard.tsx</code>, <code>SquadsSection.tsx</code>)</strong>: Removed conflicting <code>block</code> class that overrode <code>display: -webkit-box</code> on squad descriptions, clamped descriptions to 2 lines (<code>line-clamp-2 leading-5</code>) inside a fixed minimum-height wrapper (<code>min-h-[2.5rem]</code>), standardized top badge row height (<code>min-h-[28px]</code>), and added <code>h-full</code> with <code>auto-rows-fr items-stretch</code> on the grid.</li>
+                  <li><strong>Active Chat Room Box-Shadow (<code>ChannelSidebar.tsx</code>)</strong>: Replaced the solid black active border (<code>border-ink</code>) on selected chat rooms with a crisp card border and shadow (<code>border-border shadow-[0_1px_1.5px_0_rgba(0,0,0,0.18)]</code> and <code>focus:outline-none</code>), plus <code>p-1 -m-1</code> on the scrollable list container so shadows are not clipped.</li>
+                  <li><strong>Invite Requested Button Single Check Icon (<code>locales/en.ts</code>, <code>locales/vi.ts</code>)</strong>: Removed the duplicate trailing <code>✓</code> character from <code>clubs.inviteRequested</code> in English and Vietnamese so only the <code>&lt;Check /&gt;</code> icon is rendered in <code>SquadCard</code> and <code>SquadDetailModal</code>.</li>
+                  <li><strong>Squad Roster Capacity Validation &amp; Handle Normalization (<code>CreateSquadModal.tsx</code>, <code>KarmaIdentityCard.tsx</code>, <code>AuthModal.tsx</code>)</strong>: Added inline error and toast feedback when squad max roster size is below current member count, and normalized player handles (<code>replace(/^@/, &quot;&quot;)</code>) to prevent double <code>@@</code> prefixes.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/components/squads/SquadCard.tsx, frontend/components/squads/SquadsSection.tsx, frontend/components/squads/CreateSquadModal.tsx, frontend/components/chat/ChannelSidebar.tsx, frontend/components/passport/KarmaIdentityCard.tsx, frontend/components/auth/AuthModal.tsx, frontend/locales/en.ts, frontend/locales/vi.ts, frontend/__tests__/frontend.test.ts, progress.html
+              </td>
+            </tr>
             <!-- Entry: Squad Title, Home Venue Truncation & Hover Popover -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-04 20:25</td>

@@ -372,6 +372,8 @@ describe("5. Internationalization Parity (locales/en.ts & locales/vi.ts)", () =>
 
     assert.deepEqual(enPaths, viPaths);
     assert.ok(enPaths.length >= 130, `Verified ${enPaths.length} i18n keys`);
+    assert.equal(en.clubs.inviteRequested.includes("✓"), false);
+    assert.equal(vi.clubs.inviteRequested.includes("✓"), false);
   });
 });
 

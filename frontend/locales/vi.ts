@@ -140,7 +140,7 @@ export const vi: TranslationDictionary = {
     subtitle: "Tham gia các đội nhóm sinh hoạt định kỳ và thi đấu các giải đấu phong trào.",
     createSquad: "Tạo đội nhóm",
     requestInvite: "Xin tham gia đội",
-    inviteRequested: "Đã gửi yêu cầu ✓",
+    inviteRequested: "Đã gửi yêu cầu",
     instantJoin: "Tham gia ngay",
     searchPlaceholder: "Tìm đội nhóm theo tên, môn thể thao hoặc sân nhà...",
     membersCount: "{current}/{max} Thành viên",

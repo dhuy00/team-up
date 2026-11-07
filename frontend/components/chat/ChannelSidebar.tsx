@@ -37,7 +37,7 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
 
       {/* Channel List */}
       <div
-        className="space-y-2 flex-1 overflow-y-auto custom-scrollbar"
+        className="space-y-2 flex-1 overflow-y-auto custom-scrollbar p-1 -m-1"
         role="listbox"
         aria-label={t("chat.squadMessages")}
       >
@@ -58,10 +58,10 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
                   onSelectChannel(ch.id);
                 }
               }}
-              className={`group w-full text-left p-3.5 rounded-[16px] cursor-pointer transition border ${
+              className={`group w-full text-left p-3.5 rounded-[16px] cursor-pointer transition border focus:outline-none ${
                 isActive
-                  ? "bg-canvas border-ink shadow-xs"
-                  : "border-transparent hover:bg-canvas"
+                  ? "bg-canvas border-border shadow-[0_1px_1.5px_0_rgba(0,0,0,0.18)]"
+                  : "border-transparent hover:bg-canvas/70"
               }`}
             >
               <div className="flex items-center justify-between gap-2 mb-1 h-5">

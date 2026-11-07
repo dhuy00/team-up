@@ -140,7 +140,7 @@ export const en: TranslationDictionary = {
     subtitle: "Join persistent squads that organize regular weekly matches and leagues.",
     createSquad: "Create a Squad",
     requestInvite: "Request Roster Invite",
-    inviteRequested: "Invite Requested ✓",
+    inviteRequested: "Invite Requested",
     instantJoin: "Instant Join Club",
     searchPlaceholder: "Search squads by name, sport, or home venue...",
     membersCount: "{current}/{max} Members",
