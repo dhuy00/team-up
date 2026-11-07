@@ -89,7 +89,7 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-2xl font-[900] text-ink tracking-tight">TeamUp &amp; SocialFinding</h1>
-            <span class="badge badge-done">Phase 3 Completed</span>
+            <span class="badge badge-done">Phase 4 Completed</span>
           </div>
           <p class="text-sm font-medium text-mute mt-0.5">Project State, Development Progress &amp; Change Tracking</p>
         </div>
@@ -97,7 +97,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Last Updated</span>
-          <span class="font-bold text-ink" id="last-updated">2026-11-07 08:50 (ICT)</span>
+          <span class="font-bold text-ink" id="last-updated">2026-11-07 09:32 (ICT)</span>
         </div>
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Git Branch</span>
@@ -110,11 +110,11 @@
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
         <div class="text-xs font-bold text-mute uppercase tracking-wider">Overall Progress</div>
-        <div class="mt-2 text-3xl font-[900] text-ink">~75%</div>
+        <div class="mt-2 text-3xl font-[900] text-ink">~85%</div>
         <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
-          <div class="bg-primary h-full rounded-full" style="width: 75%"></div>
+          <div class="bg-primary h-full rounded-full" style="width: 85%"></div>
         </div>
-        <div class="mt-2 text-xs text-mute font-medium">Phases 1–3 &amp; UI Polish complete</div>
+        <div class="mt-2 text-xs text-mute font-medium">Phases 1–4 &amp; Real-Time Radar complete</div>
       </div>
 
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
@@ -459,6 +459,23 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: Phase 4 Real-Time Match Rooms, Notifications & Live LFG Player Radar -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-07 09:32</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Phase 4: Real-Time &amp; LFG</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Completed Phase 4: Real-Time Match Rooms, In-App Notification Center &amp; Live LFG Player Radar</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Sub-Second Real-Time Sync Bus (<code>usePersistentState.ts</code>, <code>lib/realtime.ts</code>)</strong>: Added <code>BroadcastChannel(&quot;teamup_realtime_sync&quot;)</code> synchronization alongside <code>localStorage</code> events so chat messages, roster updates, LFG pins, and notifications sync across tabs and components without polling.</li>
+                  <li><strong>Live &quot;Looking for Game&quot; (LFG) Radar Broadcast &amp; 1-Click Ping to Play (<code>RadarControls.tsx</code>, <code>RadarMapCanvas.tsx</code>, <code>RadarVisualFeed.tsx</code>, <code>leafletPopupTemplates.ts</code>)</strong>: Built an opt-in LFG broadcast composer with privacy-safe fuzzed coordinates (~300m offset) and 2-hour expiration, plus a 1-click <strong>Ping to Play</strong> action on nearby player map markers that opens a Direct Message room.</li>
+                  <li><strong>In-App Notification Center (<code>NotificationContext.tsx</code>, <code>NotificationBell.tsx</code>, <code>Navigation.tsx</code>)</strong>: Added a top-bar notification bell with unread counter badge, deep-linking to matches/chats, mark-all-read/clear controls, and automatic alerts on waitlist promotion, LFG pings, and host broadcasts.</li>
+                  <li><strong>Urgent Host Broadcasts &amp; Online Presence (<code>ChatComposer.tsx</code>, <code>ChatMessageList.tsx</code>, <code>useChats.tsx</code>)</strong>: Added live online participant counters in chat headers and a 1-click <strong>Urgent Broadcast</strong> mode that automatically pins host alerts and dispatches notifications. Expanded automated test suite to <strong>27/27 passing tests</strong> across 8 suites.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/lib/realtime.ts, frontend/context/NotificationContext.tsx, frontend/components/ui/NotificationBell.tsx, frontend/components/Navigation.tsx, frontend/components/explore/RadarVisualFeed.tsx, frontend/components/explore/radar/RadarControls.tsx, frontend/components/explore/radar/RadarMapCanvas.tsx, frontend/components/explore/radar/leafletPopupTemplates.ts, frontend/components/chat/ChatComposer.tsx, frontend/components/chat/ChatMessageList.tsx, frontend/hooks/useChats.ts, frontend/hooks/useEvents.ts, frontend/hooks/usePersistentState.ts, frontend/__tests__/frontend.test.ts, plan.md, progress.html
+              </td>
+            </tr>
             <!-- Entry: Squad Card Equal Heights, Chat Room Active Shadow & Invite Button Icon Fix -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-07 09:10</td>

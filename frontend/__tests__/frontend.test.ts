@@ -64,6 +64,18 @@ import {
   registerUserAccount,
   completeUserOnboarding,
 } from "@/db/store";
+import {
+  LFG_BROADCAST_TTL_MS,
+  computePrivacyFuzzedOffsets,
+  createLfgBroadcast,
+  isLfgBroadcastActive,
+  mergeActiveNearbyPlayers,
+  buildDirectPingChannel,
+  createNotificationItem,
+  countUnreadNotifications,
+  markAllNotificationsRead,
+} from "@/lib/realtime";
+import { NEARBY_PLAYERS_SEED } from "@/lib/mockData";
 import type { ChatChannel } from "@/types/models";
 
 describe("1. Geolocation & Radar Rebasing (lib/geo.ts)", () => {
@@ -605,5 +617,96 @@ describe("7. Phase 3 Backend Store, Geospatial Engine, Concurrency-Safe RSVP & A
     assert.ok(onboarded);
     assert.equal(onboarded.onboardingCompleted, true);
     assert.equal(onboarded.profile.location, "Mission District • 5km radius");
+  });
+});
+
+describe("8. Phase 4 Real-Time LFG Radar, Privacy Fuzzing, Direct Ping & Notification Engine (lib/realtime.ts)", () => {
+  it("TC-RT-01: generates privacy-fuzzed LFG broadcast coordinates with 2-hour expiration", () => {
+    const now = 1700000000000;
+    const offsets = computePrivacyFuzzedOffsets(now);
+    assert.notEqual(offsets.latOffset, 0);
+    assert.notEqual(offsets.lngOffset, 0);
+    assert.ok(Math.abs(offsets.latOffset) <= 0.006);
+    assert.ok(Math.abs(offsets.lngOffset) <= 0.006);
+
+    const broadcast = createLfgBroadcast({
+      sport: "Badminton",
+      statusNote: "Ready for doubles for 2h",
+      nowMs: now,
+    });
+    assert.equal(broadcast.isSelf, true);
+    assert.equal(broadcast.sport, "Badminton");
+    assert.equal(broadcast.sportIcon, "🏸");
+    assert.equal(broadcast.expiresAt, now + LFG_BROADCAST_TTL_MS);
+
+    assert.equal(isLfgBroadcastActive(broadcast, now + 1000), true);
+    assert.equal(
+      isLfgBroadcastActive(broadcast, now + LFG_BROADCAST_TTL_MS + 1),
+      false
+    );
+
+    const mergedActive = mergeActiveNearbyPlayers(
+      NEARBY_PLAYERS_SEED,
+      broadcast,
+      now + 1000
+    );
+    assert.equal(mergedActive.length, NEARBY_PLAYERS_SEED.length + 1);
+    assert.equal(mergedActive[0].id, "lfg-self");
+
+    const mergedExpired = mergeActiveNearbyPlayers(
+      NEARBY_PLAYERS_SEED,
+      broadcast,
+      now + LFG_BROADCAST_TTL_MS + 1
+    );
+    assert.equal(mergedExpired.length, NEARBY_PLAYERS_SEED.length);
+  });
+
+  it("TC-RT-02: builds or updates a Direct Message channel when pinging a NearbyPlayer on the Radar", () => {
+    const targetPlayer = NEARBY_PLAYERS_SEED[0]; // Minh Tuấn
+    const pingRes = buildDirectPingChannel(targetPlayer, initialChatChannels, {
+      youPrefix: "You",
+      justNowLabel: "Just now",
+      messageText: "Hey Minh Tuấn! Want to play?",
+      idSeed: 9000,
+    });
+    assert.equal(pingRes.channels.length, initialChatChannels.length + 1);
+    assert.equal(pingRes.channel.title, `Direct: ${targetPlayer.name}`);
+    assert.equal(pingRes.channel.messages.length, 1);
+
+    // Pinging the same player again appends to the existing Direct Message channel
+    const secondPing = buildDirectPingChannel(
+      targetPlayer,
+      pingRes.channels,
+      {
+        youPrefix: "You",
+        justNowLabel: "Just now",
+        messageText: "Court 3 is open!",
+        idSeed: 9010,
+      }
+    );
+    assert.equal(secondPing.channels.length, pingRes.channels.length);
+    assert.equal(secondPing.channel.messages.length, 2);
+  });
+
+  it("TC-RT-03: creates notifications, counts unread items, and marks all as read", () => {
+    const n1 = createNotificationItem({
+      kind: "waitlist_promoted",
+      title: "Waitlist Promoted",
+      body: "You are now confirmed!",
+      nowMs: 1000,
+    });
+    const n2 = createNotificationItem({
+      kind: "host_announcement",
+      title: "Host Alert",
+      body: "Court moved to Pitch B",
+      nowMs: 2000,
+    });
+
+    const list = [n1, n2];
+    assert.equal(countUnreadNotifications(list), 2);
+
+    const marked = markAllNotificationsRead(list);
+    assert.equal(countUnreadNotifications(marked), 0);
+    assert.equal(marked.every((item) => item.read), true);
   });
 });

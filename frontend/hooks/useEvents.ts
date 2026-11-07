@@ -6,6 +6,7 @@ import { initialChatChannels, initialEvents } from "@/lib/mockData";
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useToast } from "@/context/ToastContext";
+import { useNotifications } from "@/context/NotificationContext";
 import {
   EVENTS_STORAGE_KEY,
   computeToggleJoinEvent,
@@ -21,6 +22,7 @@ import {
 export function useEvents() {
   const { t } = useTranslation();
   const toast = useToast();
+  const { pushNotification } = useNotifications();
 
   const [events, setEvents] = usePersistentState<EventActivity[]>(
     EVENTS_STORAGE_KEY,
@@ -148,6 +150,14 @@ export function useEvents() {
           toast.info(
             t("toast.waitlistPromoted", { name: result.promotedPlayerName })
           );
+          pushNotification({
+            kind: "waitlist_promoted",
+            title: t("notifications.seedWaitlistTitle"),
+            body: t("toast.waitlistPromoted", {
+              name: result.promotedPlayerName,
+            }),
+            href: `/explore?eventId=${eventId}`,
+          });
         } else {
           toast.info(t("toast.spotLeft"));
         }
@@ -155,6 +165,7 @@ export function useEvents() {
     },
     [
       events,
+      pushNotification,
       setActiveChatChannelId,
       setChatChannels,
       setEvents,

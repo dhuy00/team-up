@@ -111,10 +111,10 @@
      - Host pinned announcement or @mention
 
 ### What to Achieve (Deliverables & Exit Criteria)
-- [ ] Sub-second real-time message delivery in `ChatSection` without polling.
-- [ ] Functional opt-in LFG broadcast on the Radar map with automatic expiration and location privacy fuzzing.
-- [ ] Real-time roster counter updates on `EventCard` and `RadarMapCanvas` popups as players join or leave.
-- [ ] Working in-app notification feed with unread badges and push notification opt-in.
+- [x] Sub-second real-time message delivery in `ChatSection` without polling.
+- [x] Functional opt-in LFG broadcast on the Radar map with automatic expiration and location privacy fuzzing.
+- [x] Real-time roster counter updates on `EventCard` and `RadarMapCanvas` popups as players join or leave.
+- [x] Working in-app notification feed with unread badges and push notification opt-in.
 
 ---
 

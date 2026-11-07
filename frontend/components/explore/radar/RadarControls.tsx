@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Navigation,
   Search,
@@ -8,9 +8,15 @@ import {
   Loader2,
   Map as MapIcon,
   ListFilter,
+  Radio,
+  ShieldCheck,
 } from "lucide-react";
 import { LocationPreset, RadarDisplayMode } from "@/types/models";
 import { LOCATION_PRESETS } from "@/constants/radar";
+import {
+  DEFAULT_SPORT_FILTER,
+  SIMULATED_API_SPORTS,
+} from "@/constants/explore";
 import { useTranslation } from "@/hooks/useTranslation";
 
 interface RadarControlsProps {
@@ -28,6 +34,9 @@ interface RadarControlsProps {
   showPlayersLayer: boolean;
   onTogglePlayersLayer: () => void;
   nearbyPlayersCount: number;
+  isLfgActive?: boolean;
+  onStartLfgBroadcast?: (sport: string, statusNote: string) => void;
+  onStopLfgBroadcast?: () => void;
 }
 
 export const RadarControls: React.FC<RadarControlsProps> = ({
@@ -45,8 +54,14 @@ export const RadarControls: React.FC<RadarControlsProps> = ({
   showPlayersLayer,
   onTogglePlayersLayer,
   nearbyPlayersCount,
+  isLfgActive = false,
+  onStartLfgBroadcast,
+  onStopLfgBroadcast,
 }) => {
   const { t } = useTranslation();
+  const [isLfgDrawerOpen, setIsLfgDrawerOpen] = useState(false);
+  const [lfgSport, setLfgSport] = useState("Badminton");
+  const [lfgNote, setLfgNote] = useState("");
 
   return (
     <>
@@ -148,22 +163,112 @@ export const RadarControls: React.FC<RadarControlsProps> = ({
         </div>
 
         {displayMode === "map" && (
-          <button
-            type="button"
-            onClick={onTogglePlayersLayer}
-            className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border flex items-center gap-1 transition cursor-pointer ${
-              showPlayersLayer
-                ? "bg-primary-pale text-positive-deep border-primary-neutral"
-                : "bg-canvas-soft text-mute border-border"
-            }`}
-          >
-            <Users className="w-3 h-3" />
-            <span>
-              {t("explore.playersNearby", { count: nearbyPlayersCount })}
-            </span>
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={onTogglePlayersLayer}
+              className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border flex items-center gap-1 transition cursor-pointer ${
+                showPlayersLayer
+                  ? "bg-primary-pale text-positive-deep border-primary-neutral"
+                  : "bg-canvas-soft text-mute border-border"
+              }`}
+            >
+              <Users className="w-3 h-3" />
+              <span>
+                {t("explore.playersNearby", { count: nearbyPlayersCount })}
+              </span>
+            </button>
+
+            {onStartLfgBroadcast && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (isLfgActive) {
+                    onStopLfgBroadcast?.();
+                    setIsLfgDrawerOpen(false);
+                  } else {
+                    setIsLfgDrawerOpen((prev) => !prev);
+                  }
+                }}
+                className={`px-2.5 py-1 rounded-full text-[11px] font-bold border flex items-center gap-1 transition cursor-pointer ${
+                  isLfgActive
+                    ? "bg-primary text-ink border-ink shadow-2xs"
+                    : "bg-canvas text-ink border-border hover:border-ink"
+                }`}
+              >
+                <Radio
+                  className={`w-3 h-3 ${
+                    isLfgActive ? "text-ink animate-pulse" : "text-positive-deep"
+                  }`}
+                />
+                <span>
+                  {isLfgActive
+                    ? t("explore.lfgActiveBtn")
+                    : t("explore.lfgBroadcastBtn")}
+                </span>
+              </button>
+            )}
+          </div>
         )}
       </div>
+
+      {/* Opt-In LFG Broadcast Composer Drawer */}
+      {displayMode === "map" && isLfgDrawerOpen && !isLfgActive && (
+        <div className="p-3 rounded-[14px] bg-canvas-soft border border-border space-y-2.5 text-xs">
+          <div className="font-bold text-ink flex items-center justify-between">
+            <span>{t("explore.lfgModalTitle")}</span>
+            <button
+              type="button"
+              onClick={() => setIsLfgDrawerOpen(false)}
+              className="text-[11px] text-mute hover:text-ink font-semibold cursor-pointer"
+            >
+              {t("common.cancel")}
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {SIMULATED_API_SPORTS.filter(
+              (s) => s.value !== DEFAULT_SPORT_FILTER
+            ).map((s) => (
+              <button
+                key={s.value}
+                type="button"
+                onClick={() => setLfgSport(s.value)}
+                className={`px-2.5 py-1 rounded-full text-[11px] font-bold border transition cursor-pointer ${
+                  lfgSport === s.value
+                    ? "bg-ink text-primary border-ink"
+                    : "bg-canvas text-body border-border"
+                }`}
+              >
+                {s.icon} {s.value}
+              </button>
+            ))}
+          </div>
+          <input
+            type="text"
+            value={lfgNote}
+            onChange={(e) => setLfgNote(e.target.value)}
+            placeholder={t("explore.lfgStatusPlaceholder")}
+            className="w-full px-3 py-2 bg-canvas border border-border rounded-[10px] text-xs text-ink placeholder:text-mute focus:border-ink focus:outline-none"
+          />
+          <div className="flex items-center justify-between gap-2 pt-0.5">
+            <span className="text-[10px] text-mute flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-positive-deep shrink-0" />
+              <span>{t("explore.lfgPrivacyHint")}</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                onStartLfgBroadcast?.(lfgSport, lfgNote);
+                setIsLfgDrawerOpen(false);
+                setLfgNote("");
+              }}
+              className="btn-primary px-3.5 py-1.5 rounded-full text-[11px] font-bold shrink-0 cursor-pointer shadow-2xs"
+            >
+              {t("explore.lfgStartBtn")}
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

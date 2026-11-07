@@ -70,6 +70,15 @@ export interface TranslationDictionary {
     radarCenter: string;
     clickMapHint: string;
     playersNearby: string;
+    lfgBroadcastBtn: string;
+    lfgActiveBtn: string;
+    lfgModalTitle: string;
+    lfgStatusPlaceholder: string;
+    lfgPrivacyHint: string;
+    lfgStartBtn: string;
+    lfgStopBtn: string;
+    pingToPlay: string;
+    pingDefaultMessage: string;
   };
   eventDetail: {
     eventHost: string;
@@ -190,6 +199,10 @@ export interface TranslationDictionary {
     youPrefix: string;
     justNow: string;
     hostBadge: string;
+    onlineCount: string;
+    typingIndicator: string;
+    urgentBroadcastBtn: string;
+    urgentBroadcastPrefix: string;
   };
   passport: {
     reliabilityKarma: string;
@@ -256,6 +269,24 @@ export interface TranslationDictionary {
     signedInAs: string;
     signedOut: string;
     onboardingCompleted: string;
+    lfgBroadcastStarted: string;
+    lfgBroadcastStopped: string;
+    playerPinged: string;
+    urgentBroadcastSent: string;
+  };
+  notifications: {
+    title: string;
+    markAllRead: string;
+    clearAll: string;
+    emptyTitle: string;
+    emptyDesc: string;
+    unreadCountLabel: string;
+    seedWaitlistTitle: string;
+    seedWaitlistBody: string;
+    seedReminderTitle: string;
+    seedReminderBody: string;
+    seedPinTitle: string;
+    seedPinBody: string;
   };
   auth: {
     signIn: string;

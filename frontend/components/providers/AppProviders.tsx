@@ -5,6 +5,7 @@ import { ThemeProvider } from "./ThemeProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { NotificationProvider } from "@/context/NotificationContext";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -16,7 +17,9 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     >
       <LanguageProvider>
         <ToastProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <NotificationProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </NotificationProvider>
         </ToastProvider>
       </LanguageProvider>
     </ThemeProvider>

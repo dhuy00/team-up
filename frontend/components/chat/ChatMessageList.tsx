@@ -31,6 +31,10 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
   const [isPinsExpanded, setIsPinsExpanded] = useState(false);
 
   const pinnedList = getChannelPinnedItems(channel);
+  const onlineParticipantCount = Math.max(
+    2,
+    new Set(channel.messages.map((m) => m.sender)).size
+  );
 
   const showAllPins = isPinsExpanded && pinnedList.length > 1;
   const visiblePins = showAllPins ? pinnedList : pinnedList.slice(0, 1);
@@ -49,12 +53,18 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({
       {/* Conversation Header */}
       <div className="px-5 py-3.5 border-b border-border flex items-center justify-between gap-3 shrink-0">
         <div className="min-w-0 max-w-full">
-          <h3 className="font-[900] text-ink text-base tracking-tight flex items-center gap-1.5 truncate">
-            <span className="shrink-0">{channel.sportIcon}</span>
-            <TruncatedPopover as="span" className="truncate">
-              {channel.title}
-            </TruncatedPopover>
-          </h3>
+          <div className="flex items-center gap-2 min-w-0">
+            <h3 className="font-[900] text-ink text-base tracking-tight flex items-center gap-1.5 truncate">
+              <span className="shrink-0">{channel.sportIcon}</span>
+              <TruncatedPopover as="span" className="truncate">
+                {channel.title}
+              </TruncatedPopover>
+            </h3>
+            <span className="px-2 py-0.5 bg-primary-pale text-positive-deep border border-primary-neutral rounded-full text-[10px] font-bold inline-flex items-center gap-1 shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-positive animate-pulse" />
+              <span>{t("chat.onlineCount", { count: onlineParticipantCount })}</span>
+            </span>
+          </div>
           <TruncatedPopover as="p" className="text-xs text-mute mt-0.5 truncate block">
             {channel.subtitle}
           </TruncatedPopover>

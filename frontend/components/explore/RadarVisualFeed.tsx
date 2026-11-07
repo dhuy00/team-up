@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import {
+  ChatChannel,
   EventActivity,
   GeoCoordinates,
   LocationPreset,
+  NearbyPlayer,
   RadarDisplayMode,
 } from "@/types/models";
 import {
@@ -13,18 +16,32 @@ import {
   RADAR_PAN_THRESHOLD_KM,
   LOCATION_PRESETS,
 } from "@/constants/radar";
-import { NEARBY_PLAYERS_SEED } from "@/lib/mockData";
+import { NEARBY_PLAYERS_SEED, initialChatChannels } from "@/lib/mockData";
 import {
   calculateDistanceKm,
   formatCoordinatesLabel,
   rebaseEventsAroundCenter,
 } from "@/lib/geo";
 import {
+  LFG_STORAGE_KEY,
+  buildDirectPingChannel,
+  createLfgBroadcast,
+  isLfgBroadcastActive,
+  mergeActiveNearbyPlayers,
+} from "@/lib/realtime";
+import {
+  ACTIVE_CHAT_CHANNEL_STORAGE_KEY,
+  CHAT_CHANNELS_STORAGE_KEY,
+} from "@/services/chats";
+import {
   getBrowserCoordinates,
   searchLocationNominatim,
 } from "@/services/geocoding";
 import { useLeafletLoader } from "@/hooks/useLeafletLoader";
+import { usePersistentState } from "@/hooks/usePersistentState";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useToast } from "@/context/ToastContext";
+import { useNotifications } from "@/context/NotificationContext";
 import { RadarControls } from "./radar/RadarControls";
 import { RadarMapCanvas, RadarMapCanvasHandle } from "./radar/RadarMapCanvas";
 import { RadarVenuesList } from "./radar/RadarVenuesList";
@@ -45,8 +62,28 @@ export const RadarVisualFeed: React.FC<RadarVisualFeedProps> = ({
   onUpdateEvents,
 }) => {
   const { t } = useTranslation();
+  const router = useRouter();
+  const toast = useToast();
+  const { pushNotification } = useNotifications();
   const leafletReady = useLeafletLoader();
   const mapCanvasRef = useRef<RadarMapCanvasHandle | null>(null);
+
+  const [selfLfgBroadcast, setSelfLfgBroadcast] =
+    usePersistentState<NearbyPlayer | null>(LFG_STORAGE_KEY, null);
+  const [chatChannels, setChatChannels] = usePersistentState<ChatChannel[]>(
+    CHAT_CHANNELS_STORAGE_KEY,
+    initialChatChannels
+  );
+  const [, setActiveChatChannelId] = usePersistentState<number>(
+    ACTIVE_CHAT_CHANNEL_STORAGE_KEY,
+    1
+  );
+
+  const isLfgActive = isLfgBroadcastActive(selfLfgBroadcast);
+  const activeNearbyPlayers = useMemo(
+    () => mergeActiveNearbyPlayers(NEARBY_PLAYERS_SEED, selfLfgBroadcast),
+    [selfLfgBroadcast]
+  );
 
   const [displayMode, setDisplayMode] = useState<RadarDisplayMode>("map");
   const [radarCenter, setRadarCenter] = useState<GeoCoordinates>(
@@ -181,6 +218,70 @@ export const RadarVisualFeed: React.FC<RadarVisualFeedProps> = ({
     mapCanvasRef.current?.focusEventMarker(ev);
   };
 
+  // Handler: Start opt-in LFG broadcast with privacy-safe fuzzed coordinates
+  const handleStartLfgBroadcast = useCallback(
+    (sport: string, statusNote: string) => {
+      const broadcast = createLfgBroadcast({
+        sport,
+        statusNote,
+      });
+      setSelfLfgBroadcast(broadcast);
+      setShowPlayersLayer(true);
+      toast.success(t("toast.lfgBroadcastStarted"));
+      pushNotification({
+        kind: "lfg_ping",
+        title: t("explore.lfgActiveBtn"),
+        body: `${broadcast.sportIcon} ${broadcast.status}`,
+        href: "/explore",
+      });
+    },
+    [pushNotification, setSelfLfgBroadcast, t, toast]
+  );
+
+  // Handler: Stop LFG broadcast
+  const handleStopLfgBroadcast = useCallback(() => {
+    setSelfLfgBroadcast(null);
+    toast.info(t("toast.lfgBroadcastStopped"));
+  }, [setSelfLfgBroadcast, t, toast]);
+
+  // Handler: 1-Click Ping to Play on a nearby player marker
+  const handlePingPlayer = useCallback(
+    (player: NearbyPlayer) => {
+      const messageText = t("explore.pingDefaultMessage", {
+        name: player.name,
+        sport: player.sport,
+      });
+      const { channel, channels: nextChannels } = buildDirectPingChannel(
+        player,
+        chatChannels,
+        {
+          youPrefix: t("chat.youPrefix"),
+          justNowLabel: t("chat.justNow"),
+          messageText,
+        }
+      );
+      setChatChannels(nextChannels);
+      setActiveChatChannelId(channel.id);
+      toast.success(t("toast.playerPinged", { name: player.name }));
+      pushNotification({
+        kind: "lfg_ping",
+        title: `${t("explore.pingToPlay")}: ${player.name}`,
+        body: messageText,
+        href: `/chats?channelId=${channel.id}`,
+      });
+      router.push(`/chats?channelId=${channel.id}`);
+    },
+    [
+      chatChannels,
+      pushNotification,
+      router,
+      setActiveChatChannelId,
+      setChatChannels,
+      t,
+      toast,
+    ]
+  );
+
   const hasMapPanned = Boolean(
     mapMovedCenter &&
       calculateDistanceKm(
@@ -207,7 +308,10 @@ export const RadarVisualFeed: React.FC<RadarVisualFeedProps> = ({
         onSelectPreset={handleSelectPreset}
         showPlayersLayer={showPlayersLayer}
         onTogglePlayersLayer={() => setShowPlayersLayer((prev) => !prev)}
-        nearbyPlayersCount={NEARBY_PLAYERS_SEED.length}
+        nearbyPlayersCount={activeNearbyPlayers.length}
+        isLfgActive={isLfgActive}
+        onStartLfgBroadcast={handleStartLfgBroadcast}
+        onStopLfgBroadcast={handleStopLfgBroadcast}
       />
 
       {/* MODE 1: Interactive Map Canvas (kept mounted when in 'venues' mode to preserve map state) */}
@@ -219,7 +323,7 @@ export const RadarVisualFeed: React.FC<RadarVisualFeedProps> = ({
         selectedRadius={selectedRadius}
         locationLabel={locationLabel}
         events={events}
-        nearbyPlayers={NEARBY_PLAYERS_SEED}
+        nearbyPlayers={activeNearbyPlayers}
         showPlayersLayer={showPlayersLayer}
         activeEventId={activeEventId}
         hasMapPanned={hasMapPanned}
@@ -228,6 +332,7 @@ export const RadarVisualFeed: React.FC<RadarVisualFeedProps> = ({
         onScanCurrentArea={handleScanCurrentArea}
         onSelectEventPin={setActiveEventId}
         onOpenEventDetails={onSelectEvent}
+        onPingPlayer={handlePingPlayer}
       />
 
       {/* MODE 2: Dedicated Active Venues Nearby View */}

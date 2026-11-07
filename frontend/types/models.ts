@@ -20,6 +20,26 @@ export interface NearbyPlayer {
   status: string;
   latOffset: number;
   lngOffset: number;
+  isSelf?: boolean;
+  expiresAt?: number;
+}
+
+export type AppNotificationKind =
+  | "waitlist_promoted"
+  | "match_reminder"
+  | "host_announcement"
+  | "squad_invite"
+  | "lfg_ping";
+
+export interface AppNotification {
+  id: string;
+  kind: AppNotificationKind;
+  title: string;
+  body: string;
+  createdAt: number;
+  timeLabel: string;
+  read: boolean;
+  href?: string;
 }
 
 export interface Host {

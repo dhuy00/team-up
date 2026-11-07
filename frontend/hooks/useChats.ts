@@ -6,6 +6,7 @@ import { initialChatChannels, initialEvents, initialSquads } from "@/lib/mockDat
 import { usePersistentState } from "@/hooks/usePersistentState";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useToast } from "@/context/ToastContext";
+import { useNotifications } from "@/context/NotificationContext";
 import {
   detectChannelKind,
   getChannelPinnedItems,
@@ -32,6 +33,7 @@ export function useChats(options?: {
 }) {
   const { t } = useTranslation();
   const toast = useToast();
+  const { pushNotification } = useNotifications();
 
   const [channels, setChannels] = usePersistentState<ChatChannel[]>(
     CHAT_CHANNELS_STORAGE_KEY,
@@ -165,33 +167,71 @@ export function useChats(options?: {
     channels.find((c) => c.id === activeChannelId) || channels[0];
 
   const sendMessage = useCallback(
-    (text: string) => {
+    (text: string, options?: { isUrgentBroadcast?: boolean }) => {
       if (!activeChannel) return;
+      const isUrgent = Boolean(options?.isUrgentBroadcast);
+      const formattedText = isUrgent
+        ? `${t("chat.urgentBroadcastPrefix")} ${text}`
+        : text;
+      const msgId = Date.now();
       const newMessage = {
-        id: Date.now(),
+        id: msgId,
         sender: `Alex Morgan (${t("chat.youPrefix")})`,
         avatar:
           "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=faces",
         time: t("chat.justNow"),
-        text,
+        text: formattedText,
         isSelf: true,
+        isHost: isUrgent ? true : undefined,
       };
 
       setChannels((prev) =>
         prev.map((c) => {
           if (c.id === activeChannel.id) {
+            const currentPins = getChannelPinnedItems(c);
+            const nextPins = isUrgent
+              ? [{ id: msgId, text: formattedText }, ...currentPins]
+              : currentPins;
             return {
               ...c,
-              lastMessage: `${t("chat.youPrefix")}: ${text}`,
+              lastMessage: `${t("chat.youPrefix")}: ${formattedText}`,
               lastTime: t("chat.justNow"),
+              pinnedItems: isUrgent ? nextPins : c.pinnedItems,
+              pinnedMessages: isUrgent
+                ? nextPins.map((p) => p.text)
+                : c.pinnedMessages,
+              pinnedAnnouncement: isUrgent
+                ? nextPins[0]?.text
+                : c.pinnedAnnouncement,
               messages: [...c.messages, newMessage],
             };
           }
           return c;
         })
       );
+
+      if (isUrgent) {
+        toast.success(t("toast.urgentBroadcastSent"));
+        pushNotification({
+          kind: "host_announcement",
+          title: activeChannel.title,
+          body: formattedText,
+          href: `/chats?channelId=${activeChannel.id}`,
+        });
+      }
+
+      fetch("/api/chats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "send_message",
+          channelId: activeChannel.id,
+          lastMessage: `${t("chat.youPrefix")}: ${formattedText}`,
+          message: newMessage,
+        }),
+      }).catch(() => {});
     },
-    [activeChannel, setChannels, t]
+    [activeChannel, pushNotification, setChannels, t, toast]
   );
 
   const togglePinMessage = useCallback(

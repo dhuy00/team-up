@@ -18,7 +18,7 @@ import {
   buildRadarCenterIconHtml,
   buildRadarCenterPopupHtml,
   buildNearbyPlayerIconHtml,
-  buildNearbyPlayerPopupHtml,
+  createNearbyPlayerPopupElement,
   buildEventPinIconHtml,
   createEventPopupElement,
 } from "./leafletPopupTemplates";
@@ -44,6 +44,7 @@ interface RadarMapCanvasProps {
   onScanCurrentArea: () => void;
   onSelectEventPin: (eventId: number) => void;
   onOpenEventDetails: (ev: EventActivity) => void;
+  onPingPlayer?: (player: NearbyPlayer) => void;
 }
 
 export const RadarMapCanvas = forwardRef<
@@ -67,6 +68,7 @@ export const RadarMapCanvas = forwardRef<
       onScanCurrentArea,
       onSelectEventPin,
       onOpenEventDetails,
+      onPingPlayer,
     },
     ref
   ) => {
@@ -249,7 +251,13 @@ export const RadarMapCanvas = forwardRef<
             layerGroup
           );
 
-          pMarker.bindPopup(buildNearbyPlayerPopupHtml(player, pDist));
+          const playerPopupEl = createNearbyPlayerPopupElement(
+            player,
+            pDist,
+            t("explore.pingToPlay"),
+            onPingPlayer
+          );
+          pMarker.bindPopup(playerPopupEl);
         });
       }
 
@@ -298,6 +306,7 @@ export const RadarMapCanvas = forwardRef<
       locationLabel,
       onOpenEventDetails,
       onSelectEventPin,
+      onPingPlayer,
       t,
     ]);
 

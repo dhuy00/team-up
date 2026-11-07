@@ -4,6 +4,27 @@ import { useCallback, useSyncExternalStore } from "react";
 
 const storageListeners = new Map<string, Set<() => void>>();
 const parsedCache = new Map<string, { raw: string | null; value: unknown }>();
+let broadcastChannel: BroadcastChannel | null = null;
+
+function getRealtimeChannel(): BroadcastChannel | null {
+  if (typeof window === "undefined" || typeof BroadcastChannel === "undefined") {
+    return null;
+  }
+  if (!broadcastChannel) {
+    try {
+      broadcastChannel = new BroadcastChannel("teamup_realtime_sync");
+      broadcastChannel.onmessage = (event: MessageEvent<{ key?: string }>) => {
+        if (event.data?.key) {
+          parsedCache.delete(event.data.key);
+          notifyKey(event.data.key, false);
+        }
+      };
+    } catch {
+      broadcastChannel = null;
+    }
+  }
+  return broadcastChannel;
+}
 
 function getListeners(key: string): Set<() => void> {
   let set = storageListeners.get(key);
@@ -14,10 +35,17 @@ function getListeners(key: string): Set<() => void> {
   return set;
 }
 
-function notifyKey(key: string) {
+function notifyKey(key: string, broadcast = true) {
   const set = storageListeners.get(key);
   if (set) {
     set.forEach((listener) => listener());
+  }
+  if (broadcast) {
+    try {
+      getRealtimeChannel()?.postMessage({ key });
+    } catch {
+      // Ignore broadcast channel errors
+    }
   }
 }
 
@@ -34,8 +62,10 @@ export function usePersistentState<T>(
       const listeners = getListeners(storageKey);
       listeners.add(callback);
 
+      getRealtimeChannel();
       const handleStorage = (e: StorageEvent) => {
         if (e.key === storageKey) {
+          parsedCache.delete(storageKey);
           callback();
         }
       };

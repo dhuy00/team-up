@@ -9,6 +9,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useAuth } from "@/context/AuthContext";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LanguageSelector } from "@/components/ui/LanguageSelector";
+import { NotificationBell } from "@/components/ui/NotificationBell";
 import {
   APP_ROUTES,
   NAV_TAB_IDS,
@@ -102,6 +103,9 @@ const Navigation = ({
 
           {/* Theme Toggle */}
           <ThemeToggle />
+
+          {/* In-App Notification Center */}
+          <NotificationBell />
 
           {/* User Account / Auth Trigger */}
           {user ? (

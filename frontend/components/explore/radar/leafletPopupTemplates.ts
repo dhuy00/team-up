@@ -30,12 +30,16 @@ export function buildRadarCenterPopupHtml(params: {
 }
 
 export function buildNearbyPlayerIconHtml(player: NearbyPlayer): string {
+  const borderColor = player.isSelf ? "#9fe870" : "#0e0f0c";
+  const ringStyle = player.isSelf
+    ? "box-shadow: 0 0 0 3px #0e0f0c, 0 4px 10px rgba(0,0,0,0.35);"
+    : "box-shadow: 0 3px 8px rgba(0,0,0,0.22);";
   return `
     <div style="position: relative; width: 34px; height: 34px; cursor: pointer;" title="${player.name}">
       <img
         src="${player.avatar}"
         alt="${player.name}"
-        style="width: 32px; height: 32px; border-radius: 9999px; object-fit: cover; border: 2px solid #0e0f0c; box-shadow: 0 3px 8px rgba(0,0,0,0.22); background: #fff;"
+        style="width: 32px; height: 32px; border-radius: 9999px; object-fit: cover; border: 2px solid ${borderColor}; ${ringStyle} background: #fff;"
       />
       <span style="position: absolute; bottom: -2px; right: -2px; background: #ffffff; border: 1.5px solid #0e0f0c; border-radius: 9999px; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px;">
         ${player.sportIcon}
@@ -49,7 +53,7 @@ export function buildNearbyPlayerPopupHtml(
   distanceKm: number
 ): string {
   return `
-    <div style="font-family: 'Inter', sans-serif; min-width: 185px; padding: 2px;">
+    <div style="font-family: 'Inter', sans-serif; min-width: 195px; padding: 2px;">
       <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
         <img src="${player.avatar}" alt="${player.name}" style="width: 32px; height: 32px; border-radius: 9999px; object-fit: cover; border: 1.5px solid #0e0f0c;" />
         <div>
@@ -57,14 +61,70 @@ export function buildNearbyPlayerPopupHtml(
           <div style="font-size: 10px; font-weight: 700; color: #2ead4b;">${player.karma}% Karma • ${player.skill}</div>
         </div>
       </div>
-      <div style="font-size: 11px; padding: 5px 8px; border-radius: 8px; background: rgba(159, 232, 112, 0.2); border: 1px solid rgba(14,15,12,0.12); margin-bottom: 4px;">
+      <div style="font-size: 11px; padding: 5px 8px; border-radius: 8px; background: rgba(159, 232, 112, 0.2); border: 1px solid rgba(14,15,12,0.12); margin-bottom: 6px;">
         ${player.sportIcon} ${player.status}
       </div>
-      <div style="font-size: 10px; opacity: 0.7; font-weight: 600;">
-        📍 ${distanceKm} km from radar center
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+        <span style="font-size: 10px; opacity: 0.7; font-weight: 600;">
+          📍 ${distanceKm} km
+        </span>
       </div>
     </div>
   `;
+}
+
+export function createNearbyPlayerPopupElement(
+  player: NearbyPlayer,
+  distanceKm: number,
+  pingLabel: string,
+  onPingPlayer?: (player: NearbyPlayer) => void
+): HTMLDivElement {
+  const popupEl = document.createElement("div");
+  popupEl.style.fontFamily = "'Inter', sans-serif";
+  popupEl.style.minWidth = "205px";
+  popupEl.style.padding = "2px";
+
+  const showPingBtn = Boolean(onPingPlayer && !player.isSelf);
+
+  popupEl.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+      <img src="${player.avatar}" alt="${player.name}" style="width: 32px; height: 32px; border-radius: 9999px; object-fit: cover; border: 1.5px solid #0e0f0c;" />
+      <div>
+        <div style="font-weight: 800; font-size: 12px; line-height: 1.2;">${player.name}</div>
+        <div style="font-size: 10px; font-weight: 700; color: #2ead4b;">${player.karma}% Karma • ${player.skill}</div>
+      </div>
+    </div>
+    <div style="font-size: 11px; padding: 5px 8px; border-radius: 8px; background: rgba(159, 232, 112, 0.2); border: 1px solid rgba(14,15,12,0.12); margin-bottom: 6px;">
+      ${player.sportIcon} ${player.status}
+    </div>
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 4px; border-top: 1px solid rgba(134,134,133,0.2);">
+      <span style="font-size: 10px; opacity: 0.75; font-weight: 600;">
+        📍 ${distanceKm} km
+      </span>
+      ${
+        showPingBtn
+          ? `<button
+              type="button"
+              class="radar-popup-ping-btn"
+              style="background: #9fe870; color: #0e0f0c; border: 1.5px solid #0e0f0c; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 800; cursor: pointer;"
+            >
+              ⚡ ${pingLabel}
+            </button>`
+          : ""
+      }
+    </div>
+  `;
+
+  if (showPingBtn && onPingPlayer) {
+    const pingBtn = popupEl.querySelector(".radar-popup-ping-btn");
+    if (pingBtn) {
+      pingBtn.addEventListener("click", () => {
+        onPingPlayer(player);
+      });
+    }
+  }
+
+  return popupEl;
 }
 
 export function buildEventPinIconHtml(
