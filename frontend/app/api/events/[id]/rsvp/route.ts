@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDbState, rsvpToEventConcurrencySafe } from "@/db/store";
+import {
+  ensurePostgresSynced,
+  pgDeleteEvent,
+  pgUpsertEvent,
+} from "@/db/postgres";
 import { computeTransferEventHost } from "@/services/events";
 import { enforceApiRateLimit } from "@/lib/apiSecurity";
 
@@ -20,16 +25,19 @@ export async function POST(
   }
 
   try {
+    const db = await ensurePostgresSynced(getDbState());
     const body = await req.json().catch(() => ({}));
 
     if (body.action === "transfer_host" && body.newHostName) {
-      const db = getDbState();
       db.events = computeTransferEventHost(
         db.events,
         eventId,
         String(body.newHostName).trim()
       );
       const updated = db.events.find((ev) => ev.id === eventId);
+      if (updated) {
+        await pgUpsertEvent(updated).catch(() => {});
+      }
       return NextResponse.json({
         status: "host_transferred",
         event: updated,
@@ -46,6 +54,12 @@ export async function POST(
         typeof body.playerKarma === "number" ? body.playerKarma : undefined,
       allowWaitlist: body.allowWaitlist ?? true,
     });
+
+    if (result.status === "deleted_solo_host") {
+      await pgDeleteEvent(eventId).catch(() => {});
+    } else if (result.event) {
+      await pgUpsertEvent(result.event).catch(() => {});
+    }
 
     if (result.status === "conflict") {
       return NextResponse.json(result, { status: 409 });

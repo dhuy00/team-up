@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDbState, queryEventsGeospatial } from "@/db/store";
 import {
+  ensurePostgresSynced,
+  pgDeleteEvent,
+  pgUpsertEvent,
+} from "@/db/postgres";
+import {
   enforceApiRateLimit,
   sanitizeGeoQueryParams,
   validateEventPayload,
@@ -12,6 +17,8 @@ export async function GET(req: NextRequest) {
     maxRequests: 120,
   });
   if (rateLimitRes) return rateLimitRes;
+
+  await ensurePostgresSynced(getDbState());
 
   const { searchParams } = new URL(req.url);
   const query = sanitizeGeoQueryParams(searchParams);
@@ -36,6 +43,7 @@ export async function POST(req: NextRequest) {
   if (rateLimitRes) return rateLimitRes;
 
   try {
+    const db = await ensurePostgresSynced(getDbState());
     const raw = await req.json();
     const validation = validateEventPayload(raw);
     if (!validation.valid || !validation.data) {
@@ -46,10 +54,10 @@ export async function POST(req: NextRequest) {
     }
 
     const newEvent = validation.data;
-    const db = getDbState();
     if (!db.events.some((ev) => ev.id === newEvent.id)) {
       db.events = [newEvent, ...db.events];
     }
+    await pgUpsertEvent(newEvent).catch(() => {});
     return NextResponse.json(
       { event: newEvent, events: db.events },
       { status: 201 }
@@ -70,6 +78,7 @@ export async function PUT(req: NextRequest) {
   if (rateLimitRes) return rateLimitRes;
 
   try {
+    const db = await ensurePostgresSynced(getDbState());
     const raw = await req.json();
     const validation = validateEventPayload(raw);
     if (!validation.valid || !validation.data) {
@@ -80,10 +89,10 @@ export async function PUT(req: NextRequest) {
     }
 
     const updatedEvent = validation.data;
-    const db = getDbState();
     db.events = db.events.map((ev) =>
       ev.id === updatedEvent.id ? updatedEvent : ev
     );
+    await pgUpsertEvent(updatedEvent).catch(() => {});
     return NextResponse.json({ event: updatedEvent, events: db.events });
   } catch {
     return NextResponse.json(
@@ -100,13 +109,14 @@ export async function DELETE(req: NextRequest) {
   });
   if (rateLimitRes) return rateLimitRes;
 
+  const db = await ensurePostgresSynced(getDbState());
   const { searchParams } = new URL(req.url);
   const id = Number(searchParams.get("id"));
   if (!Number.isFinite(id)) {
     return NextResponse.json({ error: "Invalid event ID" }, { status: 400 });
   }
-  const db = getDbState();
   db.events = db.events.filter((ev) => ev.id !== id);
   db.chatChannels = db.chatChannels.filter((c) => c.eventId !== id);
+  await pgDeleteEvent(id).catch(() => {});
   return NextResponse.json({ events: db.events });
 }

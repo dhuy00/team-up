@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDbState, queryVenuesGeospatial } from "@/db/store";
+import { ensurePostgresSynced, pgUpsertVenue } from "@/db/postgres";
 import {
   enforceApiRateLimit,
   sanitizeGeoQueryParams,
@@ -12,6 +13,8 @@ export async function GET(req: NextRequest) {
     maxRequests: 120,
   });
   if (rateLimitRes) return rateLimitRes;
+
+  await ensurePostgresSynced(getDbState());
 
   const { searchParams } = new URL(req.url);
   const query = sanitizeGeoQueryParams(searchParams);
@@ -34,6 +37,7 @@ export async function POST(req: NextRequest) {
   if (rateLimitRes) return rateLimitRes;
 
   try {
+    const db = await ensurePostgresSynced(getDbState());
     const raw = await req.json();
     const validation = validateVenuePayload(raw);
     if (!validation.valid || !validation.data) {
@@ -43,7 +47,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const db = getDbState();
     const newVenue = {
       id: Date.now(),
       ...validation.data,
@@ -51,6 +54,7 @@ export async function POST(req: NextRequest) {
       verified: false,
     };
     db.venues = [newVenue, ...db.venues];
+    await pgUpsertVenue(newVenue).catch(() => {});
     return NextResponse.json(
       { venue: newVenue, venues: db.venues },
       { status: 201 }

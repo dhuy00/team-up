@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDbState } from "@/db/store";
+import {
+  ensurePostgresSynced,
+  pgDeleteSquad,
+  pgSyncRequestedSquads,
+  pgUpsertSquad,
+} from "@/db/postgres";
 import { filterSquadsList } from "@/services/squads";
 import { enforceApiRateLimit, validateSquadPayload } from "@/lib/apiSecurity";
 
@@ -13,7 +19,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const sport = (searchParams.get("sport") || "all").trim().slice(0, 40);
   const q = (searchParams.get("q") || "").trim().slice(0, 120);
-  const db = getDbState();
+  const db = await ensurePostgresSynced(getDbState());
 
   const squads = filterSquadsList(db.squads, {
     sport,
@@ -34,6 +40,7 @@ export async function POST(req: NextRequest) {
   if (rateLimitRes) return rateLimitRes;
 
   try {
+    const db = await ensurePostgresSynced(getDbState());
     const raw = await req.json();
     const validation = validateSquadPayload(raw);
     if (!validation.valid || !validation.data) {
@@ -43,14 +50,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const db = getDbState();
-
     if (validation.data.kind === "toggle_invite") {
       const { squadId } = validation.data;
       const exists = db.requestedSquadIds.includes(squadId);
       db.requestedSquadIds = exists
         ? db.requestedSquadIds.filter((id) => id !== squadId)
         : [...db.requestedSquadIds, squadId];
+      await pgSyncRequestedSquads(db.requestedSquadIds).catch(() => {});
       return NextResponse.json({
         requested: !exists,
         requestedSquadIds: db.requestedSquadIds,
@@ -62,6 +68,8 @@ export async function POST(req: NextRequest) {
     if (!db.requestedSquadIds.includes(newSquad.id)) {
       db.requestedSquadIds.push(newSquad.id);
     }
+    await pgUpsertSquad(newSquad).catch(() => {});
+    await pgSyncRequestedSquads(db.requestedSquadIds).catch(() => {});
     return NextResponse.json(
       { squad: newSquad, squads: db.squads },
       { status: 201 }
@@ -82,6 +90,7 @@ export async function PUT(req: NextRequest) {
   if (rateLimitRes) return rateLimitRes;
 
   try {
+    const db = await ensurePostgresSynced(getDbState());
     const raw = await req.json();
     const validation = validateSquadPayload(raw);
     if (
@@ -96,10 +105,10 @@ export async function PUT(req: NextRequest) {
     }
 
     const updatedSquad = validation.data.squad;
-    const db = getDbState();
     db.squads = db.squads.map((sq) =>
       sq.id === updatedSquad.id ? updatedSquad : sq
     );
+    await pgUpsertSquad(updatedSquad).catch(() => {});
     return NextResponse.json({ squad: updatedSquad, squads: db.squads });
   } catch {
     return NextResponse.json(
@@ -116,14 +125,15 @@ export async function DELETE(req: NextRequest) {
   });
   if (rateLimitRes) return rateLimitRes;
 
+  const db = await ensurePostgresSynced(getDbState());
   const { searchParams } = new URL(req.url);
   const id = Number(searchParams.get("id"));
   if (!Number.isFinite(id)) {
     return NextResponse.json({ error: "Invalid squad ID" }, { status: 400 });
   }
-  const db = getDbState();
   db.squads = db.squads.filter((sq) => sq.id !== id);
   db.requestedSquadIds = db.requestedSquadIds.filter((sqId) => sqId !== id);
   db.chatChannels = db.chatChannels.filter((c) => c.squadId !== id);
+  await pgDeleteSquad(id).catch(() => {});
   return NextResponse.json({ squads: db.squads });
 }

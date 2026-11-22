@@ -5,6 +5,7 @@ import {
   getDbState,
   registerUserAccount,
 } from "@/db/store";
+import { ensurePostgresSynced, pgUpsertUser } from "@/db/postgres";
 import { enforceApiRateLimit, validateAuthPayload } from "@/lib/apiSecurity";
 
 export async function GET(req: NextRequest) {
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
   });
   if (rateLimitRes) return rateLimitRes;
 
-  const db = getDbState();
+  const db = await ensurePostgresSynced(getDbState());
   const accounts = db.users.map((u) => ({
     id: u.id,
     email: u.email,
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
   if (rateLimitRes) return rateLimitRes;
 
   try {
+    await ensurePostgresSynced(getDbState());
     const raw = await req.json();
     const validation = validateAuthPayload(raw);
     if (!validation.valid || !validation.data) {
@@ -84,6 +86,7 @@ export async function POST(req: NextRequest) {
           { status: 409 }
         );
       }
+      await pgUpsertUser(result.account).catch(() => {});
       return NextResponse.json(
         {
           user: {
@@ -113,6 +116,7 @@ export async function POST(req: NextRequest) {
       if (!updated) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
+      await pgUpsertUser(updated).catch(() => {});
       return NextResponse.json({
         user: {
           id: updated.id,

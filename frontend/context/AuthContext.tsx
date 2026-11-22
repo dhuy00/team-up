@@ -15,7 +15,7 @@ import { useToast } from "@/context/ToastContext";
 import { PASSPORT_STORAGE_KEY } from "@/services/passport";
 
 export interface SessionUser {
-  id: string;
+  id: number;
   email: string;
   onboardingCompleted: boolean;
   profile: UserProfile;
@@ -23,13 +23,13 @@ export interface SessionUser {
 
 const DEMO_USERS: SessionUser[] = [
   {
-    id: "usr-alex-morgan",
+    id: 1,
     email: "alex@teamup.app",
     onboardingCompleted: true,
     profile: mockUserProfile,
   },
   {
-    id: "usr-marco-silva",
+    id: 2,
     email: "marco@teamup.app",
     onboardingCompleted: true,
     profile: {
@@ -48,7 +48,7 @@ const DEMO_USERS: SessionUser[] = [
     },
   },
   {
-    id: "usr-elena-rostova",
+    id: 3,
     email: "elena@teamup.app",
     onboardingCompleted: true,
     profile: {
@@ -199,7 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           "player"
         ).replace(/^@/, "");
         createdUser = {
-          id: `usr-${Date.now()}`,
+          id: Date.now(),
           email: normalized,
           onboardingCompleted: false,
           profile: {

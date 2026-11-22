@@ -89,7 +89,7 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-2xl font-[900] text-ink tracking-tight">TeamUp &amp; SocialFinding</h1>
-            <span class="badge badge-done">Phase 5 Completed</span>
+            <span class="badge badge-done">Phase 6 &amp; PostgreSQL Sync Live</span>
           </div>
           <p class="text-sm font-medium text-mute mt-0.5">Project State, Development Progress &amp; Change Tracking</p>
         </div>
@@ -97,7 +97,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Last Updated</span>
-          <span class="font-bold text-ink" id="last-updated">2026-11-07 10:24 (ICT)</span>
+          <span class="font-bold text-ink" id="last-updated">2026-11-22 17:30 (ICT)</span>
         </div>
         <div class="bg-canvas-soft px-4 py-2 rounded-[16px] border border-border-base text-xs">
           <span class="text-mute block font-semibold uppercase tracking-wider text-[10px]">Git Branch</span>
@@ -110,11 +110,11 @@
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
         <div class="text-xs font-bold text-mute uppercase tracking-wider">Overall Progress</div>
-        <div class="mt-2 text-3xl font-[900] text-ink">~95%</div>
+        <div class="mt-2 text-3xl font-[900] text-ink">~98%</div>
         <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
-          <div class="bg-primary h-full rounded-full" style="width: 95%"></div>
+          <div class="bg-primary h-full rounded-full" style="width: 98%"></div>
         </div>
-        <div class="mt-2 text-xs text-mute font-medium">Phases 1–5 &amp; Karma Engine complete</div>
+        <div class="mt-2 text-xs text-mute font-medium">Phases 1–5 + PostgreSQL Live &amp; API Hardened</div>
       </div>
 
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
@@ -127,21 +127,21 @@
       </div>
 
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
-        <div class="text-xs font-bold text-mute uppercase tracking-wider">Frontend App (Phases 1–2)</div>
+        <div class="text-xs font-bold text-mute uppercase tracking-wider">Frontend &amp; Real-Time (Phases 1–5)</div>
         <div class="mt-2 text-3xl font-[900] text-ink">100%</div>
         <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
           <div class="bg-positive h-full rounded-full" style="width: 100%"></div>
         </div>
-        <div class="mt-2 text-xs text-positive font-medium">App Router, URL sync, 100% EN/VI i18n</div>
+        <div class="mt-2 text-xs text-positive font-medium">App Router, LFG Radar, Karma &amp; Map Clustering</div>
       </div>
 
       <div class="bg-white rounded-[24px] p-6 border border-border-base shadow-sm">
-        <div class="text-xs font-bold text-mute uppercase tracking-wider">Backend &amp; Database (Phase 3)</div>
+        <div class="text-xs font-bold text-mute uppercase tracking-wider">Backend, Security &amp; PostgreSQL</div>
         <div class="mt-2 text-3xl font-[900] text-ink">100%</div>
         <div class="w-full bg-canvas-soft h-2.5 rounded-full mt-3 overflow-hidden border border-border-base">
           <div class="bg-positive h-full rounded-full" style="width: 100%"></div>
         </div>
-        <div class="mt-2 text-xs text-positive font-medium">REST API, PostGIS schema &amp; Auth/RSVP</div>
+        <div class="mt-2 text-xs text-positive font-medium">Live pg Pool, Rate Limit, Validation &amp; 33/33 Tests</div>
       </div>
     </section>
 
@@ -245,23 +245,23 @@
             <!-- Backend API -->
             <tr>
               <td class="py-4 px-4 font-bold text-ink">
-                Backend REST &amp; Auth API
-                <span class="block text-xs font-normal text-mute">frontend/app/api/*</span>
+                Backend REST, Auth &amp; Security API
+                <span class="block text-xs font-normal text-mute">frontend/app/api/*, lib/apiSecurity.ts</span>
               </td>
-              <td class="py-4 px-4 text-body">Next.js App Router API Routes + Auth/Onboarding</td>
+              <td class="py-4 px-4 text-body">Next.js API Routes + Rate Limiting &amp; Payload Validation</td>
               <td class="py-4 px-4"><span class="badge badge-done">Completed</span></td>
-              <td class="py-4 px-4 text-body">Authentication &amp; 3-step onboarding, match discovery endpoints, concurrency-safe RSVP &amp; automatic waitlist promotion, squad &amp; chat endpoints.</td>
+              <td class="py-4 px-4 text-body">Authentication &amp; route guards, sliding-window API rate limiter, strict input validation/sanitization, concurrency-safe RSVP &amp; waitlist promotion, and <code>/api/health</code> database status endpoint.</td>
             </tr>
 
             <!-- Database -->
             <tr>
               <td class="py-4 px-4 font-bold text-ink">
-                Database &amp; Geo Layer
-                <span class="block text-xs font-normal text-mute">frontend/db/schema.sql, store.ts</span>
+                Database, PostgreSQL Sync &amp; Geo Layer
+                <span class="block text-xs font-normal text-mute">frontend/db/postgres.ts, seed.ts, schema.sql, store.ts</span>
               </td>
-              <td class="py-4 px-4 text-body">PostgreSQL + PostGIS Schema &amp; Spatial Engine</td>
+              <td class="py-4 px-4 text-body">Live PostgreSQL (<code>pg</code> Pool) + Haversine SQL &amp; Map Clustering</td>
               <td class="py-4 px-4"><span class="badge badge-done">Completed</span></td>
-              <td class="py-4 px-4 text-body">PostGIS spatial indexing for radius search (ST_DWithin), concurrency-safe server store with spherical distance sorting and 24/24 automated tests.</td>
+              <td class="py-4 px-4 text-body">Full 11-table PostgreSQL persistence layer (<code>postgres.ts</code>) with automated database seeding (<code>npm run db:seed</code>), pure-SQL Haversine radius search (<code>find_events_within_radius</code>), zoom-aware map marker clustering (<code>lib/mapClustering.ts</code>), and <strong>33/33 automated tests</strong> passing across 10 suites.</td>
             </tr>
           </tbody>
         </table>
@@ -432,7 +432,31 @@
           <ol class="list-decimal pl-4 space-y-1 text-body">
             <li>Navigate to <strong>Clubs &amp; Squads</strong> &rarr; Verify all squad cards share the unified white <code>bg-canvas</code> surface and display standard sport badges (<code>Soccer</code>, <code>Badminton</code>, <code>Board Games</code>).</li>
             <li>Navigate to <strong>Sports Passport</strong> &rarr; Verify all 3 blocks (Identity, Fair Play Badges, and Sports &amp; Activity Passport) align top-to-bottom above the fold, and adding new sports scrolls cleanly inside the locked-height container using the custom scrollbar.</li>
-            <li>Run <code>npm test</code>, <code>npm run lint</code>, and <code>npx tsc --noEmit</code> in <code>frontend/</code> &rarr; Verify all <strong>17 automated unit &amp; integration tests</strong> pass with 0 ESLint warnings and 0 TypeScript errors.</li>
+            <li>Run <code>npm test</code>, <code>npm run lint</code>, and <code>npx tsc --noEmit</code> in <code>frontend/</code> &rarr; Verify all <strong>33 automated unit &amp; integration tests across 10 suites</strong> pass with 0 ESLint warnings and 0 TypeScript errors.</li>
+          </ol>
+        </div>
+
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-bold text-sm text-ink max-w-[80%]">TC-1.9: Auth Route Guards, Profile Navigation, Map Clustering &amp; API Hardening</span>
+            <span class="badge badge-done shrink-0">Phase 6 &amp; Auth UX</span>
+          </div>
+          <ol class="list-decimal pl-4 space-y-1 text-body">
+            <li>While logged out, navigate to <code>/squads</code>, <code>/chats</code>, or <code>/passport</code> (now labeled <strong>Profile</strong> in the top bar) or click <strong>Host Game</strong> / <strong>Book Spot</strong> &rarr; Verify protected routes and actions redirect cleanly to the redesigned <code>/signin</code> page.</li>
+            <li>On the <strong>Explore</strong> radar map, zoom out over co-located or dense match pins &rarr; Verify <code>clusterEventsByZoom</code> dynamically groups nearby markers into interactive cluster badges showing the combined match count.</li>
+            <li>Send invalid payloads or rapid burst requests to <code>/api/events</code>, <code>/api/squads</code>, or <code>/api/auth</code> &rarr; Verify <code>lib/apiSecurity.ts</code> returns structured <code>400</code> validation errors or <code>429 Too Many Requests</code> with <code>Retry-After</code> headers.</li>
+          </ol>
+        </div>
+
+        <div class="p-4 rounded-[16px] bg-canvas-soft border border-border-base space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-bold text-sm text-ink max-w-[80%]">TC-1.10: Live PostgreSQL Persistence, Auto-Seeding &amp; Health Check Endpoint</span>
+            <span class="badge badge-done shrink-0">PostgreSQL Live</span>
+          </div>
+          <ol class="list-decimal pl-4 space-y-1 text-body">
+            <li>Run <code>npm run db:seed</code> in <code>frontend/</code> &rarr; Verify <code>db/seed.ts</code> applies <code>db/schema.sql</code> (11 tables + <code>calculate_distance_km</code> and <code>find_events_within_radius</code> SQL functions) and seeds users, sports passports, availability, badges, venues, events, rosters, squads, and chat channels/messages.</li>
+            <li>Query <code>GET /api/health</code> &rarr; Verify response returns HTTP <code>200</code> with <code>connected: true</code>, active PostgreSQL database name, engine version, and live row counts across all core tables.</li>
+            <li>Create/edit/delete a match or squad, send/pin a chat message, or update your Sports Profile &rarr; Verify client hooks (<code>useEvents</code>, <code>useSquads</code>, <code>usePassport</code>) and API routes persist changes directly into PostgreSQL via <code>db/postgres.ts</code>.</li>
           </ol>
         </div>
       </div>
@@ -459,6 +483,56 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-border-soft font-mono text-xs">
+            <!-- Entry: Numeric BIGINT User IDs, PostgreSQL Connection (dhuy@localhost:5432) & Auto-Create/Seed Script -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-22 17:30</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">DB Schema &amp; Numeric IDs</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Migrated <code>users.id</code> &amp; All User Foreign Keys from Text to Numeric <code>BIGINT</code>, Updated PostgreSQL Connection to <code>dhuy@localhost:5432</code>, and Enhanced Auto-Creation &amp; Seeding</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Numeric <code>BIGINT</code> User Primary &amp; Foreign Keys (<code>db/schema.sql</code>, <code>db/store.ts</code>, <code>db/postgres.ts</code>, <code>context/AuthContext.tsx</code>)</strong>: Converted <code>users.id</code> from <code>VARCHAR(128)</code> to <code>BIGINT PRIMARY KEY</code> (`1`, `2`, `3`, ... with auto-incrementing ID assignment on registration) and updated all referencing foreign keys (<code>user_sports_passport.user_id</code>, <code>user_availability.user_id</code>, <code>badges.user_id</code>, <code>venues.submitted_by</code>, <code>events.host_user_id</code>, <code>event_participants.user_id</code>, <code>squad_members.user_id</code>, <code>karma_logs.user_id</code>) to <code>BIGINT REFERENCES users(id)</code>.</li>
+                  <li><strong>PostgreSQL Credentials &amp; Connection Configuration (<code>.env.local</code>, <code>.env.example</code>, <code>db/postgres.ts</code>, <code>db/seed.ts</code>)</strong>: Configured default database connection to <code>postgresql://dhuy:123@localhost:5432/teamup</code> (`PGUSER=dhuy`, `PGPASSWORD=123`, `PGPORT=5432`).</li>
+                  <li><strong>Auto-Database Creation &amp; Clean Schema Reset in Seeder (<code>db/seed.ts</code>)</strong>: Added <code>createDatabaseIfMissing</code> and clean table recreation in <code>npm run db:seed</code> so all 11 tables are automatically created and seeded across <code>teamup</code> (and active HeidiSQL schemas on <code>localhost:5432</code>). Verified <strong>33/33 automated unit &amp; integration tests</strong> pass with zero TypeScript errors.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/db/schema.sql, frontend/db/store.ts, frontend/db/postgres.ts, frontend/db/seed.ts, frontend/context/AuthContext.tsx, frontend/.env.local, frontend/.env.example, progress.html
+              </td>
+            </tr>
+            <!-- Entry: Live PostgreSQL Database Persistence, Seeding Script, Health Endpoint & Full Hook/API DB Sync -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-22 16:02</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">PostgreSQL Live Sync</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Connected Live PostgreSQL Persistence Layer (<code>pg</code> Pool), Automated Database Seeding, <code>/api/health</code> Status Endpoint, and End-to-End Client Hook &rarr; API &rarr; PostgreSQL Synchronization</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>PostgreSQL Persistence Engine (<code>frontend/db/postgres.ts</code>, <code>package.json</code>)</strong>: Added <code>pg</code> connection pool management (<code>getPgPool</code>), full state loader (<code>pgLoadFullState</code>), automatic startup synchronization (<code>ensurePostgresSynced</code>), and transactional upsert/delete operations (<code>pgUpsertUser</code>, <code>pgUpsertVenue</code>, <code>pgUpsertEvent</code>, <code>pgDeleteEvent</code>, <code>pgUpsertSquad</code>, <code>pgDeleteSquad</code>, <code>pgSyncRequestedSquads</code>, <code>pgUpsertChatChannel</code>, <code>pgDeleteChatChannel</code>) with graceful fallback if PostgreSQL is offline.</li>
+                  <li><strong>Portable PostgreSQL 16/18+ Schema &amp; Pure-SQL Haversine Functions (<code>frontend/db/schema.sql</code>, <code>frontend/db/seed.ts</code>)</strong>: Updated <code>schema.sql</code> to run cleanly on standard PostgreSQL installations (using <code>uuid-ossp</code>, <code>cube</code>, <code>earthdistance</code>, and pure-SQL <code>calculate_distance_km</code> + <code>find_events_within_radius</code> functions) across all 11 tables; added <code>npm run db:seed</code> (<code>db/seed.ts</code>) to initialize schema DDL and seed all demo accounts, venues, events, participants, squads, and chat rooms.</li>
+                  <li><strong>Database Health Endpoint &amp; API Route Persistence (<code>app/api/health/route.ts</code>, <code>app/api/*</code>)</strong>: Created <code>GET /api/health</code> returning live PostgreSQL connection status, version, and table counts; wired all REST endpoints (<code>/api/auth</code>, <code>/api/events</code>, <code>/api/events/[id]/rsvp</code>, <code>/api/venues</code>, <code>/api/squads</code>, <code>/api/chats</code>, <code>/api/passport</code>) to read and write through <code>db/postgres.ts</code>.</li>
+                  <li><strong>Client Hook Server Sync (<code>useEvents.ts</code>, <code>useSquads.ts</code>, <code>usePassport.ts</code>)</strong>: Connected frontend mutations (hosting/editing/deleting matches, post-match check-in Karma updates, creating/editing/deleting squads, toggling squad invite requests, and updating bio/sports/endorsements/weekly availability) to persist asynchronously to the backend REST API and PostgreSQL.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/db/postgres.ts, frontend/db/seed.ts, frontend/db/schema.sql, frontend/app/api/health/route.ts, frontend/app/api/auth/route.ts, frontend/app/api/chats/route.ts, frontend/app/api/events/route.ts, frontend/app/api/events/[id]/rsvp/route.ts, frontend/app/api/passport/route.ts, frontend/app/api/squads/route.ts, frontend/app/api/venues/route.ts, frontend/hooks/useEvents.ts, frontend/hooks/usePassport.ts, frontend/hooks/useSquads.ts, frontend/package.json, frontend/package-lock.json, progress.html
+              </td>
+            </tr>
+            <!-- Entry: Commit fa3318b — Redesigned Login Page, Auth Route Guards, Profile Rename, API Hardening & Map Clustering -->
+            <tr>
+              <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-22 14:10</td>
+              <td class="py-3.5 px-4"><span class="badge badge-done font-sans">Phase 6: Security &amp; Auth UI</span></td>
+              <td class="py-3.5 px-4 text-ink font-sans">
+                <strong>Completed Commit <code>fa3318b</code>: Redesigned Login Page, Auth Route Guards, Renamed Passport Navigation to Profile, and Added Phase 6 API Security &amp; Map Marker Clustering (33/33 Tests Passing)</strong>:
+                <ul class="list-disc pl-4 mt-1 space-y-0.5 text-xs">
+                  <li><strong>Redesigned Auth Page &amp; Protected Route Guards (<code>AuthPageView.tsx</code>, <code>AppShell.tsx</code>, <code>Navigation.tsx</code>, <code>ExplorePageView.tsx</code>, <code>SquadsSection.tsx</code>)</strong>: Streamlined the standalone Sign In / Sign Up screen with centered Wise card styling and demo switcher; added authentication guards redirecting unauthenticated visitors from protected routes (<code>/squads</code>, <code>/chats</code>, <code>/passport</code>) and protected actions (Host Game, Book Spot, Create Squad) to <code>/signin</code>; added a clear Sign Out button and renamed the top navigation tab from <em>Passport</em> to <strong>Profile</strong> (<em>Hồ sơ</em>).</li>
+                  <li><strong>API Sliding-Window Rate Limiting &amp; Input Validation (<code>lib/apiSecurity.ts</code>, <code>app/api/*</code>)</strong>: Built a sliding-window rate limiter (<code>checkRateLimit</code>, <code>enforceApiRateLimit</code>) with <code>X-RateLimit-*</code> and <code>Retry-After</code> headers plus strict schema validators/sanitizers for Events, Squads, Auth, Venues, and Geospatial query parameters across all API routes.</li>
+                  <li><strong>Dynamic Map Marker Clustering (<code>lib/mapClustering.ts</code>, <code>RadarMapCanvas.tsx</code>, <code>leafletPopupTemplates.ts</code>)</strong>: Implemented zoom-aware grid/distance spatial clustering (<code>clusterEventsByZoom</code>) that groups dense or co-located match pins into interactive multi-event cluster markers with expandable popup summaries on the Leaflet radar map.</li>
+                  <li><strong>Expanded Automated Test Suite (<code>__tests__/frontend.test.ts</code>)</strong>: Added Suite 10 (<code>TC-SEC-01</code>, <code>TC-SEC-02</code>, <code>TC-MAP-01</code>), bringing total automated test coverage to <strong>33/33 passing tests across 10 suites</strong>.</li>
+                </ul>
+              </td>
+              <td class="py-3.5 px-4 text-mute font-sans">
+                frontend/lib/apiSecurity.ts, frontend/lib/mapClustering.ts, frontend/components/auth/AuthPageView.tsx, frontend/components/auth/AuthModal.tsx, frontend/components/auth/OnboardingWizardModal.tsx, frontend/components/layout/AppShell.tsx, frontend/components/Navigation.tsx, frontend/components/Footer.tsx, frontend/components/navigation/routes.tsx, frontend/components/explore/ExplorePageView.tsx, frontend/components/explore/radar/RadarMapCanvas.tsx, frontend/components/explore/radar/leafletPopupTemplates.ts, frontend/components/squads/SquadsSection.tsx, frontend/app/api/auth/route.ts, frontend/app/api/chats/route.ts, frontend/app/api/events/route.ts, frontend/app/api/events/[id]/rsvp/route.ts, frontend/app/api/passport/route.ts, frontend/app/api/squads/route.ts, frontend/app/api/venues/route.ts, frontend/locales/en.ts, frontend/locales/vi.ts, frontend/types/i18n.ts, frontend/types/leaflet.ts, frontend/__tests__/frontend.test.ts, progress.html
+              </td>
+            </tr>
             <!-- Entry: Phase 5 Reliability Karma Engine, Post-Match Check-In & Standalone Auth Page -->
             <tr>
               <td class="py-3.5 px-4 text-mute whitespace-nowrap">2026-11-07 10:24</td>

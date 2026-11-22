@@ -91,6 +91,11 @@ export function useSquads() {
         }
         toast.success(t("toast.inviteRequested"));
       }
+      fetch("/api/squads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "toggle_invite", squadId }),
+      }).catch(() => {});
     },
     [
       requestedSquads,
@@ -121,6 +126,17 @@ export function useSquads() {
       setChatChannels((prev) => [newChannel, ...prev]);
       setActiveChatChannelId(newChannel.id);
       toast.success(t("toast.squadCreated"));
+
+      fetch("/api/squads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newSquad),
+      }).catch(() => {});
+      fetch("/api/chats", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newChannel),
+      }).catch(() => {});
     },
     [
       setActiveChatChannelId,
@@ -155,6 +171,11 @@ export function useSquads() {
         })
       );
       toast.success(t("toast.squadUpdated"));
+      fetch("/api/squads", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedSquad),
+      }).catch(() => {});
     },
     [setChatChannels, setSquads, t, toast]
   );
@@ -165,6 +186,9 @@ export function useSquads() {
       setRequestedSquads((prev) => prev.filter((id) => id !== squadId));
       setChatChannels((prev) => prev.filter((c) => c.squadId !== squadId));
       toast.info(t("toast.squadDeleted"));
+      fetch(`/api/squads?id=${squadId}`, {
+        method: "DELETE",
+      }).catch(() => {});
     },
     [setChatChannels, setRequestedSquads, setSquads, t, toast]
   );

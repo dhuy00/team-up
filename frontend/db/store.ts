@@ -15,7 +15,7 @@ import { calculateDistanceKm } from "../lib/geo";
 import { findConflictingJoinedEvent } from "../lib/scheduleConflict";
 
 export interface AuthUserAccount {
-  id: string;
+  id: number;
   email: string;
   passwordHash: string;
   onboardingCompleted: boolean;
@@ -113,14 +113,14 @@ const DEFAULT_VENUES: SportsVenueRecord[] = [
 
 const DEFAULT_USERS: AuthUserAccount[] = [
   {
-    id: "usr-alex-morgan",
+    id: 1,
     email: "alex@teamup.app",
     passwordHash: "demo123",
     onboardingCompleted: true,
     profile: structuredClone(mockUserProfile),
   },
   {
-    id: "usr-marco-silva",
+    id: 2,
     email: "marco@teamup.app",
     passwordHash: "demo123",
     onboardingCompleted: true,
@@ -140,7 +140,7 @@ const DEFAULT_USERS: AuthUserAccount[] = [
     },
   },
   {
-    id: "usr-elena-rostova",
+    id: 3,
     email: "elena@teamup.app",
     passwordHash: "demo123",
     onboardingCompleted: true,
@@ -491,8 +491,11 @@ export function registerUserAccount(input: {
   ).replace(/^@/, "");
   const handle = `@${rawHandle}`;
 
+  const nextId =
+    db.users.reduce((max, u) => Math.max(max, Number(u.id) || 0), 0) + 1;
+
   const newAccount: AuthUserAccount = {
-    id: `usr-${Date.now()}`,
+    id: nextId,
     email: normalizedEmail,
     passwordHash: input.password || "demo123",
     onboardingCompleted: false,
@@ -531,7 +534,7 @@ export function registerUserAccount(input: {
 }
 
 export function completeUserOnboarding(
-  userIdOrEmail: string,
+  userIdOrEmail: number | string,
   payload: {
     location?: string;
     bio?: string;
@@ -540,11 +543,12 @@ export function completeUserOnboarding(
   }
 ): AuthUserAccount | null {
   const db = getDbState();
+  const keyStr = String(userIdOrEmail).toLowerCase();
   const account = db.users.find(
     (u) =>
-      u.id === userIdOrEmail ||
-      u.email.toLowerCase() === userIdOrEmail.toLowerCase() ||
-      u.profile.username.toLowerCase() === userIdOrEmail.toLowerCase()
+      String(u.id) === String(userIdOrEmail) ||
+      u.email.toLowerCase() === keyStr ||
+      u.profile.username.toLowerCase() === keyStr
   );
   if (!account) return null;
 

@@ -217,6 +217,17 @@ export function useEvents() {
       endorseSport: boolean
     ) => {
       const targetEvent = events.find((ev) => ev.id === eventId);
+      if (targetEvent) {
+        const checkedIn = applyPostMatchCheckInToEvent(
+          targetEvent,
+          attendanceMap
+        );
+        fetch("/api/events", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(checkedIn),
+        }).catch(() => {});
+      }
       setEvents((prev) =>
         prev.map((ev) =>
           ev.id === eventId
@@ -230,13 +241,19 @@ export function useEvents() {
         attendanceMap[profile.name] ||
         "showed_up";
 
-      setProfile((prev) =>
-        applyPostMatchCheckInToProfile(prev, {
+      setProfile((prev) => {
+        const nextProfile = applyPostMatchCheckInToProfile(prev, {
           selfAttendance: selfStatus,
           badgesAwarded,
           endorseSportName: endorseSport ? targetEvent?.sport : undefined,
-        })
-      );
+        });
+        fetch("/api/passport", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(nextProfile),
+        }).catch(() => {});
+        return nextProfile;
+      });
 
       toast.success(t("toast.checkInSubmitted"));
       pushNotification({
