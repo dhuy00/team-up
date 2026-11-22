@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Play } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useAuth } from "@/context/AuthContext";
 import { APP_ROUTES, NAV_TAB_IDS } from "@/components/navigation/routes";
 
 interface FooterProps {
@@ -12,6 +13,7 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onTabChange }) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   return (
     <footer className="bg-ink text-canvas-soft py-10 mt-16 border-t border-border transition-colors duration-200">
@@ -43,7 +45,9 @@ export const Footer: React.FC<FooterProps> = ({ onTabChange }) => {
 
           {/* Dynamic Navigation Links using unified APP_ROUTES and i18n */}
           <div className="flex flex-wrap items-center gap-6 text-xs text-mute font-medium">
-            {APP_ROUTES.map((route) => (
+            {APP_ROUTES.filter(
+              (route) => Boolean(user) || route.id !== NAV_TAB_IDS.PASSPORT
+            ).map((route) => (
               <Link
                 key={route.id}
                 href={route.href}

@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 import { Crosshair, Sparkles, Loader2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { EventActivity, GeoCoordinates, NearbyPlayer } from "@/types/models";
@@ -13,6 +19,7 @@ import {
 } from "@/types/leaflet";
 import { CARTO_TILE_URLS } from "@/constants/radar";
 import { calculateDistanceKm } from "@/lib/geo";
+import { clusterEventsByZoom } from "@/lib/mapClustering";
 import { useTranslation } from "@/hooks/useTranslation";
 import {
   buildRadarCenterIconHtml,
@@ -21,6 +28,8 @@ import {
   createNearbyPlayerPopupElement,
   buildEventPinIconHtml,
   createEventPopupElement,
+  buildClusterPinIconHtml,
+  createClusterPopupElement,
 } from "./leafletPopupTemplates";
 
 export interface RadarMapCanvasHandle {
@@ -80,6 +89,7 @@ export const RadarMapCanvas = forwardRef<
     const tileLayerRef = useRef<LeafletLayer | null>(null);
     const markersLayerRef = useRef<LeafletLayerGroup | null>(null);
     const eventMarkersMapRef = useRef<Record<number, LeafletMarker>>({});
+    const [mapZoom, setMapZoom] = useState<number>(13);
 
     // Keep latest callbacks in refs for Leaflet event listeners attached at init
     const onMapMoveEndRef = useRef(onMapMoveEnd);
@@ -136,6 +146,10 @@ export const RadarMapCanvas = forwardRef<
       map.on("moveend", () => {
         const c = map.getCenter();
         onMapMoveEndRef.current({ lat: c.lat, lng: c.lng });
+      });
+
+      map.on("zoomend", () => {
+        setMapZoom(map.getZoom());
       });
 
       map.on("click", (e: LeafletMapEvent) => {
@@ -261,8 +275,41 @@ export const RadarMapCanvas = forwardRef<
         });
       }
 
-      // 4. Active Game / Venue Markers
-      events.forEach((ev) => {
+      // 4. Active Game / Venue Markers (with Dynamic Spatial Clustering)
+      const clusteredNodes = clusterEventsByZoom(events, mapZoom);
+
+      clusteredNodes.forEach((node) => {
+        if (node.isCluster) {
+          const containsSelected = node.events.some(
+            (ev) => ev.id === activeEventId
+          );
+          const clusterIcon = L.divIcon({
+            html: buildClusterPinIconHtml(node, containsSelected),
+            className: "custom-cluster-pin",
+            iconSize: [96, 44],
+            iconAnchor: [48, 42],
+            popupAnchor: [0, -38],
+          });
+
+          const clusterMarker = L.marker([node.lat, node.lng], {
+            icon: clusterIcon,
+            zIndexOffset: containsSelected ? 920 : 650,
+          }).addTo(layerGroup);
+
+          const clusterPopupEl = createClusterPopupElement(
+            node,
+            t("common.details"),
+            onOpenEventDetails
+          );
+          clusterMarker.bindPopup(clusterPopupEl);
+
+          node.events.forEach((ev) => {
+            eventMarkersMapRef.current[ev.id] = clusterMarker;
+          });
+          return;
+        }
+
+        const ev = node.events[0];
         const isSelected = activeEventId === ev.id;
 
         const customIcon = L.divIcon({
@@ -298,6 +345,7 @@ export const RadarMapCanvas = forwardRef<
     }, [
       leafletReady,
       events,
+      mapZoom,
       nearbyPlayers,
       radarCenter,
       selectedRadius,

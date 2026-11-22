@@ -22,8 +22,8 @@ export const AuthModal: React.FC = () => {
   } = useAuth();
 
   const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState("alex@teamup.app");
-  const [password, setPassword] = useState("demo123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [location, setLocation] = useState("");

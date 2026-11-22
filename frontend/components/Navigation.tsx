@@ -1,10 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Play, Plus, LogIn, ChevronDown } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  Play,
+  Plus,
+  LogIn,
+  ChevronDown,
+  Settings,
+  LogOut,
+} from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useAuth } from "@/context/AuthContext";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -28,9 +35,42 @@ const Navigation = ({
   onHostGameClick,
 }: NavigationProps = {}) => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, logout, setIsOnboardingOpen } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const currentNav = activeTab ?? getRouteIdFromPathname(pathname);
+
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      if (
+        accountMenuRef.current &&
+        !accountMenuRef.current.contains(e.target as Node)
+      ) {
+        setIsAccountMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isAccountMenuOpen) {
+        setIsAccountMenuOpen(false);
+      }
+    };
+
+    if (isAccountMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isAccountMenuOpen]);
 
   return (
     <header className="sticky top-0 z-50 bg-canvas border-b border-border transition-colors duration-200">
@@ -61,7 +101,9 @@ const Navigation = ({
 
         {/* Center Nav Pills rendered from unified APP_ROUTES */}
         <nav className="hidden md:flex items-center space-x-1 bg-canvas-soft p-1.5 rounded-[24px] border border-border shrink-0">
-          {APP_ROUTES.map((route) => {
+          {APP_ROUTES.filter(
+            (route) => Boolean(user) || route.id !== NAV_TAB_IDS.PASSPORT
+          ).map((route) => {
             const isActive = currentNav === route.id;
             return (
               <Link
@@ -104,31 +146,81 @@ const Navigation = ({
           {/* Theme Toggle */}
           <ThemeToggle />
 
-          {/* In-App Notification Center */}
-          <NotificationBell />
+          {/* In-App Notification Center (Authenticated Only) */}
+          {user && <NotificationBell />}
 
-          {/* User Account / Auth Trigger -> Navigates to Independent Sign In / Sign Up Page */}
+          {/* User Account / Auth Trigger -> Small Popup with Settings & Sign Out */}
           {user ? (
-            <Link
-              href="/auth"
-              className="flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-full bg-canvas-soft hover:bg-border/50 border border-border transition cursor-pointer"
-              title={t("auth.switchAccount")}
-            >
-              <div className="relative w-8 h-8">
-                <Image
-                  src={user.profile.avatar}
-                  alt={user.profile.name}
-                  width={32}
-                  height={32}
-                  className="w-8 h-8 rounded-full object-cover border border-ink"
-                  unoptimized
+            <div ref={accountMenuRef} className="relative inline-flex items-center">
+              <button
+                type="button"
+                onClick={() => setIsAccountMenuOpen((prev) => !prev)}
+                aria-haspopup="menu"
+                aria-expanded={isAccountMenuOpen}
+                className="flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-full bg-canvas-soft hover:bg-border/50 border border-border transition cursor-pointer select-none"
+                title={t("auth.switchAccount")}
+              >
+                <div className="relative w-8 h-8">
+                  <Image
+                    src={user.profile.avatar}
+                    alt={user.profile.name}
+                    width={32}
+                    height={32}
+                    className="w-8 h-8 rounded-full object-cover border border-ink"
+                    unoptimized
+                  />
+                  <span className="absolute -bottom-1 -right-1 bg-primary text-ink text-[8px] font-black px-1 rounded-full border border-ink">
+                    {user.profile.karma}%
+                  </span>
+                </div>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-mute hidden sm:block transition-transform duration-200 ${
+                    isAccountMenuOpen ? "rotate-180 text-ink" : ""
+                  }`}
                 />
-                <span className="absolute -bottom-1 -right-1 bg-primary text-ink text-[8px] font-black px-1 rounded-full border border-ink">
-                  {user.profile.karma}%
-                </span>
-              </div>
-              <ChevronDown className="w-3.5 h-3.5 text-mute hidden sm:block" />
-            </Link>
+              </button>
+
+              {isAccountMenuOpen && (
+                <div
+                  role="menu"
+                  className="dropdown-popover absolute right-0 top-full mt-1.5 w-44 bg-canvas border border-border rounded-[14px] shadow-lg p-1.5 z-50 select-none"
+                >
+                  <div className="px-3 py-1.5 mb-1 border-b border-border/60">
+                    <div className="text-xs font-bold text-ink truncate">
+                      {user.profile.name}
+                    </div>
+                    <div className="text-[10px] font-mono text-mute truncate">
+                      @{user.profile.username.replace(/^@/, "")}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setIsAccountMenuOpen(false);
+                      setIsOnboardingOpen(true);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-[10px] text-xs font-semibold text-ink hover:bg-canvas-soft transition-colors cursor-pointer"
+                  >
+                    <Settings className="w-3.5 h-3.5 text-mute shrink-0" />
+                    <span>{t("auth.settings")}</span>
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setIsAccountMenuOpen(false);
+                      logout();
+                      router.push("/signin");
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-[10px] text-xs font-semibold text-negative hover:bg-negative/10 transition-colors cursor-pointer"
+                  >
+                    <LogOut className="w-3.5 h-3.5 shrink-0" />
+                    <span>{t("auth.signOut")}</span>
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <Link
               href="/signin"

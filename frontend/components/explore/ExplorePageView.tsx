@@ -10,6 +10,7 @@ import {
   QuickFilterState,
 } from "@/constants/explore";
 import { useEvents } from "@/hooks/useEvents";
+import { useAuth } from "@/context/AuthContext";
 import { HeroSection } from "@/components/home/HeroSection";
 import { ExploreSection } from "@/components/explore/ExploreSection";
 
@@ -28,6 +29,7 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
 
   const {
     events,
@@ -116,7 +118,19 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
     router.push("/squads");
   };
 
+  const handleToggleJoin = (eventId: number) => {
+    if (!user) {
+      router.push("/signin");
+      return;
+    }
+    toggleJoinEvent(eventId);
+  };
+
   const handleOpenChat = (event: EventActivity) => {
+    if (!user) {
+      router.push("/signin");
+      return;
+    }
     if (onOpenMatchChat) {
       onOpenMatchChat(event);
       return;
@@ -138,7 +152,7 @@ export const ExplorePageView: React.FC<ExplorePageViewProps> = ({
       <main className="flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ExploreSection
           events={events}
-          onToggleJoin={toggleJoinEvent}
+          onToggleJoin={handleToggleJoin}
           onSubmitCheckIn={submitMatchCheckIn}
           onTransferHost={transferHost}
           onDeleteEvent={deleteEvent}

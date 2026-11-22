@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDbState, rsvpToEventConcurrencySafe } from "@/db/store";
 import { computeTransferEventHost } from "@/services/events";
+import { enforceApiRateLimit } from "@/lib/apiSecurity";
 
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const rateLimitRes = enforceApiRateLimit(req, "events:rsvp", {
+    windowMs: 60_000,
+    maxRequests: 40,
+  });
+  if (rateLimitRes) return rateLimitRes;
+
   const { id } = await context.params;
   const eventId = Number(id);
   if (!Number.isFinite(eventId)) {
@@ -17,7 +24,11 @@ export async function POST(
 
     if (body.action === "transfer_host" && body.newHostName) {
       const db = getDbState();
-      db.events = computeTransferEventHost(db.events, eventId, body.newHostName);
+      db.events = computeTransferEventHost(
+        db.events,
+        eventId,
+        String(body.newHostName).trim()
+      );
       const updated = db.events.find((ev) => ev.id === eventId);
       return NextResponse.json({
         status: "host_transferred",
@@ -27,8 +38,12 @@ export async function POST(
     }
 
     const result = await rsvpToEventConcurrencySafe(eventId, {
-      playerName: body.playerName,
-      playerKarma: body.playerKarma,
+      playerName:
+        typeof body.playerName === "string"
+          ? body.playerName.trim().slice(0, 80)
+          : undefined,
+      playerKarma:
+        typeof body.playerKarma === "number" ? body.playerKarma : undefined,
       allowWaitlist: body.allowWaitlist ?? true,
     });
 
@@ -44,6 +59,9 @@ export async function POST(
 
     return NextResponse.json(result);
   } catch {
-    return NextResponse.json({ error: "RSVP operation failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "RSVP operation failed" },
+      { status: 500 }
+    );
   }
 }

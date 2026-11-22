@@ -6,6 +6,7 @@ import { Plus, Search } from "lucide-react";
 import { TeamSquad } from "@/types/models";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useSquads } from "@/hooks/useSquads";
+import { useAuth } from "@/context/AuthContext";
 import { filterSquadsList } from "@/services/squads";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import {
@@ -25,6 +26,7 @@ export const SquadsSection: React.FC<SquadsSectionProps> = ({
   initialSquadId,
 }) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -131,6 +133,22 @@ export const SquadsSection: React.FC<SquadsSectionProps> = ({
     [squads, searchQuery, selectedSport]
   );
 
+  const handleRequestInvite = (squadId: number) => {
+    if (!user) {
+      router.push("/signin");
+      return;
+    }
+    requestInvite(squadId);
+  };
+
+  const handleOpenCreateSquad = () => {
+    if (!user) {
+      router.push("/signin");
+      return;
+    }
+    setIsCreateSquadOpen(true);
+  };
+
   const handleConfirmDeleteSquad = () => {
     if (squadIdPendingDelete !== null) {
       deleteSquad(squadIdPendingDelete);
@@ -152,7 +170,7 @@ export const SquadsSection: React.FC<SquadsSectionProps> = ({
         </div>
         <button
           type="button"
-          onClick={() => setIsCreateSquadOpen(true)}
+          onClick={handleOpenCreateSquad}
           className="px-6 py-2.5 bg-ink hover:bg-ink/80 text-canvas font-semibold rounded-[24px] text-sm transition flex items-center space-x-2 cursor-pointer self-start sm:self-auto shadow-sm shrink-0 whitespace-nowrap"
         >
           <Plus className="w-4 h-4" />
@@ -206,7 +224,7 @@ export const SquadsSection: React.FC<SquadsSectionProps> = ({
               key={squad.id}
               squad={squad}
               isRequested={requestedSquads.includes(squad.id)}
-              onRequestInvite={requestInvite}
+              onRequestInvite={handleRequestInvite}
               onSelectSquad={handleSelectSquad}
               onEditSquad={(sq) => setEditingSquad(sq)}
               onDeleteSquad={(id) => setSquadIdPendingDelete(id)}
@@ -239,7 +257,7 @@ export const SquadsSection: React.FC<SquadsSectionProps> = ({
             : false
         }
         onClose={() => handleSelectSquad(null)}
-        onRequestInvite={requestInvite}
+        onRequestInvite={handleRequestInvite}
         onEditSquad={(sq) => {
           handleSelectSquad(null);
           setEditingSquad(sq);

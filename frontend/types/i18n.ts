@@ -310,6 +310,7 @@ export interface TranslationDictionary {
     signIn: string;
     signUp: string;
     signOut: string;
+    settings: string;
     switchAccount: string;
     demoAccountsTitle: string;
     demoAccountsSubtitle: string;

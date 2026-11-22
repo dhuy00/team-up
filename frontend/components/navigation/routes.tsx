@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Compass, Shield, MessageSquare, User } from "lucide-react";
 import { EventActivity } from "@/types/models";
+import { useAuth } from "@/context/AuthContext";
 import { ExplorePageView } from "@/components/explore/ExplorePageView";
 import { SquadsSection } from "@/components/squads/SquadsSection";
 import { ChatSection } from "@/components/chat/ChatSection";
@@ -45,7 +47,7 @@ export const SquadsPageView: React.FC<
 };
 
 /**
- * Route 3: Match & Squad Chat Page Wrapper
+ * Route 3: Match & Squad Chat Page Wrapper (Protected)
  */
 export const ChatPageView: React.FC<
   AppPageProps & {
@@ -53,6 +55,19 @@ export const ChatPageView: React.FC<
     focusedEventId?: number | null;
   }
 > = ({ focusedChatEvent, focusedChannelId, focusedEventId }) => {
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.replace("/signin");
+    }
+  }, [router, user]);
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <main className="flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       <ChatSection
@@ -65,11 +80,24 @@ export const ChatPageView: React.FC<
 };
 
 /**
- * Route 4: Sports Passport & Reliability Karma Page Wrapper
+ * Route 4: Sports Passport & Reliability Karma Page Wrapper (Protected)
  */
 export const PassportPageView: React.FC<
   AppPageProps & { username?: string }
 > = ({ username }) => {
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.replace("/signin");
+    }
+  }, [router, user]);
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <main className="flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       <PassportSection username={username} />

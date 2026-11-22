@@ -84,6 +84,19 @@ import {
   applyPostMatchCheckInToProfile,
   endorseSportOnProfile,
 } from "@/lib/karma";
+import {
+  checkRateLimit,
+  resetRateLimiterForTests,
+  sanitizeGeoQueryParams,
+  validateAuthPayload,
+  validateEventPayload,
+  validateSquadPayload,
+  validateVenuePayload,
+} from "@/lib/apiSecurity";
+import {
+  clusterEventsByZoom,
+  getClusterRadiusKmForZoom,
+} from "@/lib/mapClustering";
 import { NEARBY_PLAYERS_SEED } from "@/lib/mockData";
 import type { ChatChannel } from "@/types/models";
 
@@ -808,5 +821,142 @@ describe("9. Phase 5 Reliability Karma Engine, Post-Match Check-In & Karma-Gated
       98
     );
     assert.equal(allowedRes.status, "joined");
+  });
+});
+
+describe("10. Phase 6 API Input Validation, Sliding-Window Rate Limiting & Map Marker Clustering (lib/apiSecurity.ts & lib/mapClustering.ts)", () => {
+  it("TC-SEC-01: enforces sliding-window rate limits per client and resets after window expiration", () => {
+    resetRateLimiterForTests();
+    const config = { windowMs: 10_000, maxRequests: 3 };
+    const t0 = 1_700_000_000_000;
+
+    const r1 = checkRateLimit("ip-1", "events:write", config, t0);
+    const r2 = checkRateLimit("ip-1", "events:write", config, t0 + 100);
+    const r3 = checkRateLimit("ip-1", "events:write", config, t0 + 200);
+    assert.equal(r1.allowed, true);
+    assert.equal(r1.remaining, 2);
+    assert.equal(r2.allowed, true);
+    assert.equal(r3.allowed, true);
+    assert.equal(r3.remaining, 0);
+
+    // 4th request inside the 10s window is blocked
+    const r4 = checkRateLimit("ip-1", "events:write", config, t0 + 500);
+    assert.equal(r4.allowed, false);
+    assert.equal(r4.remaining, 0);
+    assert.ok(r4.retryAfterSec >= 1);
+
+    // Different client IP is unaffected
+    const otherClient = checkRateLimit("ip-2", "events:write", config, t0 + 500);
+    assert.equal(otherClient.allowed, true);
+
+    // Once the 10s window elapses, ip-1 is allowed again
+    const afterWindow = checkRateLimit(
+      "ip-1",
+      "events:write",
+      config,
+      t0 + 10_500
+    );
+    assert.equal(afterWindow.allowed, true);
+  });
+
+  it("TC-SEC-02: validates and sanitizes API payloads for Events, Squads, Auth, Venues, and Geo query params", () => {
+    // Valid event
+    const validEv = validateEventPayload(initialEvents[0]);
+    assert.equal(validEv.valid, true);
+
+    // Invalid event capacity (> max 100 or < min 2)
+    const badCapacityEv = validateEventPayload({
+      ...initialEvents[0],
+      maxPlayers: 999,
+    });
+    assert.equal(badCapacityEv.valid, false);
+
+    // Invalid coordinates
+    const badLatEv = validateEventPayload({
+      ...initialEvents[0],
+      lat: 145,
+    });
+    assert.equal(badLatEv.valid, false);
+
+    // Valid & invalid squad payloads
+    assert.equal(
+      validateSquadPayload({ action: "toggle_invite", squadId: 2 }).valid,
+      true
+    );
+    assert.equal(validateSquadPayload(initialSquads[0]).valid, true);
+    assert.equal(
+      validateSquadPayload({ ...initialSquads[0], name: "" }).valid,
+      false
+    );
+
+    // Auth validation
+    assert.equal(
+      validateAuthPayload({ action: "login", email: "alex@teamup.app" }).valid,
+      true
+    );
+    assert.equal(
+      validateAuthPayload({ action: "login", email: "not-an-email" }).valid,
+      false
+    );
+    assert.equal(
+      validateAuthPayload({
+        action: "register",
+        email: "new@teamup.app",
+        name: "",
+      }).valid,
+      false
+    );
+
+    // Venue validation
+    assert.equal(
+      validateVenuePayload({
+        name: "Mission Playground",
+        lat: 37.76,
+        lng: -122.42,
+      }).valid,
+      true
+    );
+    assert.equal(validateVenuePayload({ name: "" }).valid, false);
+
+    // Geo query param sanitization
+    const params = new URLSearchParams(
+      "sport=Soccer&radius=500&lat=37.77&lng=-122.41"
+    );
+    const sanitized = sanitizeGeoQueryParams(params);
+    assert.equal(sanitized.radiusKm, 100); // clamped to 100km max
+    assert.equal(sanitized.centerLat, 37.77);
+  });
+
+  it("TC-MAP-01: clusters co-located or nearby events dynamically based on map zoom level", () => {
+    assert.ok(getClusterRadiusKmForZoom(11) > getClusterRadiusKmForZoom(14));
+    assert.ok(getClusterRadiusKmForZoom(14) > getClusterRadiusKmForZoom(16));
+
+    // Create two events at the exact same venue and one distant event
+    const coLocatedA = { ...initialEvents[0], id: 101, lat: 37.7749, lng: -122.4194 };
+    const coLocatedB = { ...initialEvents[1], id: 102, lat: 37.775, lng: -122.4195 };
+    const distantC = { ...initialEvents[2], id: 103, lat: 37.805, lng: -122.45 };
+
+    const nodesAtZoom14 = clusterEventsByZoom(
+      [coLocatedA, coLocatedB, distantC],
+      14
+    );
+    assert.equal(nodesAtZoom14.length, 2);
+
+    const clusterNode = nodesAtZoom14.find((n) => n.isCluster)!;
+    assert.ok(clusterNode);
+    assert.equal(clusterNode.events.length, 2);
+    assert.equal(
+      clusterNode.totalConfirmed,
+      coLocatedA.confirmedPlayers + coLocatedB.confirmedPlayers
+    );
+
+    // At zoomed-out city view (zoom 9), all 3 metro events cluster together into 1 node
+    const nodesAtZoom9 = clusterEventsByZoom(
+      [coLocatedA, coLocatedB, distantC],
+      9
+    );
+    assert.equal(nodesAtZoom9.length, 1);
+    assert.equal(nodesAtZoom9[0].isCluster, true);
+    assert.equal(nodesAtZoom9[0].events.length, 3);
   });
 });

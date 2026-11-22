@@ -23,6 +23,7 @@ export interface LeafletLayerGroup extends LeafletLayer {
 
 export interface LeafletMap {
   getCenter(): LeafletLatLng;
+  getZoom(): number;
   on(event: string, handler: (e: LeafletMapEvent) => void): this;
   remove(): void;
   invalidateSize(): void;

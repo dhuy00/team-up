@@ -237,7 +237,7 @@ export const OnboardingWizardModal: React.FC = () => {
               })}
             </div>
 
-            <div className="space-y-3 max-h-56 overflow-y-auto custom-scrollbar pr-1">
+            <div className="space-y-3">
               {Object.entries(selectedSports).map(([sportName, cfg]) => (
                 <div
                   key={sportName}

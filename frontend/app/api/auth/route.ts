@@ -5,8 +5,15 @@ import {
   getDbState,
   registerUserAccount,
 } from "@/db/store";
+import { enforceApiRateLimit, validateAuthPayload } from "@/lib/apiSecurity";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const rateLimitRes = enforceApiRateLimit(req, "auth:get", {
+    windowMs: 60_000,
+    maxRequests: 60,
+  });
+  if (rateLimitRes) return rateLimitRes;
+
   const db = getDbState();
   const accounts = db.users.map((u) => ({
     id: u.id,
@@ -18,12 +25,30 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const rateLimitRes = enforceApiRateLimit(req, "auth:write", {
+    windowMs: 60_000,
+    maxRequests: 20,
+  });
+  if (rateLimitRes) return rateLimitRes;
+
   try {
-    const body = await req.json();
+    const raw = await req.json();
+    const validation = validateAuthPayload(raw);
+    if (!validation.valid || !validation.data) {
+      return NextResponse.json(
+        { error: validation.error || "Invalid auth payload" },
+        { status: 400 }
+      );
+    }
+
+    const body = validation.data;
     const { action } = body;
 
     if (action === "login") {
-      const account = authenticateUser(body.email || "", body.password);
+      const account = authenticateUser(
+        String(body.email || ""),
+        typeof body.password === "string" ? body.password : undefined
+      );
       if (!account) {
         return NextResponse.json(
           { error: "Invalid email or password" },
@@ -42,11 +67,16 @@ export async function POST(req: NextRequest) {
 
     if (action === "register") {
       const result = registerUserAccount({
-        name: body.name || "New Player",
-        email: body.email || "",
-        password: body.password || "demo123",
-        username: body.username,
-        location: body.location,
+        name: String(body.name || "New Player"),
+        email: String(body.email || ""),
+        password:
+          typeof body.password === "string" && body.password
+            ? body.password
+            : "demo123",
+        username:
+          typeof body.username === "string" ? body.username : undefined,
+        location:
+          typeof body.location === "string" ? body.location : undefined,
       });
       if (result.error || !result.account) {
         return NextResponse.json(
@@ -68,12 +98,18 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "onboarding") {
-      const updated = completeUserOnboarding(body.userId || body.email || "", {
-        location: body.location,
-        bio: body.bio,
-        sports: body.sports,
-        availability: body.availability,
-      });
+      const updated = completeUserOnboarding(
+        String(body.userId || body.email || ""),
+        {
+          location:
+            typeof body.location === "string" ? body.location : undefined,
+          bio: typeof body.bio === "string" ? body.bio : undefined,
+          sports: Array.isArray(body.sports) ? body.sports : undefined,
+          availability: Array.isArray(body.availability)
+            ? body.availability
+            : undefined,
+        }
+      );
       if (!updated) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
@@ -89,6 +125,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ error: "Unsupported action" }, { status: 400 });
   } catch {
-    return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request payload" },
+      { status: 400 }
+    );
   }
 }

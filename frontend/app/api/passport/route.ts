@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDbState } from "@/db/store";
 import type { UserProfile } from "@/types/models";
+import { enforceApiRateLimit } from "@/lib/apiSecurity";
 
 export async function GET(req: NextRequest) {
+  const rateLimitRes = enforceApiRateLimit(req, "passport:get", {
+    windowMs: 60_000,
+    maxRequests: 120,
+  });
+  if (rateLimitRes) return rateLimitRes;
+
   const { searchParams } = new URL(req.url);
   const username = searchParams.get("username");
   const db = getDbState();
@@ -21,8 +28,20 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  const rateLimitRes = enforceApiRateLimit(req, "passport:write", {
+    windowMs: 60_000,
+    maxRequests: 30,
+  });
+  if (rateLimitRes) return rateLimitRes;
+
   try {
     const updatedProfile = (await req.json()) as UserProfile;
+    if (!updatedProfile || typeof updatedProfile.username !== "string") {
+      return NextResponse.json(
+        { error: "Invalid passport payload" },
+        { status: 400 }
+      );
+    }
     const db = getDbState();
     const idx = db.users.findIndex(
       (u) =>

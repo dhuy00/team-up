@@ -1,4 +1,5 @@
 import { EventActivity, NearbyPlayer } from "@/types/models";
+import type { EventClusterNode } from "@/lib/mapClustering";
 
 export function buildRadarCenterIconHtml(): string {
   return `
@@ -198,6 +199,91 @@ export function createEventPopupElement(
       onSelectEvent(ev);
     });
   }
+
+  return popupEl;
+}
+
+export function buildClusterPinIconHtml(
+  cluster: EventClusterNode,
+  containsSelected: boolean
+): string {
+  const iconsPreview = Array.from(
+    new Set(cluster.events.map((e) => e.icon))
+  )
+    .slice(0, 2)
+    .join("");
+
+  return `
+    <div style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer; transform: ${
+      containsSelected ? "scale(1.15)" : "scale(1)"
+    }; transition: transform 0.15s ease;">
+      <div style="background: #0e0f0c; color: #9fe870; height: 36px; padding: 0 11px; border-radius: 9999px; display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 900; border: 2px solid #9fe870; box-shadow: 0 0 0 2px #0e0f0c, 0 5px 12px rgba(0,0,0,0.3); white-space: nowrap;">
+        <span>${iconsPreview}</span>
+        <span>${cluster.events.length}</span>
+        <span style="font-size: 10px; font-family: monospace; color: #ffffff; opacity: 0.9;">(${cluster.totalConfirmed}/${cluster.totalCapacity})</span>
+      </div>
+      <div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #0e0f0c; margin-top: -1px;"></div>
+    </div>
+  `;
+}
+
+export function createClusterPopupElement(
+  cluster: EventClusterNode,
+  detailsLabel: string,
+  onSelectEvent: (event: EventActivity) => void
+): HTMLDivElement {
+  const popupEl = document.createElement("div");
+  popupEl.style.fontFamily = "'Inter', sans-serif";
+  popupEl.style.minWidth = "225px";
+  popupEl.style.maxWidth = "260px";
+  popupEl.style.padding = "2px";
+
+  const rowsHtml = cluster.events
+    .map(
+      (ev, idx) => `
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; ${
+        idx > 0 ? "border-top: 1px solid rgba(134,134,133,0.2);" : ""
+      }">
+        <div style="min-width: 0; flex: 1;">
+          <div style="font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            ${ev.icon} ${ev.title}
+          </div>
+          <div style="font-size: 10px; opacity: 0.75;">
+            ⏰ ${ev.dateTimeStr} • ${ev.confirmedPlayers}/${ev.maxPlayers}
+          </div>
+        </div>
+        <button
+          type="button"
+          data-event-idx="${idx}"
+          class="radar-cluster-item-btn"
+          style="background: #9fe870; color: #0e0f0c; border: 1.5px solid #0e0f0c; padding: 3px 9px; border-radius: 9999px; font-size: 10px; font-weight: 800; cursor: pointer; flex-shrink: 0;"
+        >
+          ${detailsLabel}
+        </button>
+      </div>
+    `
+    )
+    .join("");
+
+  popupEl.innerHTML = `
+    <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #2ead4b; margin-bottom: 4px;">
+      ⚡ ${cluster.events.length} Matches in Area (${cluster.totalConfirmed}/${cluster.totalCapacity} Spots)
+    </div>
+    <div style="max-height: 165px; overflow-y: auto;">
+      ${rowsHtml}
+    </div>
+  `;
+
+  const buttons = popupEl.querySelectorAll(".radar-cluster-item-btn");
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const idx = Number(btn.getAttribute("data-event-idx"));
+      const targetEv = cluster.events[idx];
+      if (targetEv) {
+        onSelectEvent(targetEv);
+      }
+    });
+  });
 
   return popupEl;
 }
